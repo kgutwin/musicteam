@@ -1,0 +1,85 @@
+# NOTE: This template is intended to be merged with the auto-generated
+# template from Chalice.
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  PrivateSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+
+Resources:
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "access group for musicteam backend DB"
+      VpcId: !Ref VpcId
+  BackendDatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "subnets for musicteam backend"
+      SubnetIds: !Ref PrivateSubnets
+  BackendDatabaseCluster:
+    Type: AWS::RDS::DBCluster
+    DeletionPolicy: Snapshot
+    Properties:
+      Engine: aurora-postgresql
+      EngineVersion: "17.5"
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 0
+        MaxCapacity: 2
+        SecondsUntilAutoPause: 300
+      DBSubnetGroupName: !Ref BackendDatabaseSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref DBSecurityGroup
+      DatabaseName: musicteam
+      EnableHttpEndpoint: true
+      MasterUsername: musicteam
+      ManageMasterUserPassword: true
+  BackendDatabaseDefaultInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora-postgresql
+      DBInstanceClass: db.serverless
+      DBClusterIdentifier: !Ref BackendDatabaseCluster
+      MonitoringInterval: 0
+
+  # inject environment variables
+  APIHandler:
+    Properties:
+      Environment:
+        Variables:
+          AURORA_CLUSTER_ARN: !GetAtt BackendDatabaseCluster.DBClusterArn
+          AURORA_SECRET_ARN: !GetAtt BackendDatabaseCluster.MasterUserSecret.SecretArn
+
+  DefaultRole:
+    Properties:
+      Policies:
+        - PolicyName: DefaultRolePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:*:logs:*:*:*
+
+        - PolicyName: DbAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: CredentialsAccess
+                Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !GetAtt BackendDatabaseCluster.MasterUserSecret.SecretArn
+              - Sid: DataServiceAccess
+                Effect: Allow
+                Action:
+                  - rds-data:BatchExecuteStatement
+                  - rds-data:BeginTransaction
+                  - rds-data:CommitTransaction
+                  - rds-data:ExecuteStatement
+                  - rds-data:RollbackTransaction
+                Resource: !GetAtt BackendDatabaseCluster.DBClusterArn

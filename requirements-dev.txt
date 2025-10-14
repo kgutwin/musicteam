@@ -1,0 +1,6 @@
+chalice
+black
+mypy
+pytest
+py-pglite
+psycopg

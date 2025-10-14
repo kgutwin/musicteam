@@ -1,0 +1,11 @@
+[tool.black]
+
+[tool.mypy]
+mypy_path = "mypy-stubs"
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+testpaths = [
+    "chalicelib",
+    "tests",
+]

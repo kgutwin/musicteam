@@ -1,0 +1,32 @@
+{
+  "name": "musicteam-nuxt",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "prettier --write --list-different . && eslint --ext .ts,.js,.vue . --fix",
+    "lint:tsc": "vue-tsc --noEmit",
+    "lint:prettier": "prettier --check ."
+  },
+  "dependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@sidebase/nuxt-auth": "^1.1.0",
+    "next-auth": "~4.21.1",
+    "nuxt": "^4.1.3",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1"
+  },
+  "prettier": {
+    "semi": false,
+    "printWidth": 88
+  },
+  "devDependencies": {
+    "eslint": "^9.37.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2"
+  }
+}
