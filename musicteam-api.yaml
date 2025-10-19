@@ -167,6 +167,7 @@ components:
           anyOf:
           - type: string
           - type: 'null'
+          default: null
           title: Api Key
       required:
       - id
@@ -175,7 +176,6 @@ components:
       - email
       - picture
       - role
-      - api_key
       title: User
       type: object
   responses:

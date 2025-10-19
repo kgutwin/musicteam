@@ -53,3 +53,11 @@ repos:
         pass_filenames: false
         files: "musicteam/app.py|musicteam/chalicelib"
         types: [file]
+
+      - id: generate-nuxt-api
+        name: generate nuxt api
+        language: system
+        entry: bash -c 'cd musicteam-nuxt; npm run generate-api'
+        pass_filenames: false
+        files: "musicteam/app.py|musicteam/chalicelib|musicteam-api.yaml"
+        types: [file]

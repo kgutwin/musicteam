@@ -37,7 +37,7 @@ class User(BaseModel):
     email: str
     picture: str
     role: Literal["admin", "manager", "leader", "viewer", "pending", "inactive"]
-    api_key: str | None
+    api_key: str | None = None
 
     @classmethod
     def from_token(cls, token: str) -> Self:
