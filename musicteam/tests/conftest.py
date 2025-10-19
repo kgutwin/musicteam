@@ -1,11 +1,9 @@
-from types import MethodType
-from typing import Any
 from json import dumps
+from typing import Any
 
-from chalice.test import Client, TestHTTPClient
 import pytest
-
 from app import app
+from chalice.test import Client
 from chalicelib import db
 
 

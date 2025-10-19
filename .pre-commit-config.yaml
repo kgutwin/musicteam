@@ -1,0 +1,55 @@
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-ast
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        entry: bash -c "MYPYPATH=musicteam/mypy-stubs mypy $@" --
+        args: ["--strict"]
+        exclude: "musicteam/tests/"
+        additional_dependencies:
+          - "aurora-data-api"
+          - "pydantic>2"
+          - "requests-oauthlib"
+          - "google-auth"
+          - "pyjwt"
+          - "chalice"
+          - "py-pglite"
+          - "psycopg"
+          - "types-requests-oauthlib"
+          - "apispec"
+          - "apispec-pydantic-plugin"
+
+  - repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.16.0
+    hooks:
+      - id: reorder-python-imports
+
+  - repo: https://github.com/psf/black
+    rev: 25.9.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.14.1
+    hooks:
+      - id: ruff-check
+        args: ["--fix"]
+
+  - repo: local
+    hooks:
+      - id: generate-apispec
+        name: generate api spec
+        language: system
+        entry: bash -c 'cd musicteam; python generate_apispec.py ../musicteam-api.yaml'
+        pass_filenames: false
+        files: "musicteam/app.py|musicteam/chalicelib"
+        types: [file]

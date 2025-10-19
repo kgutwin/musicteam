@@ -1,3 +1,5 @@
 aurora-data-api
 pydantic>2
-
+requests-oauthlib
+google-auth
+pyjwt

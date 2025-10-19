@@ -1,11 +1,18 @@
-import os
-import os.path
 import contextlib
-from typing import Iterator, Mapping, Any, TypeVar, Generic, overload, cast
+import os.path
+import re
+from typing import Any
+from typing import cast
+from typing import Generic
+from typing import Iterator
+from typing import Mapping
+from typing import overload
+from typing import TypeVar
 
-from pydantic import BaseModel
 import aurora_data_api
+from pydantic import BaseModel
 
+PSYCOPG_PARAM: re.Pattern[str] | None
 try:
     from py_pglite import PGliteManager, PGliteConfig  # type: ignore[import-untyped]
     import psycopg
@@ -20,8 +27,11 @@ try:
     PGLITE_AVAILABLE = True
     PGLITE_MANAGER: PGliteManager | None = None
 
+    PSYCOPG_PARAM = re.compile(r"(?<=[^:]):(\w+)")
+
 except ImportError:
     PGLITE_AVAILABLE = False
+    PSYCOPG_PARAM = None
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -55,8 +65,7 @@ class Interface:
     @overload
     def execute(
         self, sql: str, parameters: Mapping[str, Any] | BaseModel | None = None
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def execute(
@@ -65,8 +74,7 @@ class Interface:
         parameters: Mapping[str, Any] | BaseModel | None = None,
         *,
         output: type[T],
-    ) -> Cursor[T]:
-        ...
+    ) -> Cursor[T]: ...
 
     def execute(
         self,
@@ -75,6 +83,10 @@ class Interface:
         *,
         output: type[T] | None = None,
     ) -> Cursor[T] | None:
+        # if in psycopg mode, replace parameter syntax
+        if PSYCOPG_PARAM is not None:
+            sql = PSYCOPG_PARAM.sub(r"%(\1)s", sql)
+
         curs = self.conn.cursor()
         if isinstance(parameters, BaseModel):
             parameters = parameters.dict()

@@ -1,9 +1,7 @@
 <template>
   <h2>Login</h2>
   <div>
-    <button class="btn-gray" @click="signIn('google', { callbackUrl: '/songs' })">
-      Sign in with Google
-    </button>
+    <a href="/api/auth/google" class="btn-gray"> Sign in with Google </a>
   </div>
 </template>
 
@@ -11,4 +9,12 @@
 definePageMeta({ auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: "/" } })
 
 const { signIn } = useAuth()
+const route = useRoute()
+
+watchEffect(() => {
+  if (route?.query?.complete) {
+    console.log("signing in")
+    signIn({}, { redirect: "/", external: true })
+  }
+})
 </script>

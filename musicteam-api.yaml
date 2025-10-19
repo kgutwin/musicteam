@@ -1,0 +1,195 @@
+info:
+  description: a music management tool
+  title: MusicTeam
+  version: 0.1.0
+paths:
+  /:
+    get:
+      operationId: index
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+  /admin/db-upgrade/{ver}:
+    post:
+      operationId: db_upgrade
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+    parameters:
+    - name: ver
+      in: path
+      required: true
+      schema:
+        type: string
+  /auth/callback:
+    get:
+      operationId: auth.auth_callback
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '302':
+          $ref: '#/components/responses/Found'
+  /auth/google:
+    get:
+      operationId: auth.auth_google
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '302':
+          $ref: '#/components/responses/Found'
+  /auth/login:
+    post:
+      operationId: auth.auth_login
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /auth/logout:
+    post:
+      operationId: auth.auth_logout
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /auth/session:
+    get:
+      operationId: auth.auth_session
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /names/{name}:
+    post:
+      operationId: names
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '200':
+          content:
+            application/json:
+              schema: &id001
+                $ref: '#/components/schemas/TestRow'
+      requestBody:
+        content:
+          application/json:
+            schema: *id001
+    parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+openapi: 3.0.2
+components:
+  schemas:
+    LoginResponse:
+      properties:
+        token:
+          title: Token
+          type: string
+      required:
+      - token
+      title: LoginResponse
+      type: object
+    ServerError:
+      properties:
+        error:
+          title: Error
+          type: string
+        detail:
+          title: Detail
+          type: string
+      required:
+      - error
+      - detail
+      title: ServerError
+      type: object
+    TestRow:
+      properties:
+        count:
+          title: Count
+          type: integer
+      required:
+      - count
+      title: TestRow
+      type: object
+    User:
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        provider_id:
+          title: Provider Id
+          type: string
+        email:
+          title: Email
+          type: string
+        picture:
+          title: Picture
+          type: string
+        role:
+          enum:
+          - admin
+          - manager
+          - leader
+          - viewer
+          - pending
+          - inactive
+          title: Role
+          type: string
+        api_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Api Key
+      required:
+      - id
+      - name
+      - provider_id
+      - email
+      - picture
+      - role
+      - api_key
+      title: User
+      type: object
+  responses:
+    Error:
+      description: Error. Something went wrong on the server side.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
+    Forbidden:
+      description: Forbidden. Based on your user permissions, you may not perform
+        this operation.
+    Found:
+      description: Found. The URI of the requested resource has been changed temporarily.
+    NoContent:
+      description: No Content. The request was successful but there is nothing to
+        return.

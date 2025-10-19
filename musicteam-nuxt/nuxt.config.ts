@@ -5,16 +5,25 @@ export default defineNuxtConfig({
   ssr: false,
   modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth"],
 
-  routeRules: {
-    "/api/**": { proxy: "http://127.0.0.1:8000/**" },
+  // routeRules: {
+  //   "/api/**": { proxy: "http://127.0.0.1:8000/**" },
+  // },
+  nitro: {
+    devProxy: {
+      "/api": "http://127.0.0.1:8000",
+    },
   },
 
   auth: {
+    isEnabled: true,
+    baseURL: "/api/auth",
+
     // protect all pages by default
     globalAppMiddleware: true,
 
-    originEnvKey: "/api/auth",
     provider: {
+      // type: "authjs",
+      // addDefaultCallbackUrl: true,
       type: "local",
       endpoints: {
         signIn: { path: "/login", method: "post" },

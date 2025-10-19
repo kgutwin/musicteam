@@ -8,9 +8,12 @@
       </button>
       <NuxtLink v-else to="/login">Sign In</NuxtLink>
     </div>
+    <div v-if="authData?.picture">
+      <img :src="authData.picture" class="h-12 w-12 rounded-full" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const { status, signOut } = useAuth()
+const { status, signOut, data: authData } = useAuth()
 </script>

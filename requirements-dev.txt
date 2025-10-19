@@ -4,3 +4,7 @@ mypy
 pytest
 py-pglite
 psycopg
+types-requests-oauthlib
+apispec
+apispec-pydantic-plugin
+pre-commit

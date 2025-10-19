@@ -34,6 +34,3 @@ aws cloudformation deploy \
     --stack-name musicteam \
     --parameter-overrides VpcId=$AWS_VPC PrivateSubnets=$AWS_SUBNETS \
     --capabilities CAPABILITY_IAM
-
-
-

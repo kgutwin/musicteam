@@ -1,10 +1,15 @@
-import time
 import inspect
+import time
 from http.cookies import SimpleCookie
-from typing import Any, Callable, TypeVar, Self, Mapping
+from typing import Any
+from typing import Callable
+from typing import Mapping
+from typing import Self
+from typing import TypeVar
 
-from chalice.app import Chalice, Request, Response
-
+from chalice.app import Chalice
+from chalice.app import Request
+from chalice.app import Response
 from chalicelib import db
 
 T = TypeVar("T")
@@ -24,7 +29,7 @@ class CookieJar:
     >>> c.should_set
     True
     >>> c.set_header  # doctest: +NORMALIZE_WHITESPACE
-    {'Set-Cookie': ['baz="something \\\\"new\\\\""; HttpOnly; SameSite=Strict; Secure',
+    {'Set-Cookie': ['baz="something \\\\"new\\\\""; HttpOnly; SameSite=Strict',
                     'foo=bar']}
 
     """
@@ -45,8 +50,8 @@ class CookieJar:
     def __setitem__(self, key: str, value: str) -> None:
         self._cookie[key] = value
         self._cookie[key]["httponly"] = True
-        self._cookie[key]["secure"] = True
-        self._cookie[key]["samesite"] = "Strict"
+        # self._cookie[key]["secure"] = True
+        # self._cookie[key]["samesite"] = "Strict"
         self._dirty = True
 
     def __repr__(self) -> str:
@@ -69,26 +74,6 @@ def register(app: Chalice) -> None:
             time.sleep(1)
         return get_response(event)
 
-    original_route = app.route
-
-    def route(path: str, **options: Any) -> Callable[[Callable[..., Any]], Any]:
-        def do_route(func: Callable[..., Any]) -> Any:
-            rv = original_route(path, **options)(func)
-            try:
-                for method in options["methods"]:
-                    route = app.routes[path][method]
-                    sig = inspect.signature(route.view_function)
-                    if "request_body" in sig.parameters:
-                        route.view_args.append("request_body")
-
-            except KeyError:
-                pass
-            return rv
-
-        return do_route
-
-    setattr(app, "route", route)
-
     @app.middleware("http")
     def handle_modeled_body(
         event: Request, get_response: Callable[[Request], Response]
@@ -102,6 +87,8 @@ def register(app: Chalice) -> None:
 
         sig = inspect.signature(route.view_function)
         if "request_body" in sig.parameters:
+            if "request_body" not in route.view_args:
+                route.view_args.append("request_body")
             klass = sig.parameters["request_body"].annotation
             if hasattr(klass, "model_validate"):
                 request_body = klass.model_validate(event.json_body)
