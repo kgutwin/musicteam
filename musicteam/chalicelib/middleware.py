@@ -3,6 +3,7 @@ import time
 from http.cookies import SimpleCookie
 from typing import Any
 from typing import Callable
+from typing import cast
 from typing import Mapping
 from typing import Self
 from typing import TypeVar
@@ -11,6 +12,8 @@ from chalice.app import Chalice
 from chalice.app import Request
 from chalice.app import Response
 from chalicelib import db
+from chalicelib.types import User
+from chalicelib.types import UserRole
 
 T = TypeVar("T")
 
@@ -115,3 +118,19 @@ def register(app: Chalice) -> None:
             response.headers.update(cookie_jar.set_header)
 
         return response
+
+    @app.middleware("http")
+    def add_user_session(
+        event: Request, get_response: Callable[[Request], Response]
+    ) -> Response:
+        if "cookies" in event.context and "session" in event.context["cookies"]:
+            user = User.from_token(event.context["cookies"]["session"])
+            event.context["user"] = user
+
+        return get_response(event)
+
+
+def session_role(request: Request, role: UserRole) -> bool:
+    if "user" not in request.context:
+        return False
+    return cast(User, request.context["user"]).has_role(role)

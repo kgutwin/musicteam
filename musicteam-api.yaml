@@ -77,27 +77,39 @@ paths:
         '200':
           content:
             application/json:
-              schema:
+              schema: &id001
                 $ref: '#/components/schemas/User'
         '204':
           $ref: '#/components/responses/NoContent'
-  /names/{name}:
-    post:
-      operationId: names
+  /users:
+    get:
+      operationId: users.list_users
       responses:
         '500':
           $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           content:
             application/json:
-              schema: &id001
-                $ref: '#/components/schemas/TestRow'
-      requestBody:
-        content:
-          application/json:
-            schema: *id001
+              schema:
+                $ref: '#/components/schemas/UserList'
+  /users/{user_id}:
+    get:
+      operationId: users.get_user
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id001
     parameters:
-    - name: name
+    - name: user_id
       in: path
       required: true
       schema:
@@ -126,15 +138,6 @@ components:
       - error
       - detail
       title: ServerError
-      type: object
-    TestRow:
-      properties:
-        count:
-          title: Count
-          type: integer
-      required:
-      - count
-      title: TestRow
       type: object
     User:
       properties:
@@ -178,6 +181,17 @@ components:
       - role
       title: User
       type: object
+    UserList:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/User'
+          title: Users
+          type: array
+      required:
+      - users
+      title: UserList
+      type: object
   responses:
     Error:
       description: Error. Something went wrong on the server side.
@@ -193,3 +207,5 @@ components:
     NoContent:
       description: No Content. The request was successful but there is nothing to
         return.
+    NotFound:
+      description: Not Found. The requested resource does not exist.

@@ -24,12 +24,6 @@ export interface ServerError {
   detail: string;
 }
 
-/** TestRow */
-export interface TestRow {
-  /** Count */
-  count: number;
-}
-
 /** User */
 export interface User {
   /** Id */
@@ -49,6 +43,12 @@ export interface User {
    * @default null
    */
   api_key?: string | null;
+}
+
+/** UserList */
+export interface UserList {
+  /** Users */
+  users: User[];
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -412,19 +412,31 @@ export class Api<
         ...params,
       }),
   };
-  names = {
+  users = {
     /**
      * No description
      *
-     * @name Names
-     * @request POST:/names/{name}
+     * @name ListUsers
+     * @request GET:/users
      */
-    names: (name: string, data: TestRow, params: RequestParams = {}) =>
-      this.request<TestRow, void>({
-        path: `/names/${name}`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
+    listUsers: (params: RequestParams = {}) =>
+      this.request<UserList, void>({
+        path: `/users`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetUser
+     * @request GET:/users/{user_id}
+     */
+    getUser: (userId: string, params: RequestParams = {}) =>
+      this.request<User, void>({
+        path: `/users/${userId}`,
+        method: "GET",
         format: "json",
         ...params,
       }),

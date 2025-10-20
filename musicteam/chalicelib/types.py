@@ -22,12 +22,11 @@ class ServerError(BaseModel):
     detail: str
 
 
-class TestRow(BaseModel):
-    count: int
-
-
 class LoginResponse(BaseModel):
     token: str
+
+
+UserRole = Literal["admin", "manager", "leader", "viewer", "pending", "inactive"]
 
 
 class User(BaseModel):
@@ -36,7 +35,7 @@ class User(BaseModel):
     provider_id: str
     email: str
     picture: str
-    role: Literal["admin", "manager", "leader", "viewer", "pending", "inactive"]
+    role: UserRole
     api_key: str | None = None
 
     @classmethod
@@ -53,6 +52,22 @@ class User(BaseModel):
             SITE_SECRET,
             algorithm="HS256",
         )
+
+    def has_role(self, role: UserRole) -> bool:
+        """True if this user's role is equal or higher to the provided role."""
+        role_order: list[UserRole] = [
+            "admin",
+            "manager",
+            "leader",
+            "viewer",
+            "pending",
+            "inactive",
+        ]
+        return role_order.index(self.role) <= role_order.index(role)
+
+
+class UserList(BaseModel):
+    users: list[User]
 
 
 # Chalice response types
@@ -83,6 +98,12 @@ class Forbidden(KnownResponse):
     """Forbidden. Based on your user permissions, you may not perform this operation."""
 
     _code = 403
+
+
+class NotFound(KnownResponse):
+    """Not Found. The requested resource does not exist."""
+
+    _code = 404
 
 
 class Error(KnownResponse):
