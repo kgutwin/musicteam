@@ -60,6 +60,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /auth/logout:
     post:
       operationId: auth.auth_logout
@@ -77,10 +79,76 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id001
+              schema: &id002
                 $ref: '#/components/schemas/User'
         '204':
           $ref: '#/components/responses/NoContent'
+  /songs:
+    get:
+      operationId: songs.list_songs
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongList'
+    post:
+      operationId: songs.new_song
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id001
+                $ref: '#/components/schemas/Song'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSong'
+  /songs/{song_id}:
+    get:
+      operationId: songs.get_song
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id001
+    put:
+      operationId: songs.update_song
+      responses:
+        '500':
+          $ref: '#/components/responses/error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSong'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
   /users:
     get:
       operationId: users.list_users
@@ -107,7 +175,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id001
+              schema: *id002
     parameters:
     - name: user_id
       in: path
@@ -126,18 +194,122 @@ components:
       - token
       title: LoginResponse
       type: object
+    NewSong:
+      properties:
+        title:
+          title: Title
+          type: string
+        credits:
+          title: Credits
+          type: string
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - title
+      - credits
+      - ccli_num
+      - tags
+      title: NewSong
+      type: object
     ServerError:
       properties:
-        error:
-          title: Error
+        Code:
+          title: Code
           type: string
-        detail:
-          title: Detail
+        Message:
+          title: Message
           type: string
       required:
-      - error
-      - detail
+      - Code
+      - Message
       title: ServerError
+      type: object
+    Song:
+      properties:
+        title:
+          title: Title
+          type: string
+        credits:
+          title: Credits
+          type: string
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+      required:
+      - title
+      - credits
+      - ccli_num
+      - tags
+      - id
+      - created_on
+      - creator_id
+      title: Song
+      type: object
+    SongList:
+      properties:
+        songs:
+          items:
+            $ref: '#/components/schemas/Song'
+          title: Songs
+          type: array
+      required:
+      - songs
+      title: SongList
+      type: object
+    UpdateSong:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
+        credits:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Credits
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: CCLI Number
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+      title: UpdateSong
       type: object
     User:
       properties:

@@ -10,16 +10,27 @@ import jwt
 from chalice.app import HeadersType
 from chalice.app import Response
 from pydantic import BaseModel
+from pydantic import Field
 
 SITE_SECRET = os.environ["SITE_SECRET"]
+
+
+class _ReplacementModel(BaseModel):
+    @property
+    def replacement_sql(self) -> str:
+        return ", ".join(f"{field} = :{field}" for field in self.model_fields_set)
+
+    @property
+    def replacement_params(self) -> dict[str, Any]:
+        return {field: getattr(self, field) for field in self.model_fields_set}
 
 
 # API Models
 
 
 class ServerError(BaseModel):
-    error: str
-    detail: str
+    Code: str
+    Message: str
 
 
 class LoginResponse(BaseModel):
@@ -68,6 +79,30 @@ class User(BaseModel):
 
 class UserList(BaseModel):
     users: list[User]
+
+
+class NewSong(BaseModel):
+    title: str
+    credits: str
+    ccli_num: int | None = Field(title="CCLI Number")
+    tags: list[str]
+
+
+class UpdateSong(_ReplacementModel):
+    title: str | None = None
+    credits: str | None = None
+    ccli_num: int | None = Field(None, title="CCLI Number")
+    tags: list[str] | None = None
+
+
+class Song(NewSong):
+    id: str
+    created_on: datetime
+    creator_id: str
+
+
+class SongList(BaseModel):
+    songs: list[Song]
 
 
 # Chalice response types

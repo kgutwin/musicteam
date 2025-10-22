@@ -42,6 +42,10 @@ class Cursor(Generic[T]):
         self.curs = curs
         self.model = model
 
+    @property
+    def rowcount(self) -> int:
+        return self.curs.rowcount
+
     def __iter__(self) -> Iterator[T]:
         assert self.curs.description is not None
         for row in self.curs:
@@ -65,7 +69,7 @@ class Interface:
     @overload
     def execute(
         self, sql: str, parameters: Mapping[str, Any] | BaseModel | None = None
-    ) -> None: ...
+    ) -> int: ...
 
     @overload
     def execute(
@@ -82,19 +86,19 @@ class Interface:
         parameters: Mapping[str, Any] | BaseModel | None = None,
         *,
         output: type[T] | None = None,
-    ) -> Cursor[T] | None:
+    ) -> Cursor[T] | int:
         # if in psycopg mode, replace parameter syntax
         if PSYCOPG_PARAM is not None:
             sql = PSYCOPG_PARAM.sub(r"%(\1)s", sql)
 
         curs = self.conn.cursor()
         if isinstance(parameters, BaseModel):
-            parameters = parameters.dict()
+            parameters = parameters.model_dump()
         curs.execute(sql, parameters)
         if output is not None:
             return Cursor(curs, output)
         else:
-            return None
+            return curs.rowcount
 
 
 @contextlib.contextmanager

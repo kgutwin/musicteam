@@ -50,9 +50,14 @@ class CookieJar:
     def __getitem__(self, key: str) -> str:
         return self._cookie[key].value
 
-    def __setitem__(self, key: str, value: str) -> None:
-        self._cookie[key] = value
+    def __setitem__(self, key: str, value: str | None) -> None:
+        if not value:
+            self._cookie[key] = ""
+            self._cookie[key]["max-age"] = 0
+        else:
+            self._cookie[key] = value
         self._cookie[key]["httponly"] = True
+        self._cookie[key]["path"] = "/"
         # self._cookie[key]["secure"] = True
         # self._cookie[key]["samesite"] = "Strict"
         self._dirty = True
@@ -63,6 +68,10 @@ class CookieJar:
     @property
     def should_set(self) -> bool:
         return self._dirty
+
+    @should_set.setter
+    def should_set(self, val: bool) -> None:
+        self._dirty = True
 
     @property
     def set_header(self) -> dict[str, list[str]]:
@@ -123,8 +132,17 @@ def register(app: Chalice) -> None:
     def add_user_session(
         event: Request, get_response: Callable[[Request], Response]
     ) -> Response:
-        if "cookies" in event.context and "session" in event.context["cookies"]:
-            user = User.from_token(event.context["cookies"]["session"])
+        token = None
+        try:
+            token = event.context["cookies"]["session"]
+        except KeyError:
+            try:
+                token = event.context["cookies"]["auth.token"]
+            except KeyError:
+                pass
+
+        if token is not None:
+            user = User.from_token(token)
             event.context["user"] = user
 
         return get_response(event)

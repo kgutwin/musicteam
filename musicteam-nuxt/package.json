@@ -10,7 +10,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "prettier --write --list-different . && eslint --ext .ts,.js,.vue . --fix",
-    "lint:tsc": "vue-tsc --noEmit",
+    "lint:tsc": "nuxt prepare && vue-tsc -b --noEmit",
     "lint:prettier": "prettier --check ."
   },
   "dependencies": {
@@ -31,6 +31,8 @@
     "eslint": "^9.37.0",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
-    "swagger-typescript-api": "^13.2.15"
+    "swagger-typescript-api": "^13.2.15",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.1.1"
   }
 }

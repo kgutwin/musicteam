@@ -4,6 +4,7 @@ from chalice.app import Chalice
 from chalicelib import db
 from chalicelib import middleware
 from chalicelib.blueprints import auth
+from chalicelib.blueprints import songs
 from chalicelib.blueprints import users
 
 app = Chalice(app_name="musicteam")
@@ -11,6 +12,7 @@ app = Chalice(app_name="musicteam")
 middleware.register(app)
 app.register_blueprint(auth.bp)
 app.register_blueprint(users.bp)
+app.register_blueprint(songs.bp)
 
 
 @app.route("/")

@@ -14,5 +14,16 @@ h2 {
 }
 
 .btn-gray {
-  @apply border border-slate-500 rounded-lg p-4;
+  @apply border border-slate-500 rounded-lg px-4 py-2 bg-slate-200;
+}
+
+.tbl-definition {
+  @apply bg-slate-200 my-4 shadow-lg;
+
+  & td {
+    @apply px-4 py-2;
+  }
+  & td:first-child {
+    @apply font-bold text-right;
+  }
 }

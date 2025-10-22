@@ -61,3 +61,11 @@ repos:
         pass_filenames: false
         files: "musicteam/app.py|musicteam/chalicelib|musicteam-api.yaml"
         types: [file]
+
+      - id: typecheck
+        name: nuxt typecheck
+        language: system
+        entry: bash -c 'cd musicteam-nuxt; npm run lint:tsc'
+        pass_filenames: false
+        files: "musicteam-nuxt/app"
+        types: [file]

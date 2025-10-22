@@ -14,7 +14,7 @@ const route = useRoute()
 watchEffect(() => {
   if (route?.query?.complete) {
     console.log("signing in")
-    signIn({}, { redirect: "/", external: true })
+    signIn({}, { redirect: true, callbackUrl: "/" })
   }
 })
 </script>

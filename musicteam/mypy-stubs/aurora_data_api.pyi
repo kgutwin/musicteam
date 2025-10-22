@@ -10,6 +10,8 @@ ColumnDescription = namedtuple(
 class AuroraDataAPICursor:
     description: ColumnDescription
 
+    @property
+    def rowcount(self) -> int: ...
     def execute(
         self, operation: str, parameters: Mapping[str, Any] | None = None
     ) -> None: ...

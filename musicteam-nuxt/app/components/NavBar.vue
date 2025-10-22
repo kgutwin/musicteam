@@ -1,15 +1,29 @@
 <template>
-  <div class="p-8 text-xl bg-blue-200 flex flex-row gap-4">
-    <div><NuxtLink to="/">MusicTeam</NuxtLink></div>
-    <div class="grow"><NuxtLink to="/songs">Songs</NuxtLink></div>
-    <div>
-      <button v-if="status === 'authenticated'" @click="signOut({ callbackUrl: '/' })">
-        Logout
-      </button>
-      <NuxtLink v-else to="/login">Sign In</NuxtLink>
+  <div
+    class="px-8 py-4 text-xl bg-gradient-to-tr from-blue-300 to-sky-200 flex flex-row gap-4 items-baseline"
+  >
+    <div
+      class="text-3xl italic font-extrabold tracking-tight text-sky-700 bg-sky-100 rounded-lg shadow-lg px-4 py-1 mr-12"
+    >
+      <NuxtLink to="/">MusicTeam</NuxtLink>
     </div>
-    <div v-if="authData?.picture">
-      <img :src="authData.picture" class="h-12 w-12 rounded-full" />
+    <div class="grow flex flex-row gap-4 font-semibold tracking-wide">
+      <NuxtLink to="/songs">Songs</NuxtLink>
+      <NuxtLink to="/team">Team</NuxtLink>
+    </div>
+    <div v-if="status === 'authenticated' && authData" class="self-start">
+      <NuxtLink to="/my/profile">
+        <img
+          v-if="authData?.picture"
+          :src="authData.picture"
+          class="h-12 w-12 rounded-full"
+          referrerpolicy="no-referrer"
+        />
+        <span v-else>{{ authData.name.split(/\s+/)[0] }}</span>
+      </NuxtLink>
+    </div>
+    <div v-else>
+      <NuxtLink to="/login">Sign In</NuxtLink>
     </div>
   </div>
 </template>

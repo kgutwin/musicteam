@@ -27,7 +27,11 @@ def generate() -> str:
     for model in [getattr(types, e) for e in dir(types)]:
         if not inspect.isclass(model):
             continue
-        if issubclass(model, BaseModel) and model is not BaseModel:
+        if (
+            issubclass(model, BaseModel)
+            and model is not BaseModel
+            and not model.__name__.startswith("_")
+        ):
             spec.components.schema(model.__name__, schema=model)
             Registry.register(model)
         elif (

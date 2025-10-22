@@ -90,10 +90,13 @@ def auth_callback() -> Forbidden | Found:
 
 
 @bp.route("/auth/login", methods=["POST"])
-def auth_login() -> LoginResponse:
+def auth_login() -> LoginResponse | Forbidden:
     # check the session cookie and return any necessary response
-    token = bp.current_request.context["cookies"]["session"]
-    return LoginResponse(token=token)
+    try:
+        token = bp.current_request.context["cookies"]["session"]
+        return LoginResponse(token=token)
+    except KeyError:
+        return Forbidden()
 
 
 @bp.route("/auth/logout", methods=["POST"])
@@ -110,3 +113,8 @@ def auth_session() -> User | NoContent:
         return User.from_token(token)
     except KeyError:
         return NoContent()
+
+
+# TODO: consider de-duplicating the auth.token (nuxt auth stuff)
+# cookie from our own session cookie, possibly using nuxt auth session
+# refresh

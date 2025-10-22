@@ -16,12 +16,75 @@ export interface LoginResponse {
   token: string;
 }
 
+/** NewSong */
+export interface NewSong {
+  /** Title */
+  title: string;
+  /** Credits */
+  credits: string;
+  /** CCLI Number */
+  ccli_num: number | null;
+  /** Tags */
+  tags: string[];
+}
+
 /** ServerError */
 export interface ServerError {
-  /** Error */
-  error: string;
-  /** Detail */
-  detail: string;
+  /** Code */
+  Code: string;
+  /** Message */
+  Message: string;
+}
+
+/** Song */
+export interface Song {
+  /** Title */
+  title: string;
+  /** Credits */
+  credits: string;
+  /** CCLI Number */
+  ccli_num: number | null;
+  /** Tags */
+  tags: string[];
+  /** Id */
+  id: string;
+  /**
+   * Created On
+   * @format date-time
+   */
+  created_on: string;
+  /** Creator Id */
+  creator_id: string;
+}
+
+/** SongList */
+export interface SongList {
+  /** Songs */
+  songs: Song[];
+}
+
+/** UpdateSong */
+export interface UpdateSong {
+  /**
+   * Title
+   * @default null
+   */
+  title?: string | null;
+  /**
+   * Credits
+   * @default null
+   */
+  credits?: string | null;
+  /**
+   * CCLI Number
+   * @default null
+   */
+  ccli_num?: number | null;
+  /**
+   * Tags
+   * @default null
+   */
+  tags?: string[] | null;
 }
 
 /** User */
@@ -409,6 +472,70 @@ export class Api<
         path: `/auth/session`,
         method: "GET",
         format: "json",
+        ...params,
+      }),
+  };
+  songs = {
+    /**
+     * No description
+     *
+     * @name ListSongs
+     * @request GET:/songs
+     */
+    listSongs: (params: RequestParams = {}) =>
+      this.request<SongList, void>({
+        path: `/songs`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name NewSong
+     * @request POST:/songs
+     */
+    newSong: (data: NewSong, params: RequestParams = {}) =>
+      this.request<Song, void>({
+        path: `/songs`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetSong
+     * @request GET:/songs/{song_id}
+     */
+    getSong: (songId: string, params: RequestParams = {}) =>
+      this.request<Song, void>({
+        path: `/songs/${songId}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name UpdateSong
+     * @request PUT:/songs/{song_id}
+     */
+    updateSong: (
+      songId: string,
+      data: UpdateSong,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, void>({
+        path: `/songs/${songId}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };
