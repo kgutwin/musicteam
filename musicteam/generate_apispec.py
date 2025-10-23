@@ -78,7 +78,7 @@ def generate() -> str:
                     + operation_id
                 )
 
-            responses: dict[str, Any] = {"500": "error"}
+            responses: dict[str, Any] = {"500": "Error"}
 
             return_types = (
                 get_args(sig.return_annotation)

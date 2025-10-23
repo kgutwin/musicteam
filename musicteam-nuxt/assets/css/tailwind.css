@@ -27,3 +27,15 @@ h2 {
     @apply font-bold text-right;
   }
 }
+
+.frm-edit {
+  @apply block bg-sky-100 my-4 px-4 py-2 shadow-lg;
+
+  & label {
+    @apply flex flex-col m-2 font-semibold;
+  }
+}
+
+.inp-text {
+  @apply font-normal rounded-lg px-2 py-1;
+}

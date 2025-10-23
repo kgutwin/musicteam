@@ -110,7 +110,7 @@ def register(app: Chalice) -> None:
 
         response = get_response(event)
         if hasattr(response.body, "model_dump"):
-            response.body = response.body.model_dump()
+            response.body = response.body.model_dump(mode="json")
 
         return response
 
@@ -146,6 +146,12 @@ def register(app: Chalice) -> None:
             event.context["user"] = user
 
         return get_response(event)
+
+
+def session_user(request: Request) -> User:
+    if "user" not in request.context:
+        return User.unauthenticated()
+    return cast(User, request.context["user"])
 
 
 def session_role(request: Request, role: UserRole) -> bool:

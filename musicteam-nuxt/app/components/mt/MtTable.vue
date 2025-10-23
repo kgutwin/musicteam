@@ -34,12 +34,16 @@ defineProps<{
     @apply divide-y border border-gray-300;
 
     & tr td {
-      @apply py-2;
+      @apply p-2;
     }
   }
 
   & thead {
     @apply bg-slate-200 text-left;
+
+    & tr th {
+      @apply p-2;
+    }
   }
 }
 </style>

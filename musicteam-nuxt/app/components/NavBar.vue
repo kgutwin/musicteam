@@ -16,6 +16,7 @@
         <img
           v-if="authData?.picture"
           :src="authData.picture"
+          :alt="authData.name"
           class="h-12 w-12 rounded-full"
           referrerpolicy="no-referrer"
         />

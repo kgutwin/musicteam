@@ -8,7 +8,7 @@ paths:
       operationId: index
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '200':
           content:
             application/json:
@@ -19,7 +19,7 @@ paths:
       operationId: db_upgrade
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '200':
           content:
             application/json:
@@ -36,7 +36,7 @@ paths:
       operationId: auth.auth_callback
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '302':
@@ -46,7 +46,7 @@ paths:
       operationId: auth.auth_google
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '302':
           $ref: '#/components/responses/Found'
   /auth/login:
@@ -54,7 +54,7 @@ paths:
       operationId: auth.auth_login
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '200':
           content:
             application/json:
@@ -67,7 +67,7 @@ paths:
       operationId: auth.auth_logout
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '204':
           $ref: '#/components/responses/NoContent'
   /auth/session:
@@ -75,20 +75,526 @@ paths:
       operationId: auth.auth_session
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
+        '200':
+          content:
+            application/json:
+              schema: &id010
+                $ref: '#/components/schemas/User'
+        '204':
+          $ref: '#/components/responses/NoContent'
+  /comments/{resource_id}:
+    get:
+      operationId: comments.list_comments
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentList'
+    post:
+      operationId: comments.new_comment
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id001
+                $ref: '#/components/schemas/Comment'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewComment'
+    parameters:
+    - name: resource_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /comments/{resource_id}/{comment_id}:
+    get:
+      operationId: comments.get_comment
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id001
+    put:
+      operationId: comments.update_comment
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateComment'
+    delete:
+      operationId: comments.delete_comment
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: resource_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: comment_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlistTemplates:
+    get:
+      operationId: setlists.list_setlist_templates
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistTemplateList'
+    post:
+      operationId: setlists.new_setlist_template
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           content:
             application/json:
               schema: &id002
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/SetlistTemplate'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlistTemplate'
+  /setlistTemplates/{template_id}:
+    get:
+      operationId: setlists.get_setlist_template
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id002
+    put:
+      operationId: setlists.update_setlist_template
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistTemplate'
+    delete:
+      operationId: setlists.delete_setlist_template
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlistTemplates/{template_id}/pos:
+    get:
+      operationId: setlists.list_setlist_template_positions
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistTemplatePositionList'
+    post:
+      operationId: setlists.new_setlist_template_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id003
+                $ref: '#/components/schemas/SetlistTemplatePosition'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlistTemplatePosition'
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlistTemplates/{template_id}/pos/{position_id}:
+    get:
+      operationId: setlists.get_setlist_template_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id003
+    put:
+      operationId: setlists.update_setlist_template_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistTemplatePosition'
+    delete:
+      operationId: setlists.delete_setlist_template_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: position_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists:
+    get:
+      operationId: setlists.list_setlists
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistList'
+    post:
+      operationId: setlists.new_setlist
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id004
+                $ref: '#/components/schemas/Setlist'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlist'
+  /setlists/{setlist_id}:
+    get:
+      operationId: setlists.get_setlist
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id004
+    put:
+      operationId: setlists.update_setlist
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlist'
+    delete:
+      operationId: setlists.delete_setlist
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/pos:
+    get:
+      operationId: setlists.list_setlist_positions
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistPositionList'
+    post:
+      operationId: setlists.new_setlist_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id005
+                $ref: '#/components/schemas/SetlistPosition'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlistPosition'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/pos/{position_id}:
+    get:
+      operationId: setlists.get_setlist_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id005
+    put:
+      operationId: setlists.update_setlist_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistPosition'
+    delete:
+      operationId: setlists.delete_setlist_position
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: position_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/sheets:
+    get:
+      operationId: setlists.list_setlist_sheets
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistSheetList'
+    post:
+      operationId: setlists.new_setlist_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id006
+                $ref: '#/components/schemas/SetlistSheet'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlistSheet'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/sheets/{sheet_id}:
+    get:
+      operationId: setlists.get_setlist_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id006
+    put:
+      operationId: setlists.update_setlist_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistSheet'
+    delete:
+      operationId: setlists.delete_setlist_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: sheet_id
+      in: path
+      required: true
+      schema:
+        type: string
   /songs:
     get:
       operationId: songs.list_songs
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '200':
@@ -100,13 +606,13 @@ paths:
       operationId: songs.new_song
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '200':
           content:
             application/json:
-              schema: &id001
+              schema: &id007
                 $ref: '#/components/schemas/Song'
       requestBody:
         content:
@@ -118,7 +624,7 @@ paths:
       operationId: songs.get_song
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -126,12 +632,12 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id001
+              schema: *id007
     put:
       operationId: songs.update_song
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -143,8 +649,205 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateSong'
+    delete:
+      operationId: songs.delete_song
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
     parameters:
     - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /songs/{song_id}/versions:
+    get:
+      operationId: songs.list_song_versions
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongVersionList'
+    post:
+      operationId: songs.new_song_version
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id008
+                $ref: '#/components/schemas/SongVersion'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSongVersion'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /songs/{song_id}/versions/{version_id}:
+    get:
+      operationId: songs.get_song_version
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id008
+    put:
+      operationId: songs.update_song_version
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSongVersion'
+    delete:
+      operationId: songs.delete_song_version
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /songs/{song_id}/versions/{version_id}/sheets:
+    get:
+      operationId: songs.list_song_sheets
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongSheetList'
+    post:
+      operationId: songs.new_song_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id009
+                $ref: '#/components/schemas/SongSheet'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSongSheet'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /songs/{song_id}/versions/{version_id}/sheets/{sheet_id}:
+    get:
+      operationId: songs.get_song_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id009
+    put:
+      operationId: songs.update_song_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSongSheet'
+    delete:
+      operationId: songs.delete_song_sheet
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: sheet_id
       in: path
       required: true
       schema:
@@ -154,7 +857,7 @@ paths:
       operationId: users.list_users
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '200':
@@ -167,7 +870,7 @@ paths:
       operationId: users.get_user
       responses:
         '500':
-          $ref: '#/components/responses/error'
+          $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -175,7 +878,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id002
+              schema: *id010
     parameters:
     - name: user_id
       in: path
@@ -185,6 +888,43 @@ paths:
 openapi: 3.0.2
 components:
   schemas:
+    Comment:
+      properties:
+        comment:
+          title: Comment
+          type: string
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+        resource_id:
+          title: Resource Id
+          type: string
+      required:
+      - comment
+      - id
+      - created_on
+      - creator_id
+      - resource_id
+      title: Comment
+      type: object
+    CommentList:
+      properties:
+        comments:
+          items:
+            $ref: '#/components/schemas/Comment'
+          title: Comments
+          type: array
+      required:
+      - comments
+      title: CommentList
+      type: object
     LoginResponse:
       properties:
         token:
@@ -194,30 +934,214 @@ components:
       - token
       title: LoginResponse
       type: object
-    NewSong:
+    NewComment:
+      properties:
+        comment:
+          title: Comment
+          type: string
+      required:
+      - comment
+      title: NewComment
+      type: object
+    NewSetlist:
+      properties:
+        leader_name:
+          title: Leader Name
+          type: string
+        service_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          default: null
+          title: Service Date
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - leader_name
+      title: NewSetlist
+      type: object
+    NewSetlistPosition:
+      properties:
+        index:
+          title: Index
+          type: integer
+        label:
+          title: Label
+          type: string
+        is_music:
+          title: Is Music
+          type: boolean
+        presenter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Presenter
+        status:
+          anyOf:
+          - enum:
+            - open
+            - in-progress
+            - final
+            type: string
+          - type: 'null'
+          default: null
+          title: Status
+      required:
+      - index
+      - label
+      - is_music
+      title: NewSetlistPosition
+      type: object
+    NewSetlistSheet:
+      properties:
+        type:
+          enum:
+          - 1:primary
+          - 2:secondary
+          - 3:extra
+          - 4:candidate-high
+          - 5:candidate
+          - 6:candidate-low
+          title: Type
+          type: string
+        song_sheet_id:
+          title: Song Sheet Id
+          type: string
+        setlist_position_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Setlist Position Id
+      required:
+      - type
+      - song_sheet_id
+      title: NewSetlistSheet
+      type: object
+    NewSetlistTemplate:
       properties:
         title:
           title: Title
           type: string
-        credits:
-          title: Credits
-          type: string
-        ccli_num:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: CCLI Number
         tags:
+          default: []
           items:
             type: string
           title: Tags
           type: array
       required:
       - title
-      - credits
+      title: NewSetlistTemplate
+      type: object
+    NewSetlistTemplatePosition:
+      properties:
+        index:
+          title: Index
+          type: integer
+        label:
+          title: Label
+          type: string
+        is_music:
+          title: Is Music
+          type: boolean
+        presenter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Presenter
+      required:
+      - index
+      - label
+      - is_music
+      title: NewSetlistTemplatePosition
+      type: object
+    NewSong:
+      properties:
+        title:
+          title: Title
+          type: string
+        authors:
+          items:
+            type: string
+          title: Authors
+          type: array
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - title
+      - authors
       - ccli_num
-      - tags
       title: NewSong
+      type: object
+    NewSongSheet:
+      properties:
+        type:
+          enum:
+          - pdf
+          - text
+          - musicxml
+          title: Type
+          type: string
+        key:
+          title: Key
+          type: string
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        object_id:
+          title: Object Id
+          type: string
+      required:
+      - type
+      - key
+      - object_id
+      title: NewSongSheet
+      type: object
+    NewSongVersion:
+      properties:
+        label:
+          title: Label
+          type: string
+        verse_order:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Verse Order
+        lyrics:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lyrics
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - label
+      title: NewSongVersion
       type: object
     ServerError:
       properties:
@@ -232,20 +1156,164 @@ components:
       - Message
       title: ServerError
       type: object
-    Song:
+    Setlist:
+      properties:
+        leader_name:
+          title: Leader Name
+          type: string
+        service_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          default: null
+          title: Service Date
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+      required:
+      - leader_name
+      - id
+      - created_on
+      - creator_id
+      title: Setlist
+      type: object
+    SetlistList:
+      properties:
+        setlists:
+          items:
+            $ref: '#/components/schemas/Setlist'
+          title: Setlists
+          type: array
+      required:
+      - setlists
+      title: SetlistList
+      type: object
+    SetlistPosition:
+      properties:
+        index:
+          title: Index
+          type: integer
+        label:
+          title: Label
+          type: string
+        is_music:
+          title: Is Music
+          type: boolean
+        presenter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Presenter
+        status:
+          anyOf:
+          - enum:
+            - open
+            - in-progress
+            - final
+            type: string
+          - type: 'null'
+          default: null
+          title: Status
+        id:
+          title: Id
+          type: string
+        setlist_id:
+          title: Setlist Id
+          type: string
+      required:
+      - index
+      - label
+      - is_music
+      - id
+      - setlist_id
+      title: SetlistPosition
+      type: object
+    SetlistPositionList:
+      properties:
+        positions:
+          items:
+            $ref: '#/components/schemas/SetlistPosition'
+          title: Positions
+          type: array
+      required:
+      - positions
+      title: SetlistPositionList
+      type: object
+    SetlistSheet:
+      properties:
+        type:
+          enum:
+          - 1:primary
+          - 2:secondary
+          - 3:extra
+          - 4:candidate-high
+          - 5:candidate
+          - 6:candidate-low
+          title: Type
+          type: string
+        song_sheet_id:
+          title: Song Sheet Id
+          type: string
+        setlist_position_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Setlist Position Id
+        id:
+          title: Id
+          type: string
+        setlist_id:
+          title: Setlist Id
+          type: string
+        title:
+          title: Title
+          type: string
+        key:
+          title: Key
+          type: string
+      required:
+      - type
+      - song_sheet_id
+      - id
+      - setlist_id
+      - title
+      - key
+      title: SetlistSheet
+      type: object
+    SetlistSheetList:
+      properties:
+        sheets:
+          items:
+            $ref: '#/components/schemas/SetlistSheet'
+          title: Sheets
+          type: array
+      required:
+      - sheets
+      title: SetlistSheetList
+      type: object
+    SetlistTemplate:
       properties:
         title:
           title: Title
           type: string
-        credits:
-          title: Credits
-          type: string
-        ccli_num:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: CCLI Number
         tags:
+          default: []
           items:
             type: string
           title: Tags
@@ -262,9 +1330,99 @@ components:
           type: string
       required:
       - title
-      - credits
+      - id
+      - created_on
+      - creator_id
+      title: SetlistTemplate
+      type: object
+    SetlistTemplateList:
+      properties:
+        templates:
+          items:
+            $ref: '#/components/schemas/SetlistTemplate'
+          title: Templates
+          type: array
+      required:
+      - templates
+      title: SetlistTemplateList
+      type: object
+    SetlistTemplatePosition:
+      properties:
+        index:
+          title: Index
+          type: integer
+        label:
+          title: Label
+          type: string
+        is_music:
+          title: Is Music
+          type: boolean
+        presenter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Presenter
+        id:
+          title: Id
+          type: string
+        template_id:
+          title: Template Id
+          type: string
+      required:
+      - index
+      - label
+      - is_music
+      - id
+      - template_id
+      title: SetlistTemplatePosition
+      type: object
+    SetlistTemplatePositionList:
+      properties:
+        positions:
+          items:
+            $ref: '#/components/schemas/SetlistTemplatePosition'
+          title: Positions
+          type: array
+      required:
+      - positions
+      title: SetlistTemplatePositionList
+      type: object
+    Song:
+      properties:
+        title:
+          title: Title
+          type: string
+        authors:
+          items:
+            type: string
+          title: Authors
+          type: array
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+      required:
+      - title
+      - authors
       - ccli_num
-      - tags
       - id
       - created_on
       - creator_id
@@ -281,6 +1439,270 @@ components:
       - songs
       title: SongList
       type: object
+    SongSheet:
+      properties:
+        type:
+          enum:
+          - pdf
+          - text
+          - musicxml
+          title: Type
+          type: string
+        key:
+          title: Key
+          type: string
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        object_id:
+          title: Object Id
+          type: string
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+        song_version_id:
+          title: Song Version Id
+          type: string
+      required:
+      - type
+      - key
+      - object_id
+      - id
+      - created_on
+      - creator_id
+      - song_version_id
+      title: SongSheet
+      type: object
+    SongSheetList:
+      properties:
+        song_sheets:
+          items:
+            $ref: '#/components/schemas/SongSheet'
+          title: Song Sheets
+          type: array
+      required:
+      - song_sheets
+      title: SongSheetList
+      type: object
+    SongVersion:
+      properties:
+        label:
+          title: Label
+          type: string
+        verse_order:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Verse Order
+        lyrics:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lyrics
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+        song_id:
+          title: Song Id
+          type: string
+      required:
+      - label
+      - id
+      - created_on
+      - creator_id
+      - song_id
+      title: SongVersion
+      type: object
+    SongVersionList:
+      properties:
+        song_versions:
+          items:
+            $ref: '#/components/schemas/SongVersion'
+          title: Song Versions
+          type: array
+      required:
+      - song_versions
+      title: SongVersionList
+      type: object
+    UpdateComment:
+      properties:
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Comment
+      title: UpdateComment
+      type: object
+    UpdateSetlist:
+      properties:
+        leader_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Leader Name
+        service_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          default: null
+          title: Service Date
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+        music_packet_object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Music Packet Object Id
+        lyric_packet_object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lyric Packet Object Id
+      title: UpdateSetlist
+      type: object
+    UpdateSetlistPosition:
+      properties:
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Index
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Label
+        is_music:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Is Music
+        presenter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Presenter
+        status:
+          anyOf:
+          - enum:
+            - open
+            - in-progress
+            - final
+            type: string
+          - type: 'null'
+          default: null
+          title: Status
+      title: UpdateSetlistPosition
+      type: object
+    UpdateSetlistSheet:
+      properties:
+        type:
+          anyOf:
+          - enum:
+            - 1:primary
+            - 2:secondary
+            - 3:extra
+            - 4:candidate-high
+            - 5:candidate
+            - 6:candidate-low
+            type: string
+          - type: 'null'
+          default: null
+          title: Type
+        setlist_position_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Setlist Position Id
+      title: UpdateSetlistSheet
+      type: object
+    UpdateSetlistTemplate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+      title: UpdateSetlistTemplate
+      type: object
+    UpdateSetlistTemplatePosition:
+      properties:
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Index
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Label
+        is_music:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Is Music
+        presenter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Presenter
+      title: UpdateSetlistTemplatePosition
+      type: object
     UpdateSong:
       properties:
         title:
@@ -289,12 +1711,14 @@ components:
           - type: 'null'
           default: null
           title: Title
-        credits:
+        authors:
           anyOf:
-          - type: string
+          - items:
+              type: string
+            type: array
           - type: 'null'
           default: null
-          title: Credits
+          title: Authors
         ccli_num:
           anyOf:
           - type: integer
@@ -310,6 +1734,60 @@ components:
           default: null
           title: Tags
       title: UpdateSong
+      type: object
+    UpdateSongSheet:
+      properties:
+        key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Key
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+        object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Id
+      title: UpdateSongSheet
+      type: object
+    UpdateSongVersion:
+      properties:
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Label
+        verse_order:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Verse Order
+        lyrics:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lyrics
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+      title: UpdateSongVersion
       type: object
     User:
       properties:
