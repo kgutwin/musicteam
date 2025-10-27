@@ -20,17 +20,28 @@
 
       <h3>Candidates</h3>
 
-      <div class="rounded-lg bg-white h-20">
-        <div v-for="sheet in slist?.sheets ?? []" :key="sheet.id">
-          {{ sheet.song_sheet_id }}
-        </div>
+      <div class="rounded-lg bg-white min-h-20">
+        <SetlistSidebarSong
+          v-for="sheet in filtered(slist?.sheets)"
+          :key="sheet.id"
+          :sheet="sheet"
+        >
+        </SetlistSidebarSong>
       </div>
 
       <h3 class="mt-8">Slots</h3>
 
       <div>
         <div v-for="position in plist?.positions ?? []" :key="position.id">
-          {{ position.label }}
+          <div>{{ position.label }}</div>
+          <div v-if="position.is_music" class="rounded-lg bg-white min-h-8">
+            <SetlistSidebarSong
+              v-for="sheet in filtered(slist?.sheets, position.id)"
+              :key="sheet.id"
+              :sheet="sheet"
+              :current-position-id="position.id"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -47,6 +58,8 @@ import {
   useSetlistPositionlistStore,
   useSetlistSheetlistStore,
 } from "@/stores/setlists"
+
+import type { SetlistSheet } from "@/services/api"
 
 const active = useActiveSetlistStore()
 const positionlist = useSetlistPositionlistStore()
@@ -65,4 +78,9 @@ const slist = computed(() => {
 
   return sheetlist.get({ setlistId: active.setlist.id }).data.value
 })
+
+function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] {
+  if (!sheets) return []
+  return sheets.filter((s) => s.setlist_position_id == positionId)
+}
 </script>
