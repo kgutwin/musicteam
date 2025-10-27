@@ -2,12 +2,17 @@ from chalice.app import Blueprint
 from chalicelib import db
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
+from chalicelib.storage import BUCKET_NAME
+from chalicelib.storage import s3
+from chalicelib.types import _SongSheetObject
+from chalicelib.types import Download
 from chalicelib.types import Forbidden
 from chalicelib.types import NewSong
 from chalicelib.types import NewSongSheet
 from chalicelib.types import NewSongVersion
 from chalicelib.types import NoContent
 from chalicelib.types import NotFound
+from chalicelib.types import PartialDownload
 from chalicelib.types import Song
 from chalicelib.types import SongList
 from chalicelib.types import SongSheet
@@ -28,7 +33,7 @@ def list_songs() -> Forbidden | SongList:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT id, title, credits, ccli_num, tags, created_on, creator_id "
+            "SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
             "FROM songs "
             "ORDER BY title",
             output=Song,
@@ -43,9 +48,9 @@ def new_song(request_body: NewSong) -> Forbidden | Song:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "INSERT INTO songs (title, credits, ccli_num, tags, creator_id) "
-            "VALUES (:title, :credits, :ccli_num, :tags, :creator_id) "
-            "RETURNING id, title, credits, ccli_num, tags, created_on, creator_id",
+            "INSERT INTO songs (title, authors, ccli_num, tags, creator_id) "
+            "VALUES (:title, :authors, :ccli_num, :tags, :creator_id) "
+            "RETURNING id, title, authors, ccli_num, tags, created_on, creator_id",
             request_body.model_dump()
             | {"creator_id": session_user(bp.current_request).id},
             output=Song,
@@ -63,7 +68,7 @@ def get_song(song_id: str) -> Forbidden | NotFound | Song:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT id, title, credits, ccli_num, tags, created_on, creator_id "
+            "SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
             "FROM songs WHERE id = :id",
             {"id": song_id},
             output=Song,
@@ -205,8 +210,8 @@ def list_song_sheets(song_id: str, version_id: str) -> Forbidden | SongSheetList
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "    id, song_version_id, type, key, tags, object_id, created_on,"
-            "    creator_id "
+            "    id, song_version_id, type, key, tags, object_id, object_type,"
+            "    created_on, creator_id "
             "FROM song_sheets WHERE song_version_id = :version_id "
             "ORDER BY key",
             {"version_id": version_id},
@@ -225,12 +230,13 @@ def new_song_sheet(
     with db.connect() as conn:
         curs = conn.execute(
             "INSERT INTO song_sheets ("
-            "    song_version_id, type, key, tags, object_id, creator_id"
+            "    song_version_id, type, key, tags, object_id, object_type, creator_id"
             ") VALUES ("
-            "    :song_version_id, :type, :key, :tags, :object_id, :creator_id"
+            "    :song_version_id, :type, :key, :tags, :object_id, :object_type,"
+            "    :creator_id"
             ") "
-            "RETURNING id, song_version_id, type, key, tags, object_id, created_on,"
-            "    creator_id",
+            "RETURNING id, song_version_id, type, key, tags, object_id, object_type,"
+            "    created_on, creator_id",
             request_body.model_dump()
             | {
                 "song_version_id": version_id,
@@ -254,7 +260,8 @@ def get_song_sheet(
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "  id, song_version_id, type, key, tags, object_id, created_on, creator_id "
+            "  id, song_version_id, type, key, tags, object_id, object_type,"
+            "  created_on, creator_id "
             "FROM song_sheets WHERE id = :sheet_id AND song_version_id = :version_id",
             {"sheet_id": sheet_id, "version_id": version_id},
             output=SongSheet,
@@ -299,3 +306,55 @@ def delete_song_sheet(
             {"sheet_id": sheet_id, "version_id": version_id},
         )
         return NoContent() if result else NotFound()
+
+
+@bp.route(
+    "/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}/doc",
+    methods=["HEAD", "GET"],
+)
+def get_song_sheet_doc(
+    song_id: str, version_id: str, sheet_id: str
+) -> Forbidden | NotFound | Download | PartialDownload:
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT object_type, object_id "
+            "FROM song_sheets WHERE id = :sheet_id AND song_version_id = :version_id",
+            {"sheet_id": sheet_id, "version_id": version_id},
+            output=_SongSheetObject,
+        )
+        sheet_obj = curs.fetchone()
+        if sheet_obj is None:
+            return NotFound()
+
+    content_type = sheet_obj.object_type
+
+    if bp.current_request.method == "HEAD":
+        s3_resp = s3.head_object(Bucket=BUCKET_NAME, Key=sheet_obj.object_id)
+        return Download(
+            b"",
+            headers={
+                "Content-Type": content_type,
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(s3_resp["ContentLength"]),
+            },
+        )
+
+    extra: dict[str, str] = {}
+    if bp.current_request.headers.get("Range"):
+        extra["Range"] = bp.current_request.headers["Range"]
+
+    s3_resp = s3.get_object(Bucket=BUCKET_NAME, Key=sheet_obj.object_id, **extra)
+
+    headers: dict[str, str | list[str]] = {
+        "Content-Type": content_type,
+    }
+    body = s3_resp["Body"].read()
+
+    if bp.current_request.headers.get("Range"):
+        headers["Content-Range"] = s3_resp["ContentRange"]
+        return PartialDownload(body, headers=headers)
+    else:
+        return Download(body, headers=headers)

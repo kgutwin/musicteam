@@ -7,8 +7,9 @@
     >
       <NuxtLink to="/">MusicTeam</NuxtLink>
     </div>
-    <div class="grow flex flex-row gap-4 font-semibold tracking-wide">
+    <div class="grow flex flex-row gap-8 font-semibold tracking-wide">
       <NuxtLink to="/songs">Songs</NuxtLink>
+      <NuxtLink to="/setlists">Set Lists</NuxtLink>
       <NuxtLink to="/team">Team</NuxtLink>
     </div>
     <div v-if="status === 'authenticated' && authData" class="self-start">

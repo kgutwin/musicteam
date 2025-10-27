@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DROP TABLE _version;
+DROP TABLE IF EXISTS _version;
 CREATE TABLE _version (pk TEXT PRIMARY KEY, major INT, minor INT, patch INT);
 INSERT INTO _version (pk, major, minor, patch)
 VALUES ('db_version', 0, 1, 0);
@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (id)
 );
 
-DROP TABLE songs;
+DROP VIEW IF EXISTS all_tags;
+DROP VIEW IF EXISTS all_authors;
+DROP TABLE IF EXISTS songs;
 
 CREATE TABLE songs (
   id TEXT UNIQUE DEFAULT ('s:' || uuid_generate_v4()),
@@ -48,7 +50,7 @@ FROM songs
 GROUP BY author
 ORDER BY author;
 
-CREATE TABLE song_versions (
+CREATE TABLE IF NOT EXISTS song_versions (
   id TEXT UNIQUE DEFAULT ('sv:' || uuid_generate_v4()),
   song_id TEXT NOT NULL,
   label TEXT NOT NULL,
@@ -62,13 +64,14 @@ CREATE TABLE song_versions (
   FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
-CREATE TABLE song_sheets (
+CREATE TABLE IF NOT EXISTS song_sheets (
   id TEXT UNIQUE DEFAULT ('ss:' || uuid_generate_v4()),
   song_version_id TEXT NOT NULL,
   type TEXT NOT NULL,
   key TEXT NOT NULL,
   tags TEXT[],
   object_id TEXT NOT NULL,
+  object_type TEXT NOT NULL,
   created_on TIMESTAMP DEFAULT (localtimestamp(4)),
   creator_id TEXT NOT NULL,
   PRIMARY KEY (id),
@@ -76,7 +79,21 @@ CREATE TABLE song_sheets (
   FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
-CREATE TABLE setlists (
+CREATE TABLE IF NOT EXISTS song_media (
+  id TEXT UNIQUE DEFAULT ('sm:' || uuid_generate_v4()),
+  song_version_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  url TEXT,
+  object_id TEXT,
+  tags TEXT[],
+  created_on TIMESTAMP DEFAULT (localtimestamp(4)),
+  creator_id TEXT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (song_version_id) REFERENCES song_versions (id) ON DELETE CASCADE,
+  FOREIGN KEY (creator_id) REFERENCES users (id)
+);
+
+CREATE TABLE IF NOT EXISTS setlists (
   id TEXT UNIQUE DEFAULT ('l:' || uuid_generate_v4()),
   leader_name TEXT NOT NULL,
   service_date DATE,
@@ -89,7 +106,7 @@ CREATE TABLE setlists (
   FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
-CREATE TABLE setlist_positions (
+CREATE TABLE IF NOT EXISTS setlist_positions (
   id TEXT UNIQUE DEFAULT ('lp:' || uuid_generate_v4()),
   setlist_id TEXT NOT NULL,
   index INTEGER NOT NULL,
@@ -98,10 +115,10 @@ CREATE TABLE setlist_positions (
   presenter TEXT,
   status TEXT,
   PRIMARY KEY (id),
-  FOREIGN KEY (setlist_id) REFERENCES setlists (id) ON DELETE CASCADE,
+  FOREIGN KEY (setlist_id) REFERENCES setlists (id) ON DELETE CASCADE
 );
 
-CREATE TABLE setlist_sheets (
+CREATE TABLE IF NOT EXISTS setlist_sheets (
   id TEXT UNIQUE DEFAULT ('ls:' || uuid_generate_v4()),
   setlist_id TEXT NOT NULL,
   type TEXT NOT NULL,
@@ -116,7 +133,7 @@ CREATE TABLE setlist_sheets (
   FOREIGN KEY (setlist_position_id) REFERENCES setlist_positions (id) ON DELETE CASCADE
 );
 
-CREATE TABLE setlist_templates (
+CREATE TABLE IF NOT EXISTS setlist_templates (
   id TEXT UNIQUE DEFAULT ('t:' || uuid_generate_v4()),
   title TEXT NOT NULL,
   tags TEXT[],
@@ -126,7 +143,7 @@ CREATE TABLE setlist_templates (
   FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
-CREATE TABLE setlist_template_positions (
+CREATE TABLE IF NOT EXISTS setlist_template_positions (
   id TEXT UNIQUE DEFAULT ('tp:' || uuid_generate_v4()),
   template_id TEXT NOT NULL,
   index INTEGER NOT NULL,
@@ -137,7 +154,7 @@ CREATE TABLE setlist_template_positions (
   FOREIGN KEY (template_id) REFERENCES setlist_templates (id) ON DELETE CASCADE
 );
 
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
   id TEXT UNIQUE DEFAULT ('c:' || uuid_generate_v4()),
   resource_id TEXT NOT NULL,
   comment TEXT NOT NULL,

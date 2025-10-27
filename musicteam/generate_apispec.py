@@ -39,8 +39,12 @@ def generate() -> str:
         ):
             schema: dict[str, Any] = {"description": model.__doc__}
             if model._response_model is not None:
-                schema["content"] = {
-                    "application/json": {"schema": model._response_model.__name__}
+                schema.setdefault("content", {})["application/json"] = {
+                    "schema": model._response_model.__name__
+                }
+            if model._response_bytes:
+                schema.setdefault("content", {})["application/octet-stream"] = {
+                    "schema": {"type": "string", "format": "binary"}
                 }
             spec.components.response(model.__name__, schema)
 
@@ -48,6 +52,9 @@ def generate() -> str:
         ops: dict[str, Any] = {}
         params: list[dict[str, Any]] | None = None
         for method in app.app.routes[path]:
+            if method == "HEAD":
+                continue
+
             route = app.app.routes[path][method]
             func = route.view_function
             sig = inspect.signature(func)
@@ -69,6 +76,7 @@ def generate() -> str:
                     for name in route.view_args
                 ]
 
+            # set the operation ID
             operation_id = route.view_name
             func_mod = inspect.getmodule(func)
             if func_mod and func_mod is not app:
@@ -78,6 +86,7 @@ def generate() -> str:
                     + operation_id
                 )
 
+            # determine the expected responses from the return annotation
             responses: dict[str, Any] = {"500": "Error"}
 
             return_types = (
@@ -109,16 +118,33 @@ def generate() -> str:
                 else:
                     raise Exception(f"unhandled return type: {return_type}")
 
-            op = {"operationId": operation_id, "responses": responses}
+            op: dict[str, Any] = {"operationId": operation_id, "responses": responses}
 
+            # add the request body if present
             if "request_body" in sig.parameters:
-                op["requestBody"] = {
-                    "content": {
-                        "application/json": {
-                            "schema": sig.parameters["request_body"].annotation.__name__
-                        }
+                ann = sig.parameters["request_body"].annotation
+                if ann is bytes:
+                    op["requestBody"] = {
+                        "content": {"text/plain": {"schema": {"type": "string"}}}
                     }
-                }
+                else:
+                    op["requestBody"] = {
+                        "content": {"application/json": {"schema": ann.__name__}}
+                    }
+
+            # add the query params if present
+            if "query_params" in sig.parameters:
+                ann = sig.parameters["query_params"].annotation
+                schema = ann.model_json_schema()["properties"]
+                op["parameters"] = [
+                    {
+                        "name": field,
+                        "in": "query",
+                        "required": info.is_required(),
+                        "schema": schema[field],
+                    }
+                    for field, info in ann.model_fields.items()
+                ]
 
             ops[method.lower()] = op
 

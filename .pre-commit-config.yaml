@@ -27,6 +27,7 @@ repos:
           - "types-requests-oauthlib"
           - "apispec"
           - "apispec-pydantic-plugin"
+          - "boto3-stubs"
 
   - repo: https://github.com/asottile/reorder-python-imports
     rev: v3.16.0

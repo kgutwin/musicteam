@@ -144,7 +144,7 @@ export interface NewSong {
 /** NewSongSheet */
 export interface NewSongSheet {
   /** Type */
-  type: "pdf" | "text" | "musicxml";
+  type: string;
   /** Key */
   key: string;
   /**
@@ -154,6 +154,8 @@ export interface NewSongSheet {
   tags?: string[];
   /** Object Id */
   object_id: string;
+  /** Object Type */
+  object_type: string;
 }
 
 /** NewSongVersion */
@@ -175,6 +177,12 @@ export interface NewSongVersion {
    * @default []
    */
   tags?: string[];
+}
+
+/** ObjectId */
+export interface ObjectId {
+  /** Id */
+  id: string;
 }
 
 /** ServerError */
@@ -267,10 +275,10 @@ export interface SetlistSheet {
   id: string;
   /** Setlist Id */
   setlist_id: string;
-  /** Title */
-  title: string;
-  /** Key */
-  key: string;
+  /** Song Version Id */
+  song_version_id: string;
+  /** Song Id */
+  song_id: string;
 }
 
 /** SetlistSheetList */
@@ -363,7 +371,7 @@ export interface SongList {
 /** SongSheet */
 export interface SongSheet {
   /** Type */
-  type: "pdf" | "text" | "musicxml";
+  type: string;
   /** Key */
   key: string;
   /**
@@ -373,6 +381,8 @@ export interface SongSheet {
   tags?: string[];
   /** Object Id */
   object_id: string;
+  /** Object Type */
+  object_type: string;
   /** Id */
   id: string;
   /**
@@ -583,6 +593,11 @@ export interface UpdateSong {
 /** UpdateSongSheet */
 export interface UpdateSongSheet {
   /**
+   * Type
+   * @default null
+   */
+  type?: string | null;
+  /**
    * Key
    * @default null
    */
@@ -597,6 +612,11 @@ export interface UpdateSongSheet {
    * @default null
    */
   object_id?: string | null;
+  /**
+   * Object Type
+   * @default null
+   */
+  object_type?: string | null;
 }
 
 /** UpdateSongVersion */
@@ -621,6 +641,15 @@ export interface UpdateSongVersion {
    * @default null
    */
   tags?: string[] | null;
+}
+
+/** UploadParams */
+export interface UploadParams {
+  /**
+   * Base64
+   * @default null
+   */
+  base64?: boolean | null;
 }
 
 /** User */
@@ -1098,6 +1127,34 @@ export class Api<
       this.request<any, ServerError>({
         path: `/comments/${resourceId}/${commentId}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  objects = {
+    /**
+     * No description
+     *
+     * @name UploadFile
+     * @request POST:/objects
+     */
+    uploadFile: (
+      data: string,
+      query?: {
+        /**
+         * Base64
+         * @default null
+         */
+        base64?: boolean | null;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjectId, ServerError>({
+        path: `/objects`,
+        method: "POST",
+        query: query,
+        body: data,
+        type: ContentType.Text,
+        format: "json",
         ...params,
       }),
   };
@@ -1788,6 +1845,24 @@ export class Api<
       this.request<any, ServerError>({
         path: `/songs/${songId}/versions/${versionId}/sheets/${sheetId}`,
         method: "DELETE",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetSongSheetDoc
+     * @request GET:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}/doc
+     */
+    getSongSheetDoc: (
+      songId: string,
+      versionId: string,
+      sheetId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/sheets/${sheetId}/doc`,
+        method: "GET",
         ...params,
       }),
   };

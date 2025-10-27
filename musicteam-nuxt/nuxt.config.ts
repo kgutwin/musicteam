@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   // devtools: { enabled: true },
   ssr: false,
-  modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth", "@pinia/nuxt"],
+  modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth", "@pinia/nuxt", "@nuxt/icon"],
 
   // routeRules: {
   //   "/api/**": { proxy: "http://127.0.0.1:8000/**" },

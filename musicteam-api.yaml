@@ -171,6 +171,34 @@ paths:
       required: true
       schema:
         type: string
+  /objects:
+    post:
+      operationId: objects.upload_file
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectId'
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      parameters:
+      - name: base64
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Base64
   /setlistTemplates:
     get:
       operationId: setlists.list_setlist_templates
@@ -852,6 +880,36 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/versions/{version_id}/sheets/{sheet_id}/doc:
+    get:
+      operationId: songs.get_song_sheet_doc
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          $ref: '#/components/responses/Download'
+        '206':
+          $ref: '#/components/responses/PartialDownload'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: sheet_id
+      in: path
+      required: true
+      schema:
+        type: string
   /users:
     get:
       operationId: users.list_users
@@ -1092,10 +1150,6 @@ components:
     NewSongSheet:
       properties:
         type:
-          enum:
-          - pdf
-          - text
-          - musicxml
           title: Type
           type: string
         key:
@@ -1110,10 +1164,14 @@ components:
         object_id:
           title: Object Id
           type: string
+        object_type:
+          title: Object Type
+          type: string
       required:
       - type
       - key
       - object_id
+      - object_type
       title: NewSongSheet
       type: object
     NewSongVersion:
@@ -1142,6 +1200,15 @@ components:
       required:
       - label
       title: NewSongVersion
+      type: object
+    ObjectId:
+      properties:
+        id:
+          title: Id
+          type: string
+      required:
+      - id
+      title: ObjectId
       type: object
     ServerError:
       properties:
@@ -1281,19 +1348,19 @@ components:
         setlist_id:
           title: Setlist Id
           type: string
-        title:
-          title: Title
+        song_version_id:
+          title: Song Version Id
           type: string
-        key:
-          title: Key
+        song_id:
+          title: Song Id
           type: string
       required:
       - type
       - song_sheet_id
       - id
       - setlist_id
-      - title
-      - key
+      - song_version_id
+      - song_id
       title: SetlistSheet
       type: object
     SetlistSheetList:
@@ -1442,10 +1509,6 @@ components:
     SongSheet:
       properties:
         type:
-          enum:
-          - pdf
-          - text
-          - musicxml
           title: Type
           type: string
         key:
@@ -1459,6 +1522,9 @@ components:
           type: array
         object_id:
           title: Object Id
+          type: string
+        object_type:
+          title: Object Type
           type: string
         id:
           title: Id
@@ -1477,6 +1543,7 @@ components:
       - type
       - key
       - object_id
+      - object_type
       - id
       - created_on
       - creator_id
@@ -1737,6 +1804,12 @@ components:
       type: object
     UpdateSongSheet:
       properties:
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Type
         key:
           anyOf:
           - type: string
@@ -1757,6 +1830,12 @@ components:
           - type: 'null'
           default: null
           title: Object Id
+        object_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Type
       title: UpdateSongSheet
       type: object
     UpdateSongVersion:
@@ -1788,6 +1867,16 @@ components:
           default: null
           title: Tags
       title: UpdateSongVersion
+      type: object
+    UploadParams:
+      properties:
+        base64:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Base64
+      title: UploadParams
       type: object
     User:
       properties:
@@ -1843,6 +1932,13 @@ components:
       title: UserList
       type: object
   responses:
+    Download:
+      description: Object download.
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
     Error:
       description: Error. Something went wrong on the server side.
       content:
@@ -1859,3 +1955,10 @@ components:
         return.
     NotFound:
       description: Not Found. The requested resource does not exist.
+    PartialDownload:
+      description: Range request download.
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary

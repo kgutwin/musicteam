@@ -102,9 +102,21 @@ def register(app: Chalice) -> None:
             if "request_body" not in route.view_args:
                 route.view_args.append("request_body")
             klass = sig.parameters["request_body"].annotation
-            if hasattr(klass, "model_validate"):
+            if klass is bytes:
+                event._event_dict["pathParameters"]["request_body"] = event.raw_body
+            elif hasattr(klass, "model_validate"):
                 request_body = klass.model_validate(event.json_body)
                 event._event_dict["pathParameters"]["request_body"] = request_body
+            else:
+                raise TypeError(klass)
+
+        if "query_params" in sig.parameters:
+            if "query_params" not in route.view_args:
+                route.view_args.append("query_params")
+            klass = sig.parameters["query_params"].annotation
+            if hasattr(klass, "model_validate"):
+                query_params = klass.model_validate(event.query_params)
+                event._event_dict["pathParameters"]["query_params"] = query_params
             else:
                 raise TypeError(klass)
 

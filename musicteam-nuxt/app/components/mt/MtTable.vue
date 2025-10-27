@@ -28,13 +28,13 @@ defineProps<{
 
 <style>
 .mt-table {
-  @apply border m-4 w-full shadow-lg;
+  @apply border my-4 w-full shadow-lg;
 
   & tbody {
     @apply divide-y border border-gray-300;
 
     & tr td {
-      @apply p-2;
+      @apply bg-gray-50 p-2;
     }
   }
 

@@ -217,13 +217,12 @@ def list_setlist_sheets(setlist_id: str) -> Forbidden | SetlistSheetList:
             "  setlist_sheets.type,"
             "  setlist_sheets.song_sheet_id,"
             "  setlist_sheets.setlist_position_id,"
-            "  songs.title,"
-            "  song_sheets.key "
+            "  song_versions.id AS song_version_id, "
+            "  song_versions.song_id AS song_id "
             "FROM setlist_sheets "
             "INNER JOIN song_sheets ON song_sheets.id = setlist_sheets.song_sheet_id "
             "INNER JOIN song_versions ON"
             "  song_versions.id = song_sheets.song_version_id "
-            "INNER JOIN songs ON songs.id = song_versions.song_id "
             "WHERE setlist_sheets.setlist_id = :setlist_id "
             "ORDER BY setlist_sheets.type",
             {"setlist_id": setlist_id},
@@ -247,7 +246,7 @@ def new_setlist_sheet(
             "  :setlist_id, :type, :song_sheet_id, :setlist_position_id"
             ") "
             "RETURNING id, setlist_id, type, song_sheet_id, setlist_position_id,"
-            "  '' AS title, '' AS key",
+            "  '' AS song_version_id, '' AS song_id",
             request_body.model_dump() | {"setlist_id": setlist_id},
             output=SetlistSheet,
         )
@@ -272,13 +271,12 @@ def get_setlist_sheet(
             "  setlist_sheets.type,"
             "  setlist_sheets.song_sheet_id,"
             "  setlist_sheets.setlist_position_id,"
-            "  songs.title,"
-            "  song_sheets.key "
+            "  song_versions.id AS song_version_id, "
+            "  song_versions.song_id AS song_id "
             "FROM setlist_sheets "
             "INNER JOIN song_sheets ON song_sheets.id = setlist_sheets.song_sheet_id "
             "INNER JOIN song_versions ON"
             "  song_versions.id = song_sheets.song_version_id "
-            "INNER JOIN songs ON songs.id = song_versions.song_id "
             "WHERE setlist_sheets.setlist_id = :setlist_id"
             "  AND setlist_sheets.id = :sheet_id",
             {"sheet_id": sheet_id, "setlist_id": setlist_id},

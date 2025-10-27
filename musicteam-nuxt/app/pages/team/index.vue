@@ -23,10 +23,10 @@
 </template>
 
 <script setup lang="ts">
-import { useUsersStore } from "@/stores/users"
+import { useUserlistStore } from "@/stores/users"
 import type { TableColumn } from "@/types/mt"
 
-const users = useUsersStore()
+const users = useUserlistStore()
 
 const columns: TableColumn[] = [
   { name: "picture", title: "" },

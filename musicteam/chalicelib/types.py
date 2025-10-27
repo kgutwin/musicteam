@@ -148,16 +148,19 @@ class SongVersionList(BaseModel):
 
 
 class NewSongSheet(BaseModel):
-    type: Literal["pdf", "text", "musicxml"]
+    type: str
     key: str
     tags: list[str] = []
     object_id: str
+    object_type: str
 
 
 class UpdateSongSheet(_ReplacementModel):
+    type: str | None = None
     key: str | None = None
     tags: list[str] | None = None
     object_id: str | None = None
+    object_type: str | None = None
 
 
 class SongSheet(_CoreModel, NewSongSheet):
@@ -166,6 +169,11 @@ class SongSheet(_CoreModel, NewSongSheet):
 
 class SongSheetList(BaseModel):
     song_sheets: list[SongSheet]
+
+
+class _SongSheetObject(BaseModel):
+    object_id: str
+    object_type: str
 
 
 class NewSetlist(BaseModel):
@@ -239,8 +247,8 @@ class UpdateSetlistSheet(_ReplacementModel):
 class SetlistSheet(NewSetlistSheet):
     id: str
     setlist_id: str
-    title: str
-    key: str
+    song_version_id: str
+    song_id: str
 
 
 class SetlistSheetList(BaseModel):
@@ -304,9 +312,18 @@ class CommentList(BaseModel):
     comments: list[Comment]
 
 
+class UploadParams(BaseModel):
+    base64: bool | None = None
+
+
+class ObjectId(BaseModel):
+    id: str
+
+
 # Chalice response types
 class KnownResponse(Response):
     _code = 200
+    _response_bytes: bool = False
     _response_model: type[BaseModel] | None = None
 
     def __init__(self, body: Any = "", headers: HeadersType | None = None):
@@ -345,3 +362,16 @@ class Error(KnownResponse):
 
     _code = 500
     _response_model = ServerError
+
+
+class Download(KnownResponse):
+    """Object download."""
+
+    _response_bytes = True
+
+
+class PartialDownload(KnownResponse):
+    """Range request download."""
+
+    _code = 206
+    _response_bytes = True

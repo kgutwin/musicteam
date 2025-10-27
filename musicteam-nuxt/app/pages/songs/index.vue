@@ -6,33 +6,39 @@
         <NuxtLink class="btn-gray" to="/songs/new">New...</NuxtLink>
       </div>
     </div>
-    <MtTable :columns="columns" :data="songs.data?.songs ?? []">
+    <MtTable :columns="columns" :data="songlist.data?.songs ?? []">
       <template #title="{ row }">
-        <NuxtLink :to="`/songs/${row.id}`">{{ row.title }}</NuxtLink>
+        <NuxtLink :to="`/songs/${row.id}`" class="hover:underline">
+          {{ row.title }}
+        </NuxtLink>
       </template>
       <template #authors="{ row }">
-        <span v-for="author in row.authors" :key="author" class="author">
+        <span v-for="author in trimArray(row.authors)" :key="author" class="spn-tag">
           {{ author }}
         </span>
       </template>
       <template #tags="{ row }">
-        <span v-for="tag in row.tags" :key="tag" class="tag">{{ tag }}</span>
+        <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>
       </template>
       <template #created-on="{ row }">
-        {{ row.created_on }}
+        {{ localdate(row.created_on) }}
       </template>
       <template #uploader="{ row }">
-        {{ row.creator_id }}
+        {{ user.get({ userId: row.creator_id })?.data?.value?.name }}
       </template>
     </MtTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useSongsStore } from "@/stores/songs"
 import type { TableColumn } from "@/types/mt"
 
-const songs = useSongsStore()
+import { useSonglistStore } from "@/stores/songs"
+import { useUserStore } from "@/stores/users"
+import { trimArray, localdate } from "@/utils"
+
+const songlist = useSonglistStore()
+const user = useUserStore()
 
 const columns: TableColumn[] = [
   { name: "title", title: "Title" },
