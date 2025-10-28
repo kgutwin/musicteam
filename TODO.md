@@ -1,9 +1,24 @@
 # TODO
 
-## Framework
+## Frontend
 
-- Google login dance via oauthlib
-- Database Pydantic object CRUD helper
+- Edit setlists, songs, etc.
+- Filter listing of songs, setlists
+- Setlist templates
+- Copy existing setlist
+- Comments
+- Media links
+- Toasts for errors
+- Loading indicators?
+- Edit song sheets (PDF annotations etc.)
+- Public link to lyrics for congregation
+
+## Backend
+
+- Search across songs
+- Setlist packet assembly
+- Bucket maintenance
+- API keys
 
 ## Deployment
 
@@ -15,8 +30,8 @@
 - GitHub action for deployment
   - GitHub identity federation
 
-## Application
+## Other
 
-- Song CRUD
-- Blob upload
-- ... many more features
+- Project README
+- User documentation
+- Tests

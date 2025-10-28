@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 flex flex-row gap-2">
+  <div class="p-2 flex flex-row gap-2 rounded-lg bg-white">
     <div>
       <button @click="rotateType" :title="sheet.type.slice(2)">
         <Icon :name="typeIcon[sheet.type]" />
@@ -129,13 +129,13 @@ async function rotateType() {
       newType = "1:primary"
     }
   } else {
-    // rotate between 4 -> 5 -> 6 -> 4 ...
-    if (props.sheet.type === "4:candidate-high") {
-      newType = "5:candidate"
-    } else if (props.sheet.type === "5:candidate") {
+    // rotate between 5 -> 4 -> 6 -> 5 ...
+    if (props.sheet.type === "5:candidate") {
+      newType = "4:candidate-high"
+    } else if (props.sheet.type === "4:candidate-high") {
       newType = "6:candidate-low"
     } else {
-      newType = "4:candidate-high"
+      newType = "5:candidate"
     }
   }
 

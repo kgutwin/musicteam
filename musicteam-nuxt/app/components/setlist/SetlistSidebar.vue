@@ -24,13 +24,19 @@
 
       <div class="italic">Candidates</div>
 
-      <div class="rounded-lg bg-white min-h-20">
-        <SetlistSidebarSong
-          v-for="sheet in filtered(slist?.sheets)"
-          :key="sheet.id"
-          :sheet="sheet"
+      <div class="rounded-lg bg-white">
+        <draggable
+          :model-value="filtered(slist?.sheets)"
+          class="min-h-20"
+          group="songs"
+          @change="(ev) => draggableChange(ev, null)"
         >
-        </SetlistSidebarSong>
+          <SetlistSidebarSong
+            v-for="sheet in filtered(slist?.sheets)"
+            :key="sheet.id"
+            :sheet="sheet"
+          />
+        </draggable>
       </div>
 
       <div class="mt-4">
@@ -41,19 +47,26 @@
             </li>
             <hr class="grow" />
           </ul>
-          <div v-if="position.is_music" class="rounded-lg bg-white min-h-8 mb-1">
-            <SetlistSidebarSong
-              v-for="sheet in filtered(slist?.sheets, position.id)"
-              :key="sheet.id"
-              :sheet="sheet"
-              :current-position-id="position.id"
-            />
+          <div v-if="position.is_music" class="rounded-lg bg-white mb-1">
+            <draggable
+              :model-value="filtered(slist?.sheets, position.id)"
+              class="min-h-8"
+              group="songs"
+              @change="(ev) => draggableChange(ev, position.id)"
+            >
+              <SetlistSidebarSong
+                v-for="sheet in filtered(slist?.sheets, position.id)"
+                :key="sheet.id"
+                :sheet="sheet"
+                :current-position-id="position.id"
+              />
+            </draggable>
           </div>
         </div>
       </div>
 
-      <div class="mt-12">
-        <button class="btn-gray" @click="active.setlist = null">Make Inactive</button>
+      <div class="mt-12 flex flex-row-reverse">
+        <button class="btn-gray" @click="active.setlist = null">Close</button>
       </div>
     </div>
     <div v-else class="absolute rotate-90 top-40 -right-14 w-40">
@@ -64,17 +77,23 @@
 </template>
 
 <script setup lang="ts">
+import { VueDraggableNext as draggable } from "vue-draggable-next"
+
+import { api } from "@/services"
 import {
   useActiveSetlistStore,
   useSetlistPositionlistStore,
   useSetlistSheetlistStore,
+  useSetlistRefreshStore,
 } from "@/stores/setlists"
 
 import type { SetlistSheet } from "@/services/api"
+type SetlistSheetType = SetlistSheet["type"]
 
 const active = useActiveSetlistStore()
 const positionlist = useSetlistPositionlistStore()
 const sheetlist = useSetlistSheetlistStore()
+const refreshSetlists = useSetlistRefreshStore()
 
 const panelOpen = ref(true)
 
@@ -93,5 +112,24 @@ const slist = computed(() => {
 function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] {
   if (!sheets) return []
   return sheets.filter((s) => s.setlist_position_id == positionId)
+}
+
+async function addSheetTo(sheet: SetlistSheet, positionId: string | null) {
+  const newType: SetlistSheetType = !positionId ? "5:candidate" : sheet.type
+  await api.setlists.updateSetlistSheet(sheet.setlist_id, sheet.id, {
+    setlist_position_id: positionId,
+    type: newType,
+  })
+
+  await refreshSetlists.refresh({ setlistId: sheet.setlist_id })
+}
+
+async function draggableChange(
+  event: { added?: { element: SetlistSheet } },
+  positionId: string | null,
+) {
+  if (event.added) {
+    await addSheetTo(event.added.element, positionId)
+  }
 }
 </script>
