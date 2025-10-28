@@ -5,7 +5,7 @@
       class="fixed top-0 left-0 w-screen h-screen z-10"
       @click="show = false"
     ></div>
-    <div v-if="show" class="dropdown-menu">
+    <div v-if="show" class="dropdown-menu" @click="show = false">
       <slot />
     </div>
     <button type="button" @click="show = !show">

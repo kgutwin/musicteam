@@ -2,11 +2,18 @@
   <div>
     <div class="div-panel my-4">
       <div class="flex flex-row gap-4">
-        <button class="font-semibold" @click="selectedSheet = '!lyrics'">Lyrics</button>
+        <button
+          class="btn-sheet"
+          :selected="selectedSheet === '!lyrics'"
+          @click="selectedSheet = '!lyrics'"
+        >
+          Lyrics
+        </button>
         <button
           v-for="sheet in sheets?.song_sheets ?? []"
           :key="sheet.id"
-          class="font-semibold pl-4"
+          class="btn-sheet"
+          :selected="selectedSheet === sheet"
           @click="selectedSheet = sheet"
         >
           {{ sheet.type }} ({{ sheet.key }})
@@ -61,10 +68,13 @@ const sheetsStore = useSongSheetlistStore()
 const activeSetlistStore = useActiveSetlistStore()
 const setlistSheetlistStore = useSetlistSheetlistStore()
 
-const sheets = sheetsStore.get({
-  songId: props.version.song_id,
-  versionId: props.version.id,
-}).data
+const sheets = computed(
+  () =>
+    sheetsStore.get({
+      songId: props.version.song_id,
+      versionId: props.version.id,
+    }).data.value,
+)
 
 const selectedSheet = ref<"!lyrics" | SongSheet>("!lyrics")
 
@@ -91,3 +101,13 @@ async function addToCandidates() {
   await setlistSheetlistStore.refresh({ setlistId: setlist.id })
 }
 </script>
+
+<style>
+.btn-sheet {
+  @apply font-semibold rounded-lg px-4 py-1 border-2 border-transparent;
+  @apply hover:border-blue-500 hover:shadow hover:bg-sky-100;
+}
+.btn-sheet[selected="true"] {
+  @apply border-blue-300 shadow hover:border-blue-500;
+}
+</style>

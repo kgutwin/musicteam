@@ -14,7 +14,7 @@
             </span>
           </div>
         </div>
-        <div class="italic">CCLI Num: {{ song?.ccli_num ?? "Unknown" }}</div>
+        <div class="italic">CCLI Number: {{ song?.ccli_num ?? "Unknown" }}</div>
         <hr />
         <div class="text-sm">
           Uploaded on {{ localdate(song?.created_on) }} by

@@ -12,3 +12,10 @@ export function localdate(datetime?: string): string {
   const d = new Date(datetime)
   return d.toLocaleDateString()
 }
+
+export function nextSunday(): string {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7 - now.getDay())
+    .toISOString()
+    .split("T")[0] as string
+}

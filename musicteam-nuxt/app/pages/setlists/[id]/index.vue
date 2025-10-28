@@ -41,8 +41,24 @@
           />
         </button>
       </template>
-      <template #song="{ row }"> </template>
+      <template #song="{ row }">
+        <SetlistSidebarSong
+          v-for="sheet in filtered(slist?.sheets, row.id)"
+          :key="sheet.id"
+          :sheet="sheet"
+          :current-position-id="row.id"
+        />
+      </template>
     </MtTable>
+
+    <div class="mt-8 rounded-lg shadow-lg grid grid-cols-2 gap-2">
+      <div class="italic col-span-2 p-2 bg-gray-200">Candidates</div>
+      <SetlistSidebarSong
+        v-for="sheet in filtered(slist?.sheets)"
+        :key="sheet.id"
+        :sheet="sheet"
+      />
+    </div>
   </div>
 </template>
 
@@ -52,20 +68,24 @@ import {
   useActiveSetlistStore,
   useSetlistStore,
   useSetlistPositionlistStore,
+  useSetlistSheetlistStore,
   useSetlistRefreshStore,
 } from "@/stores/setlists"
 
+import type { SetlistSheet } from "@/services/api"
 import type { TableColumn } from "@/types/mt"
 
 const activeStore = useActiveSetlistStore()
 const setlistStore = useSetlistStore()
 const setlistPositionlistStore = useSetlistPositionlistStore()
+const sheetlistStore = useSetlistSheetlistStore()
 const refreshStore = useSetlistRefreshStore()
 
 const { id } = useRoute().params
 
 const setlist = setlistStore.get({ setlistId: id as string }).data
 const positions = setlistPositionlistStore.get({ setlistId: id as string }).data
+const slist = sheetlistStore.get({ setlistId: id as string }).data
 
 const columns: TableColumn[] = [
   { name: "label", title: "Label" },
@@ -82,6 +102,8 @@ function rotateStatus(status?: Status | null): Status {
 }
 
 async function deleteSetlist() {
+  if (!window.confirm("Are you sure you want to delete this set list?")) return
+
   await api.setlists.deleteSetlist(id as string)
 
   await refreshStore.refresh()
@@ -93,5 +115,10 @@ function makeActive() {
   if (setlist.value) {
     activeStore.setlist = setlist.value
   }
+}
+
+function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] {
+  if (!sheets) return []
+  return sheets.filter((s) => s.setlist_position_id == positionId)
 }
 </script>

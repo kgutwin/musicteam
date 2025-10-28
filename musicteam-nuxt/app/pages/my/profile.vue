@@ -44,5 +44,15 @@
 </template>
 
 <script setup lang="ts">
+import { useActiveSetlistStore } from "@/stores/setlists"
+
 const { signOut, data: authData } = useAuth()
+
+const activeStore = useActiveSetlistStore()
+
+function logout() {
+  activeStore.setlist = null
+
+  signOut({ callbackUrl: "/" })
+}
 </script>

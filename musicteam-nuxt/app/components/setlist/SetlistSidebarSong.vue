@@ -7,7 +7,7 @@
     </div>
     <div class="grow">{{ song?.title }} ({{ songSheet?.key }})</div>
     <MtDropdown>
-      <div>Move to ...</div>
+      <div class="italic">Move to ...</div>
       <button
         v-for="position in songPositions"
         :key="position.id"
@@ -51,7 +51,7 @@
 
       <hr />
 
-      <button class="text-red-500">
+      <button class="text-red-500" @click="remove">
         <Icon name="ri:delete-bin-6-line" class="mr-1" />
         Remove
       </button>
@@ -140,6 +140,12 @@ async function rotateType() {
   }
 
   await setType(newType)
+}
+
+async function remove() {
+  await api.setlists.deleteSetlistSheet(props.sheet.setlist_id, props.sheet.id)
+
+  await refreshSetlists.refresh({ setlistId: props.sheet.setlist_id })
 }
 </script>
 

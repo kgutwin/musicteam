@@ -14,7 +14,9 @@
         </NuxtLink>
       </template>
       <template #leader="{ row }">
-        {{ row.leader_name }}
+        <NuxtLink :to="`/setlists/${row.id}`" class="hover:underline">
+          {{ row.leader_name }}
+        </NuxtLink>
       </template>
       <template #tags="{ row }">
         <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>

@@ -14,11 +14,15 @@
 
     <div v-if="panelOpen">
       <h1>Active Set List:</h1>
-      <h2>{{ active.setlist.service_date }} - {{ active.setlist.leader_name }}</h2>
+      <h2>
+        <NuxtLink :to="`/setlists/${active.setlist.id}`" class="hover:underline">
+          {{ active.setlist.service_date }} - {{ active.setlist.leader_name }}
+        </NuxtLink>
+      </h2>
 
       <hr />
 
-      <h3>Candidates</h3>
+      <div class="italic">Candidates</div>
 
       <div class="rounded-lg bg-white min-h-20">
         <SetlistSidebarSong
@@ -29,12 +33,15 @@
         </SetlistSidebarSong>
       </div>
 
-      <h3 class="mt-8">Slots</h3>
-
-      <div>
+      <div class="mt-4">
         <div v-for="position in plist?.positions ?? []" :key="position.id">
-          <div>{{ position.label }}</div>
-          <div v-if="position.is_music" class="rounded-lg bg-white min-h-8">
+          <ul class="flex flex-row list-disc ml-4">
+            <li :class="{ 'font-bold': position.is_music }">
+              {{ position.label }}
+            </li>
+            <hr class="grow" />
+          </ul>
+          <div v-if="position.is_music" class="rounded-lg bg-white min-h-8 mb-1">
             <SetlistSidebarSong
               v-for="sheet in filtered(slist?.sheets, position.id)"
               :key="sheet.id"
@@ -43,6 +50,10 @@
             />
           </div>
         </div>
+      </div>
+
+      <div class="mt-12">
+        <button class="btn-gray" @click="active.setlist = null">Make Inactive</button>
       </div>
     </div>
     <div v-else class="absolute rotate-90 top-40 -right-14 w-40">

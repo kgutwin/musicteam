@@ -60,6 +60,7 @@ import type { NewSetlistPosition } from "@/services/api"
 import type { TableColumn } from "@/types/mt"
 
 import { api } from "@/services"
+import { nextSunday } from "@/utils"
 import { useSetlistRefreshStore } from "@/stores/setlists"
 
 const { data: authData } = useAuth()
@@ -67,14 +68,14 @@ const { data: authData } = useAuth()
 const setlistRefresh = useSetlistRefreshStore()
 
 const inputLeaderName = ref<string | undefined>(authData.value?.name)
-const inputServiceDate = ref<string>("2025-11-02")
+const inputServiceDate = ref<string>(nextSunday())
 const inputTags = ref<string[]>([])
 
 const positions = ref<Partial<NewSetlistPosition>[]>([{ index: 1, is_music: true }])
 const columns: TableColumn[] = [
   { name: "label", title: "Label" },
   { name: "presenter", title: "Presenter" },
-  { name: "is-music", title: "Music?" },
+  { name: "is-music", title: "Needs Music?" },
   { name: "controls", title: "" },
 ]
 

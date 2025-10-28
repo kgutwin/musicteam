@@ -79,7 +79,9 @@ export function createParamStoreState<P, T>(
       return store
     }
 
-    function refresh(params: Partial<P>) {
+    function refresh(params?: Partial<P>) {
+      if (!params) return
+
       for (const storeParamEncoded of Object.keys(stores.value)) {
         const storeParams = JSON.parse(storeParamEncoded)
 
