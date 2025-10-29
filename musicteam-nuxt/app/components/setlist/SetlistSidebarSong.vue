@@ -5,7 +5,9 @@
         <Icon :name="typeIcon[sheet.type]" />
       </button>
     </div>
-    <div class="grow">{{ song?.title }} ({{ songSheet?.key }})</div>
+    <div class="grow" :class="{ 'cursor-grab': draggable }">
+      {{ song?.title }} ({{ songSheet?.key }})
+    </div>
     <MtDropdown>
       <div class="italic">Move to ...</div>
       <button
@@ -67,6 +69,7 @@ import { api } from "@/services"
 import type { SetlistSheet } from "@/services/api"
 
 const props = defineProps<{
+  draggable?: boolean
   sheet: SetlistSheet
   currentPositionId?: string
 }>()
@@ -101,6 +104,11 @@ const refreshSetlists = useSetlistRefreshStore()
 
 async function addTo(positionId: string | null) {
   const newType: SetlistSheetType = !positionId ? "5:candidate" : props.sheet.type
+
+  // patch the current object
+  props.sheet.setlist_position_id = positionId
+  props.sheet.type = newType
+
   await api.setlists.updateSetlistSheet(props.sheet.setlist_id, props.sheet.id, {
     setlist_position_id: positionId,
     type: newType,

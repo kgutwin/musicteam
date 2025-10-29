@@ -33,6 +33,7 @@
         >
           <SetlistSidebarSong
             v-for="sheet in filtered(slist?.sheets)"
+            :draggable="true"
             :key="sheet.id"
             :sheet="sheet"
           />
@@ -57,6 +58,7 @@
               <SetlistSidebarSong
                 v-for="sheet in filtered(slist?.sheets, position.id)"
                 :key="sheet.id"
+                :draggable="true"
                 :sheet="sheet"
                 :current-position-id="position.id"
               />
@@ -116,6 +118,11 @@ function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] 
 
 async function addSheetTo(sheet: SetlistSheet, positionId: string | null) {
   const newType: SetlistSheetType = !positionId ? "5:candidate" : sheet.type
+
+  // patch the current object
+  sheet.setlist_position_id = positionId
+  sheet.type = newType
+
   await api.setlists.updateSetlistSheet(sheet.setlist_id, sheet.id, {
     setlist_position_id: positionId,
     type: newType,

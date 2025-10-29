@@ -20,6 +20,10 @@
 - Bucket maintenance
 - API keys
 
+## Bugs
+
+- Login session is too short (30m)?
+
 ## Deployment
 
 - Host app on custom domain

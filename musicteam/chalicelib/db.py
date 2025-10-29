@@ -10,10 +10,19 @@ from typing import overload
 from typing import TypeVar
 
 import aurora_data_api
+import boto3
 from pydantic import BaseModel
+
+DatabaseResumingException = boto3.client(
+    "rds-data"
+).exceptions.DatabaseResumingException
+UndefinedTable = aurora_data_api.PostgreSQLError.from_code("42P01")  # type: ignore[attr-defined]
 
 PSYCOPG_PARAM: re.Pattern[str] | None
 try:
+    if "AURORA_CLUSTER_ARN" in os.environ and "AURORA_SECRET_ARN" in os.environ:
+        raise ImportError()
+
     from py_pglite import PGliteManager, PGliteConfig  # type: ignore[import-untyped]
     import psycopg
 
@@ -32,6 +41,10 @@ try:
 except ImportError:
     PGLITE_AVAILABLE = False
     PSYCOPG_PARAM = None
+
+
+# increment this whenever a new db schema update is added
+DB_VERSION = 1
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -107,10 +120,14 @@ def connect() -> Iterator[Interface]:
     if "AURORA_CLUSTER_ARN" in os.environ and "AURORA_SECRET_ARN" in os.environ:
         with aurora_data_api.connect(database="musicteam") as conn:
             yield Interface(conn)
+            return
 
     # Try pglite
     if not PGLITE_AVAILABLE:
         raise Exception("Aurora connection details not available")
+
+    global UndefinedTable
+    UndefinedTable = psycopg.errors.UndefinedTable
 
     global PGLITE_MANAGER
     if PGLITE_MANAGER is None:
@@ -141,13 +158,65 @@ def connect() -> Iterator[Interface]:
         yield Interface(conn)
 
 
+class VersionRow(BaseModel):
+    ver: int
+
+
+def upgrade_db() -> bool:
+    with connect() as conn:
+        if not conn.execute("SELECT 1 WHERE pg_try_advisory_lock(10010)"):
+            return False
+
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS _version (pk TEXT PRIMARY KEY, ver INT)"
+        )
+
+        curs = conn.execute(
+            "SELECT ver FROM _version WHERE pk = 'db_version'", output=VersionRow
+        )
+        current_ver = curs.fetchone() or VersionRow(ver=0)
+
+        while current_ver.ver < DB_VERSION:
+            next_ver = current_ver.ver + 1
+            schema_fn = os.path.join(
+                os.path.dirname(__file__), f"db-schema/schema-{next_ver:03d}.sql"
+            )
+            with open(schema_fn) as fp:
+                # todo: more intelligent statement splitting
+                for statement in fp.read().split(";"):
+                    print(statement)
+                    conn.execute(statement)
+
+            curs = conn.execute(
+                "SELECT ver FROM _version WHERE pk = 'db_version'", output=VersionRow
+            )
+            current_ver = curs.fetchone() or VersionRow(ver=0)
+
+        conn.execute("SELECT pg_advisory_unlock_all()")
+
+    return True
+
+
 def ping() -> bool:
+    check_upgrade = False
     with connect() as conn:
         try:
-            conn.execute("SELECT 1;")
+            result = conn.execute(
+                "SELECT 1 FROM _version WHERE pk = 'db_version' AND ver = :ver",
+                {"ver": DB_VERSION},
+            )
+            if result == 0:
+                raise UndefinedTable()
             return True
-        except Exception:
+        except DatabaseResumingException:
             return False
+        except UndefinedTable:
+            check_upgrade = True
+
+    if check_upgrade:
+        return upgrade_db()
+
+    return True
 
 
 def upgrade_to(version: str) -> None:

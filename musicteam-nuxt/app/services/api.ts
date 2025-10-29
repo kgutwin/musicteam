@@ -957,21 +957,6 @@ export class Api<
       ...params,
     });
 
-  admin = {
-    /**
-     * No description
-     *
-     * @name DbUpgrade
-     * @request POST:/admin/db-upgrade/{ver}
-     */
-    dbUpgrade: (ver: string, params: RequestParams = {}) =>
-      this.request<object, ServerError>({
-        path: `/admin/db-upgrade/${ver}`,
-        method: "POST",
-        format: "json",
-        ...params,
-      }),
-  };
   auth = {
     /**
      * No description

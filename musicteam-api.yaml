@@ -14,23 +14,6 @@ paths:
             application/json:
               schema:
                 type: object
-  /admin/db-upgrade/{ver}:
-    post:
-      operationId: db_upgrade
-      responses:
-        '500':
-          $ref: '#/components/responses/Error'
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-    parameters:
-    - name: ver
-      in: path
-      required: true
-      schema:
-        type: string
   /auth/callback:
     get:
       operationId: auth.auth_callback
