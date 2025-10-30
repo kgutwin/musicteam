@@ -5,12 +5,18 @@ export default defineNuxtConfig({
   ssr: false,
   modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth", "@pinia/nuxt", "@nuxt/icon"],
 
-  // routeRules: {
-  //   "/api/**": { proxy: "http://127.0.0.1:8000/**" },
-  // },
   nitro: {
     devProxy: {
-      "/api": "http://127.0.0.1:8000",
+      "/api": process.env.REMOTE_API
+        ? {
+            target: `https://${process.env.REMOTE_API}/api`,
+            changeOrigin: true,
+            headers: {
+              "x-dev-host": "localhost:3000",
+              "x-dev-proto": "http",
+            },
+          }
+        : "http://127.0.0.1:8000",
     },
   },
 

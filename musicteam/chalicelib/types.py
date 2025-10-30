@@ -1,4 +1,3 @@
-import os
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -10,10 +9,9 @@ from typing import Self
 import jwt
 from chalice.app import HeadersType
 from chalice.app import Response
+from chalicelib.config import SITE_SECRET
 from pydantic import BaseModel
 from pydantic import Field
-
-SITE_SECRET = os.environ["SITE_SECRET"]
 
 
 class _ReplacementModel(BaseModel):

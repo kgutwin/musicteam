@@ -2,9 +2,10 @@ import os
 import sys
 
 import boto3
+from chalicelib.config import IS_CHALICE_LOCAL
+from chalicelib.config import OBJECT_BUCKET_NAME
 
-BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
-if BUCKET_NAME == "local" and sys.argv[0].endswith("chalice"):
+if OBJECT_BUCKET_NAME == "local" and IS_CHALICE_LOCAL and sys.argv[-1] == "local":
     import os
     import atexit
     import shutil
@@ -33,7 +34,7 @@ if BUCKET_NAME == "local" and sys.argv[0].endswith("chalice"):
     )
 
     try:
-        s3.create_bucket(Bucket=BUCKET_NAME)
+        s3.create_bucket(Bucket=OBJECT_BUCKET_NAME)
     except s3.exceptions.BucketAlreadyOwnedByYou:
         pass
 

@@ -1,10 +1,10 @@
-import os
-
 import google.auth.transport.requests
 import google.oauth2.id_token
 from chalice.app import Blueprint
 from chalice.app import Request
 from chalicelib import db
+from chalicelib.config import OAUTH_CLIENT_ID
+from chalicelib.config import OAUTH_CLIENT_SECRET
 from chalicelib.types import Forbidden
 from chalicelib.types import Found
 from chalicelib.types import LoginResponse
@@ -14,8 +14,6 @@ from requests_oauthlib import OAuth2Session
 
 bp = Blueprint(__name__)
 
-CLIENT_ID = os.environ.get("CLIENT_ID")
-CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 AUTHORIZATION_BASE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token"
 SCOPE = [
@@ -26,8 +24,15 @@ SCOPE = [
 
 
 def url_for(request: Request, suffix: str) -> str:
-    proto = request.headers.get("x-forwarded-proto", "https")
-    host = request.headers.get("host", "localhost")
+    proto = request.headers.get(
+        "x-dev-proto", request.headers.get("x-forwarded-proto", "https")
+    )
+    host = request.headers.get(
+        "x-dev-host",
+        request.headers.get(
+            "x-original-host", request.headers.get("host", "localhost")
+        ),
+    )
     return f"{proto}://{host}/api{suffix}"
 
 
@@ -35,7 +40,9 @@ def url_for(request: Request, suffix: str) -> str:
 def auth_google() -> Found:
     redirect_uri = url_for(bp.current_request, "/auth/callback")
 
-    oauth_session = OAuth2Session(CLIENT_ID, scope=SCOPE, redirect_uri=redirect_uri)
+    oauth_session = OAuth2Session(
+        OAUTH_CLIENT_ID, scope=SCOPE, redirect_uri=redirect_uri
+    )
     authorization_url, state = oauth_session.authorization_url(AUTHORIZATION_BASE_URL)
     bp.current_request.context["cookies"]["state"] = state
 
@@ -51,15 +58,17 @@ def auth_callback() -> Forbidden | Found:
         return Forbidden()
 
     redirect_uri = url_for(bp.current_request, "/auth/callback")
-    oauth_session = OAuth2Session(CLIENT_ID, state=state, redirect_uri=redirect_uri)
+    oauth_session = OAuth2Session(
+        OAUTH_CLIENT_ID, state=state, redirect_uri=redirect_uri
+    )
     token = oauth_session.fetch_token(
         TOKEN_URL,
-        client_secret=CLIENT_SECRET,
+        client_secret=OAUTH_CLIENT_SECRET,
         code=bp.current_request.query_params["code"],
     )
 
     payload = google.oauth2.id_token.verify_oauth2_token(  # type: ignore[no-untyped-call]
-        token["id_token"], google.auth.transport.requests.Request(), CLIENT_ID  # type: ignore[no-untyped-call]
+        token["id_token"], google.auth.transport.requests.Request(), OAUTH_CLIENT_ID  # type: ignore[no-untyped-call]
     )
 
     with db.connect() as conn:

@@ -11,6 +11,8 @@ from typing import TypeVar
 
 import aurora_data_api
 import boto3
+from chalicelib.config import AURORA_CLUSTER_ARN
+from chalicelib.config import AURORA_SECRET_ARN
 from pydantic import BaseModel
 
 DatabaseResumingException = boto3.client(
@@ -19,8 +21,9 @@ DatabaseResumingException = boto3.client(
 UndefinedTable = aurora_data_api.PostgreSQLError.from_code("42P01")  # type: ignore[attr-defined]
 
 PSYCOPG_PARAM: re.Pattern[str] | None
+
 try:
-    if "AURORA_CLUSTER_ARN" in os.environ and "AURORA_SECRET_ARN" in os.environ:
+    if AURORA_CLUSTER_ARN is not None and AURORA_SECRET_ARN is not None:
         raise ImportError()
 
     from py_pglite import PGliteManager, PGliteConfig  # type: ignore[import-untyped]
@@ -116,9 +119,12 @@ class Interface:
 
 @contextlib.contextmanager
 def connect() -> Iterator[Interface]:
-    # Needs the AURORA_CLUSTER_ARN and AURORA_SECRET_ARN environment variables
-    if "AURORA_CLUSTER_ARN" in os.environ and "AURORA_SECRET_ARN" in os.environ:
-        with aurora_data_api.connect(database="musicteam") as conn:
+    if AURORA_CLUSTER_ARN and AURORA_SECRET_ARN:
+        with aurora_data_api.connect(
+            database="musicteam",
+            aurora_cluster_arn=AURORA_CLUSTER_ARN,
+            secret_arn=AURORA_SECRET_ARN,
+        ) as conn:
             yield Interface(conn)
             return
 

@@ -1,8 +1,8 @@
 from chalice.app import Blueprint
 from chalicelib import db
+from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
-from chalicelib.storage import BUCKET_NAME
 from chalicelib.storage import s3
 from chalicelib.types import _SongSheetObject
 from chalicelib.types import Download
@@ -332,7 +332,7 @@ def get_song_sheet_doc(
     content_type = sheet_obj.object_type
 
     if bp.current_request.method == "HEAD":
-        s3_resp = s3.head_object(Bucket=BUCKET_NAME, Key=sheet_obj.object_id)
+        s3_resp = s3.head_object(Bucket=OBJECT_BUCKET_NAME, Key=sheet_obj.object_id)
         return Download(
             b"",
             headers={
@@ -346,7 +346,7 @@ def get_song_sheet_doc(
     if bp.current_request.headers.get("Range"):
         extra["Range"] = bp.current_request.headers["Range"]
 
-    s3_resp = s3.get_object(Bucket=BUCKET_NAME, Key=sheet_obj.object_id, **extra)
+    s3_resp = s3.get_object(Bucket=OBJECT_BUCKET_NAME, Key=sheet_obj.object_id, **extra)
 
     headers: dict[str, str | list[str]] = {
         "Content-Type": content_type,

@@ -2,8 +2,8 @@ import base64
 import uuid
 
 from chalice.app import Blueprint
+from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.middleware import session_role
-from chalicelib.storage import BUCKET_NAME
 from chalicelib.storage import s3
 from chalicelib.types import Forbidden
 from chalicelib.types import ObjectId
@@ -24,6 +24,6 @@ def upload_file(
     if query_params.base64:
         request_body = base64.b64decode(request_body)
 
-    s3.put_object(Bucket=BUCKET_NAME, Key=object_id, Body=request_body)
+    s3.put_object(Bucket=OBJECT_BUCKET_NAME, Key=object_id, Body=request_body)
 
     return ObjectId(id=object_id)
