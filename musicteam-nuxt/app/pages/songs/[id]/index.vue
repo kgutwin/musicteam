@@ -6,7 +6,7 @@
           <div class="grow">
             <MtText is="h1" loading="w-72 my-3" :text="song?.title" />
           </div>
-          <button class="btn-red">Delete</button>
+          <button class="btn-red" @click="deleteSong">Delete</button>
         </div>
         <div class="flex flex-row">
           <div class="grow">
@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { api } from "@/services"
 import { useSongStore, useSongVersionlistStore } from "@/stores/songs"
 import { useUserStore } from "@/stores/users"
 import { localdate } from "@/utils"
@@ -112,5 +113,13 @@ async function addVersion() {
       song: id as string,
     },
   })
+}
+
+async function deleteSong() {
+  if (!window.confirm("Are you sure you want to delete this song?")) return
+
+  await useToaster(async () => await api.songs.deleteSong(id as string))
+
+  await navigateTo({ path: "/songs" })
 }
 </script>

@@ -12,8 +12,8 @@
       <NuxtLink to="/setlists">Set Lists</NuxtLink>
       <NuxtLink to="/team">Team</NuxtLink>
     </div>
-    <div v-if="status === 'authenticated' && authData" class="self-start">
-      <NuxtLink to="/my/profile">
+    <div v-if="status === 'authenticated'" class="self-start">
+      <NuxtLink v-if="authData" to="/my/profile">
         <img
           v-if="authData?.picture"
           :src="authData.picture"

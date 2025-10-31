@@ -6,7 +6,6 @@
   - after adding a sheet, we need either a patch or a loading indicator
   - after adding a set list
   - on saving a new song, need a spinner
-- Toasts for errors
 - Auto-strip chords from lyrics
 - Cursor to edit in between verse order bubbles
 - Edit setlists, songs, etc.
@@ -24,6 +23,9 @@
 
 ## Backend
 
+- Set list data model updates
+  - Title (sermon title)
+  - Participants (scheduled team members)
 - Search across songs
 - Setlist packet assembly
 - New users are pending first
@@ -38,6 +40,7 @@
   - can it be parallelized, or batched?
 - Adding a sheet as a candidate is also very slow, for some reason
   - probably should patch it
+- sometimes login fails with 403 error?? maybe only with dev frontend?
 
 ## Performance
 

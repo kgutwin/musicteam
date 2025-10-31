@@ -114,11 +114,13 @@ async function save() {
   const setlistId = setlistResponse.data.id
 
   let index = 1
+  const promises = []
   for (const position of positions.value as NewSetlistPosition[]) {
     position.index = index
-    await api.setlists.newSetlistPosition(setlistId, position)
+    promises.push(api.setlists.newSetlistPosition(setlistId, position))
     index += 1
   }
+  await Promise.all(promises)
 
   await setlistRefresh.refresh()
 
