@@ -157,11 +157,4 @@ async function remove() {
 }
 </script>
 
-<style>
-.dropdown-menu hr {
-  @apply border-slate-500 m-2;
-}
-.dropdown-menu button {
-  @apply w-full text-left pl-1 py-0.5 rounded-lg hover:bg-slate-100 hover:shadow;
-}
-</style>
+<style></style>

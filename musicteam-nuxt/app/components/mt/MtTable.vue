@@ -9,7 +9,18 @@
       </tr>
     </thead>
     <tbody v-if="data">
-      <tr v-for="(row, index) in data" :key="index">
+      <tr
+        v-for="(row, index) in data"
+        :key="index"
+        :clickable="!!rowClick"
+        @click="
+          () => {
+            if (rowClick) {
+              rowClick(row)
+            }
+          }
+        "
+      >
         <td v-for="column in columns" :key="column.name" :class="column.cls">
           <slot :name="column.name" :row="row" :index="index" />
         </td>
@@ -34,6 +45,7 @@ import type { TableColumn } from "@/types/mt"
 defineProps<{
   columns: TableColumn[]
   data?: T[]
+  rowClick?: (row: T) => any
 }>()
 </script>
 
@@ -44,8 +56,14 @@ defineProps<{
   & tbody {
     @apply divide-y border border-gray-300;
 
-    & tr td {
-      @apply bg-gray-50 p-2;
+    & tr {
+      @apply bg-gray-50;
+      & td {
+        @apply p-2;
+      }
+    }
+    & tr[clickable="true"] {
+      @apply hover:bg-gray-100;
     }
   }
 

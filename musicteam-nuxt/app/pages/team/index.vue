@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Team Members</h1>
-    <MtTable :columns="columns" :data="users.data?.users ?? []">
+    <MtTable :columns="columns" :data="users.data?.users">
       <template #picture="{ row }">
         <img
           :src="row.picture"

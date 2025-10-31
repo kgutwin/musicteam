@@ -3,7 +3,16 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   // devtools: { enabled: true },
   ssr: false,
-  modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth", "@pinia/nuxt", "@nuxt/icon"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@sidebase/nuxt-auth",
+    "@pinia/nuxt",
+    "@nuxt/icon",
+    [
+      "vite-plugin-version-mark/nuxt",
+      { ifShortSHA: true, ifMeta: true, ifLog: true, ifGlobal: true },
+    ],
+  ],
 
   // for debugging
   // vite: { build: { minify: false } },

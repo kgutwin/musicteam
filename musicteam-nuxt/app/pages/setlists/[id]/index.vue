@@ -23,7 +23,7 @@
       <template #presenter="{ row }">
         {{ row.presenter }}
       </template>
-      <template #status="{ row }">
+      <!-- <template #status="{ row }">
         <button
           @click="row.status = rotateStatus(row.status)"
           :title="row.status ?? ''"
@@ -40,7 +40,7 @@
             "
           />
         </button>
-      </template>
+      </template> -->
       <template #song="{ row }">
         <SetlistSidebarSong
           v-for="sheet in filtered(slist?.sheets, row.id)"
@@ -90,7 +90,7 @@ const slist = sheetlistStore.get({ setlistId: id as string }).data
 const columns: TableColumn[] = [
   { name: "label", title: "Label" },
   { name: "presenter", title: "Presenter" },
-  { name: "status", title: "" },
+  // { name: "status", title: "" },
   { name: "song", title: "Song" },
 ]
 

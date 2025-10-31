@@ -38,10 +38,10 @@
                 positions.splice(index + 1, 0, { index: index + 1, is_music: true })
               "
             >
-              <Icon name="lucide:plus" size="20" />
+              <Icon name="ri:add-large-line" size="20" />
             </button>
             <button type="button" @click="positions.splice(index, 1)">
-              <Icon name="lucide:trash-2" size="20" />
+              <Icon name="ri:delete-bin-6-line" size="20" />
             </button>
           </div>
         </template>

@@ -29,11 +29,11 @@
 - New users are pending first
 - Bucket maintenance
 - API keys
+- History endpoints
 
 ## Bugs
 
 - Login session is too short (30m)?
-- Need to package icon sets
 - Adding a set list is very slow since it needs to make one request per position
   - can it be parallelized, or batched?
 - Adding a sheet as a candidate is also very slow, for some reason

@@ -101,7 +101,7 @@
           />
           <Icon
             v-if="inputObjectId"
-            name="ri:checkbox-fill"
+            name="ri:file-check-line"
             size="24"
             class="text-green-500"
           />
