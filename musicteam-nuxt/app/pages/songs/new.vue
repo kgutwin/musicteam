@@ -6,18 +6,30 @@
 
     <form class="frm-edit" :disabled="!!existingSongId">
       <label>
-        <span>Title</span>
-        <input v-model="inputTitle" :disabled="!!existingSongId" class="inp-text" />
+        <span>Title <span class="spn-req">*</span></span>
+        <input
+          v-model="inputTitle"
+          :disabled="!!existingSongId"
+          class="inp-text"
+          required
+        />
       </label>
 
       <label>
-        <span>Authors</span>
+        <span>Authors <span class="spn-req">*</span></span>
         <MtArrayInput v-model="inputAuthors" :disabled="!!existingSongId" allow-space />
       </label>
 
       <label>
         <span>CCLI Number</span>
-        <input v-model="inputCcliNum" :disabled="!!existingSongId" class="inp-text" />
+        <input
+          v-model="inputCcliNum"
+          :disabled="!!existingSongId"
+          class="inp-text"
+          type="text"
+          inputmode="numeric"
+          pattern="\d*"
+        />
       </label>
 
       <label>
@@ -28,7 +40,7 @@
 
     <form class="frm-edit" :disabled="!!existingSongVersionId">
       <label>
-        <span>Label</span>
+        <span>Label <span class="spn-req">*</span></span>
         <MtSelectOther
           v-model="inputLabel"
           :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
@@ -37,24 +49,37 @@
       </label>
 
       <label>
-        <span>Verse Order</span>
+        <span>Verse Order <span class="spn-req">*</span></span>
         <MtArrayInput v-model="inputVerseOrder" :disabled="!!existingSongVersionId" />
       </label>
 
       <label>
-        <span>Lyrics</span>
+        <div class="flex flex-row gap-4">
+          <span>Lyrics <span class="spn-req">*</span></span>
+          <span v-if="inputCcliNum">
+            <a
+              :href="`https://songselect.ccli.com/songs/${inputCcliNum}`"
+              target="_blank"
+              class="a-hov"
+            >
+              SongSelect
+              <Icon name="solar:square-share-line-outline" size="12" class="ml-2" />
+            </a>
+          </span>
+        </div>
         <textarea
           v-model="inputLyrics"
           :disabled="!!existingSongVersionId"
           class="txt-lg"
           rows="12"
+          required
         />
       </label>
     </form>
 
     <form class="frm-edit">
       <label>
-        <span>Music Sheet Type</span>
+        <span>Music Sheet Type <span class="spn-req">*</span></span>
         <MtSelectOther
           v-model="inputSheetType"
           :options="['Chord', 'Lead', 'Vocal', 'Hymn']"
@@ -62,8 +87,8 @@
       </label>
 
       <label>
-        <span>Musical Key</span>
-        <input v-model="inputKey" class="inp-text" />
+        <span>Musical Key <span class="spn-req">*</span></span>
+        <input v-model="inputKey" class="inp-text" required placeholder="C" />
       </label>
 
       <label>
@@ -74,13 +99,21 @@
             accept="text/plain, application/pdf, application/vnd.recordare.musicxml+xml"
             @change="addFile"
           />
-          <div v-if="inputObjectId">* confirmed</div>
+          <Icon
+            v-if="inputObjectId"
+            name="ri:checkbox-fill"
+            size="24"
+            class="text-green-500"
+          />
         </div>
       </label>
     </form>
 
     <div class="flex flex-row gap-2">
-      <button class="btn-gray" @click="save">Save</button>
+      <button class="btn-gray" @click="save" :disabled="invalid || saving">
+        Save
+        <Icon v-if="saving" name="svg-spinners:270-ring-with-bg" class="ml-4" />
+      </button>
       <button class="btn-gray" @click="cancel">Cancel</button>
     </div>
   </div>
@@ -145,6 +178,20 @@ const inputSheetType = ref<string>()
 const inputObjectId = ref<string>()
 const inputObjectType = ref<string>()
 
+const invalid = useInvalid(
+  [
+    inputTitle,
+    inputAuthors,
+    inputLabel,
+    inputVerseOrder,
+    inputLyrics,
+    inputSheetType,
+    inputKey,
+    inputObjectId,
+  ],
+  [inputCcliNum],
+)
+
 const songRefresh = useSongRefreshStore()
 
 function fileToBase64String(file: File): Promise<string> {
@@ -173,7 +220,11 @@ async function addFile(event: any) {
   }
 }
 
+const saving = ref(false)
+
 async function save() {
+  saving.value = true
+
   let songId: string
   if (existingSongId) {
     songId = existingSongId as string
@@ -234,6 +285,8 @@ async function save() {
   })
 
   await songRefresh.refresh({ songId })
+
+  saving.value = false
 
   await navigateTo({ path: `/songs/${songId}` })
 }

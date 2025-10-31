@@ -20,6 +20,10 @@ hr {
   @apply border-black m-4;
 }
 
+.a-hov {
+  @apply hover:underline hover:opacity-60;
+}
+
 .btn-gray {
   @apply border border-slate-500 rounded-lg px-4 py-1 bg-gray-200;
   /* @apply bg-gradient-to-tr hover:from-blue-200 hover:to-sky-200; */
@@ -36,6 +40,9 @@ hr {
 
 .spn-tag {
   @apply inline-block rounded bg-slate-100 px-2 py-0.5 mx-1 my-px;
+}
+.spn-req {
+  @apply text-red-500;
 }
 
 .tbl-definition {
@@ -72,6 +79,9 @@ hr {
 .inp-text:disabled {
   @apply text-gray-500;
 }
+.inp-text:user-invalid {
+  @apply bg-red-100 ring-2 ring-red-200;
+}
 
 .sel-dropdown {
   @apply p-1;
@@ -82,4 +92,7 @@ hr {
 }
 .txt-lg:disabled {
   @apply text-gray-500;
+}
+.txt-lg:user-invalid {
+  @apply bg-red-100 ring-2 ring-red-200;
 }

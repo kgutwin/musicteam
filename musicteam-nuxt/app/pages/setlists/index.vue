@@ -7,7 +7,7 @@
       </div>
     </div>
 
-    <MtTable :columns="columns" :data="setlists.data?.setlists ?? []">
+    <MtTable :columns="columns" :data="setlists.data?.setlists">
       <template #service-date="{ row }">
         <NuxtLink :to="`/setlists/${row.id}`" class="hover:underline">
           {{ row.service_date }}

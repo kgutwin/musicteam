@@ -5,6 +5,10 @@ export default defineNuxtConfig({
   ssr: false,
   modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth", "@pinia/nuxt", "@nuxt/icon"],
 
+  // for debugging
+  // vite: { build: { minify: false } },
+  sourcemap: true,
+
   nitro: {
     devProxy: {
       "/api": process.env.REMOTE_API

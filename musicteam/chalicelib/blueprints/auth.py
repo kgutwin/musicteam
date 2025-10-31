@@ -94,6 +94,7 @@ def auth_callback() -> Forbidden | Found:
         assert user is not None
 
     bp.current_request.context["cookies"]["session"] = user.to_token()
+    bp.current_request.context["cookies"]["state"] = None
 
     return Found("/login?complete=1")
 

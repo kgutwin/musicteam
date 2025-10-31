@@ -1,4 +1,5 @@
 import contextlib
+import json
 import os.path
 import re
 from typing import Any
@@ -47,7 +48,7 @@ except ImportError:
 
 
 # increment this whenever a new db schema update is added
-DB_VERSION = 1
+DB_VERSION = 2
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -79,8 +80,14 @@ class Cursor(Generic[T]):
 
 
 class Interface:
-    def __init__(self, conn: aurora_data_api.AuroraDataAPIClient):
+    def __init__(
+        self, conn: aurora_data_api.AuroraDataAPIClient, transaction: bool = False
+    ):
         self.conn = conn
+
+        # does this improve performance?
+        if hasattr(self.conn, "_transaction_id") and not transaction:
+            self.conn._transaction_id = ""
 
     @overload
     def execute(
@@ -108,9 +115,31 @@ class Interface:
             sql = PSYCOPG_PARAM.sub(r"%(\1)s", sql)
 
         curs = self.conn.cursor()
+
         if isinstance(parameters, BaseModel):
             parameters = parameters.model_dump()
-        curs.execute(sql, parameters)
+        elif parameters is not None:
+            parameters = dict(parameters)
+
+        if PSYCOPG_PARAM is None and parameters is not None:
+            # Data API does not support array parameters, so we need
+            # to convert to JSON
+            for param in parameters:
+                if type(parameters[param]) is list:
+                    parameters[param] = json.dumps(parameters[param])
+                    sql = re.sub(
+                        rf"([^:]):{param}(\W|$)",
+                        rf"\1jsonb_to_text_array(:{param}::jsonb)\2",
+                        sql,
+                    )
+
+        try:
+            curs.execute(sql, parameters)
+        except Exception:
+            print(sql)
+            print(parameters)
+            raise
+
         if output is not None:
             return Cursor(curs, output)
         else:
@@ -118,14 +147,14 @@ class Interface:
 
 
 @contextlib.contextmanager
-def connect() -> Iterator[Interface]:
+def connect(transaction: bool = False) -> Iterator[Interface]:
     if AURORA_CLUSTER_ARN and AURORA_SECRET_ARN:
         with aurora_data_api.connect(
             database="musicteam",
             aurora_cluster_arn=AURORA_CLUSTER_ARN,
             secret_arn=AURORA_SECRET_ARN,
         ) as conn:
-            yield Interface(conn)
+            yield Interface(conn, transaction)
             return
 
     # Try pglite

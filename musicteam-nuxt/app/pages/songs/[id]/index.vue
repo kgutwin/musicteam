@@ -3,22 +3,38 @@
     <div class="flex flex-row gap-4 w-full">
       <div class="div-panel basis-4/6">
         <div class="flex flex-row">
-          <h1 class="grow">{{ song?.title }}</h1>
+          <div class="grow">
+            <MtText is="h1" loading="w-72 my-3" :text="song?.title" />
+          </div>
           <button class="btn-red">Delete</button>
         </div>
         <div class="flex flex-row">
-          <h3 class="grow">{{ song?.authors?.join(", ") }}</h3>
+          <div class="grow">
+            <MtText is="h3" loading="w-48 my-2" :text="song?.authors?.join(', ')" />
+          </div>
           <div>
             <span v-for="tag in song?.tags ?? []" :key="tag" class="spn-tag">
               {{ tag }}
             </span>
           </div>
         </div>
-        <div class="italic">CCLI Number: {{ song?.ccli_num ?? "Unknown" }}</div>
+        <div class="italic">
+          CCLI Number:
+          <a
+            v-if="song?.ccli_num"
+            :href="`https://songselect.ccli.com/songs/${song.ccli_num}`"
+            target="_blank"
+            class="a-hov"
+          >
+            {{ song.ccli_num }}
+            <Icon name="solar:square-share-line-outline" size="12" class="ml-2" />
+          </a>
+          <template v-else>Unknown</template>
+        </div>
         <hr />
         <div class="text-sm">
-          Uploaded on {{ localdate(song?.created_on) }} by
-          {{ user?.name }}
+          Uploaded on {{ localdate(song?.created_on) }}
+          <template v-if="user?.name">by {{ user?.name }}</template>
         </div>
       </div>
 
@@ -28,6 +44,9 @@
           <button class="btn-gray" @click="addVersion">Add Version...</button>
         </div>
         <ul class="list-disc ml-4">
+          <li v-if="versions?.song_versions === undefined">
+            <MtText loading="w-32" />
+          </li>
           <li
             v-for="version in versions?.song_versions ?? []"
             :key="version.id"

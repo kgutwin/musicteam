@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <MtTable :columns="columns" :data="positions?.positions ?? []">
+    <MtTable :columns="columns" :data="positions?.positions">
       <template #label="{ row }">
         {{ row.label }}
       </template>

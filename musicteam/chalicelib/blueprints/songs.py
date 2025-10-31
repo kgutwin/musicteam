@@ -352,6 +352,11 @@ def get_song_sheet_doc(
         "Content-Type": content_type,
     }
     body = s3_resp["Body"].read()
+    if content_type == "text/plain":
+        # if we uploaded a file which can't be read as utf-8, then
+        # chalice is going to have problems with it, so replace bad
+        # bytes with the unknown character.
+        body = body.decode(errors="replace").encode()
 
     if bp.current_request.headers.get("Range"):
         headers["Content-Range"] = s3_resp["ContentRange"]

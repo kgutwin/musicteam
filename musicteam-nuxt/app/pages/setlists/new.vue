@@ -4,13 +4,13 @@
 
     <form class="frm-edit">
       <label>
-        <span>Leader's Name</span>
-        <input v-model="inputLeaderName" class="inp-text" />
+        <span>Leader's Name <span class="spn-req">*</span></span>
+        <input v-model="inputLeaderName" class="inp-text" required />
       </label>
 
       <label>
-        <span>Service Date</span>
-        <input v-model="inputServiceDate" type="date" class="inp-text" />
+        <span>Service Date <span class="spn-req">*</span></span>
+        <input v-model="inputServiceDate" type="date" class="inp-text" required />
       </label>
 
       <label>
@@ -22,7 +22,7 @@
     <form class="frm-edit">
       <MtTable :columns="columns" :data="positions">
         <template #label="{ row }">
-          <input v-model="row.label" class="inp-text w-full" />
+          <input v-model="row.label" class="inp-text w-full" required />
         </template>
         <template #presenter="{ row }">
           <input v-model="row.presenter" class="inp-text w-full" />
@@ -49,7 +49,10 @@
     </form>
 
     <div class="flex flex-row gap-2">
-      <button class="btn-gray" @click="save">Save</button>
+      <button class="btn-gray" @click="save" :disabled="invalid || saving">
+        Save
+        <Icon v-if="saving" name="svg-spinners:270-ring-with-bg" class="ml-4" />
+      </button>
       <button class="btn-gray" @click="cancel">Cancel</button>
     </div>
   </div>
@@ -73,13 +76,29 @@ const inputTags = ref<string[]>([])
 
 const positions = ref<Partial<NewSetlistPosition>[]>([{ index: 1, is_music: true }])
 const columns: TableColumn[] = [
-  { name: "label", title: "Label" },
+  { name: "label", title: "Label", required: true },
   { name: "presenter", title: "Presenter" },
   { name: "is-music", title: "Needs Music?" },
   { name: "controls", title: "" },
 ]
 
+watch(
+  positions,
+  (newV) => {
+    if (newV.length === 0) {
+      positions.value = [{ index: 1, is_music: true }]
+    }
+  },
+  { deep: true },
+)
+
+const invalid = useInvalid([inputLeaderName, inputServiceDate, positions])
+
+const saving = ref(false)
+
 async function save() {
+  saving.value = true
+
   const leaderName = inputLeaderName.value
   const serviceDate = inputServiceDate.value
   const tags = inputTags.value
@@ -103,7 +122,9 @@ async function save() {
 
   await setlistRefresh.refresh()
 
-  await navigateTo({ path: "/setlists" })
+  saving.value = false
+
+  await navigateTo({ path: `/setlists/${setlistId}` })
 }
 
 async function cancel() {

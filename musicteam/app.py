@@ -10,6 +10,9 @@ from chalicelib.blueprints import songs
 from chalicelib.blueprints import users
 
 app = Chalice(app_name="musicteam")
+app.api.binary_types.append("application/pdf")
+# needed for some reason to get PDFs working in Safari?
+app.api.binary_types.append("text/html")
 
 middleware.register(app)
 app.register_blueprint(auth.bp)

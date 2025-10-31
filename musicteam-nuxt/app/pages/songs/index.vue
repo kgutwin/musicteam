@@ -6,7 +6,7 @@
         <NuxtLink class="btn-gray" to="/songs/new">New...</NuxtLink>
       </div>
     </div>
-    <MtTable :columns="columns" :data="songlist.data?.songs ?? []">
+    <MtTable :columns="columns" :data="songlist.data?.songs">
       <template #title="{ row }">
         <NuxtLink :to="`/songs/${row.id}`" class="hover:underline">
           {{ row.title }}

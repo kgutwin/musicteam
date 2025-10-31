@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="div-panel my-4">
-      <div class="flex flex-row gap-4">
+      <div class="flex flex-row gap-4 items-baseline">
         <button
           class="btn-sheet"
           :selected="selectedSheet === '!lyrics'"
@@ -9,6 +9,7 @@
         >
           Lyrics
         </button>
+        <MtText v-if="sheets?.song_sheets === undefined" loading="w-20 mx-4" />
         <button
           v-for="sheet in sheets?.song_sheets ?? []"
           :key="sheet.id"
