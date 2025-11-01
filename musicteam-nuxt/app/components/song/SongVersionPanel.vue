@@ -79,6 +79,14 @@ const sheets = computed(
 
 const selectedSheet = ref<"!lyrics" | SongSheet>("!lyrics")
 
+const { query } = useRoute()
+watchEffect(() => {
+  if (query.sheet && sheets.value) {
+    const found = sheets.value.song_sheets.find((s) => s.id === query.sheet)
+    if (found) selectedSheet.value = found
+  }
+})
+
 async function addSheet() {
   await navigateTo({
     path: "/songs/new",

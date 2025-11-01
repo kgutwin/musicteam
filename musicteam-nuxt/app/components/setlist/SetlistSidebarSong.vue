@@ -6,7 +6,10 @@
       </button>
     </div>
     <div class="grow" :class="{ 'cursor-grab': draggable }">
-      {{ song?.title }} ({{ songSheet?.key }})
+      <NuxtLink :to="`/songs/${song?.id}?sheet=${sheet.song_sheet_id}`">
+        <MtText is="span" loading="w-48" :text="song?.title" />
+        <template v-if="songSheet"> ({{ songSheet.key }})</template>
+      </NuxtLink>
     </div>
     <MtDropdown>
       <div class="italic">Move to ...</div>

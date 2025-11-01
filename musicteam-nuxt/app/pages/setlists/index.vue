@@ -7,16 +7,18 @@
       </div>
     </div>
 
-    <MtTable :columns="columns" :data="setlists.data?.setlists">
+    <MtTable
+      :columns="columns"
+      :data="setlists.data?.setlists"
+      :row-click="async (row) => await navigateTo(`/setlists/${row.id}`)"
+    >
       <template #service-date="{ row }">
         <NuxtLink :to="`/setlists/${row.id}`" class="hover:underline">
           {{ row.service_date }}
         </NuxtLink>
       </template>
       <template #leader="{ row }">
-        <NuxtLink :to="`/setlists/${row.id}`" class="hover:underline">
-          {{ row.leader_name }}
-        </NuxtLink>
+        {{ row.leader_name }}
       </template>
       <template #tags="{ row }">
         <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>
