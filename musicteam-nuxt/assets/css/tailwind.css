@@ -74,7 +74,7 @@ hr {
 }
 
 .inp-text {
-  @apply rounded-lg px-2 py-1;
+  @apply rounded-lg px-2 py-1 ring-1 ring-sky-500;
 }
 .inp-text:disabled {
   @apply text-gray-500;

@@ -28,6 +28,11 @@
           @click="addToCandidates"
         >
           Add as Candidate
+          <Icon
+            v-if="addCandidateStatus === 'pending'"
+            name="svg-spinners:3-dots-fade"
+            class="ml-2"
+          />
         </button>
       </div>
     </div>
@@ -60,6 +65,8 @@ import type { SongVersion, SongSheet } from "@/services/api"
 import { api } from "@/services"
 import { useSongSheetlistStore } from "@/stores/songs"
 import { useActiveSetlistStore, useSetlistSheetlistStore } from "@/stores/setlists"
+
+import type { ToasterStatus } from "@/types/toast"
 
 const props = defineProps<{
   version: SongVersion
@@ -97,17 +104,25 @@ async function addSheet() {
   })
 }
 
+const addCandidateStatus = ref<ToasterStatus>()
+
 async function addToCandidates() {
-  if (selectedSheet.value === "!lyrics") return
   const setlist = activeSetlistStore.setlist
   if (!setlist) return
 
-  await api.setlists.newSetlistSheet(setlist.id, {
-    type: "5:candidate",
-    song_sheet_id: selectedSheet.value.id,
-  })
+  await useToaster(
+    async () => {
+      if (selectedSheet.value === "!lyrics") return
 
-  await setlistSheetlistStore.refresh({ setlistId: setlist.id })
+      await api.setlists.newSetlistSheet(setlist.id, {
+        type: "5:candidate",
+        song_sheet_id: selectedSheet.value.id,
+      })
+
+      await setlistSheetlistStore.refresh({ setlistId: setlist.id })
+    },
+    { status: addCandidateStatus },
+  )
 }
 </script>
 

@@ -18,10 +18,16 @@
 
     <MtTable :columns="columns" :data="positions?.positions">
       <template #label="{ row }">
-        {{ row.label }}
+        <span :class="{ italic: !row.is_music }">
+          <MtEditable :model="row" prop="label" @save="savePosition(row, 'label')" />
+        </span>
       </template>
       <template #presenter="{ row }">
-        {{ row.presenter }}
+        <MtEditable
+          :model="row"
+          prop="presenter"
+          @save="savePosition(row, 'presenter')"
+        />
       </template>
       <!-- <template #status="{ row }">
         <button
@@ -72,7 +78,7 @@ import {
   useSetlistRefreshStore,
 } from "@/stores/setlists"
 
-import type { SetlistSheet } from "@/services/api"
+import type { SetlistSheet, SetlistPosition } from "@/services/api"
 import type { TableColumn } from "@/types/mt"
 
 const activeStore = useActiveSetlistStore()
@@ -120,5 +126,12 @@ function makeActive() {
 function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] {
   if (!sheets) return []
   return sheets.filter((s) => s.setlist_position_id == positionId)
+}
+
+async function savePosition(position: SetlistPosition, field: keyof SetlistPosition) {
+  await api.setlists.updateSetlistPosition(id as string, position.id, {
+    [field]: position[field],
+  })
+  await refreshStore.refresh({ setlistId: id as string })
 }
 </script>

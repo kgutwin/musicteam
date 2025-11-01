@@ -121,6 +121,9 @@ async function addTo(positionId: string | null) {
 }
 
 async function setType(type: SetlistSheetType) {
+  // patch live model
+  props.sheet.type = type
+
   await api.setlists.updateSetlistSheet(props.sheet.setlist_id, props.sheet.id, {
     type,
   })
