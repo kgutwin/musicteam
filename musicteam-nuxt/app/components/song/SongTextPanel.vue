@@ -1,11 +1,19 @@
 <template>
-  <div class="whitespace-pre-wrap font-mono lg:mx-48 border shadow-lg p-8">
-    <div
-      v-if="verseOrder"
-      class="float-right p-4 bg-slate-100 shadow text-right font-bold"
-    >
-      Order:
-      {{ verseOrder.replace(/\s+/g, "\n") }}
+  <div class="whitespace-pre-wrap font-mono xl:mx-24 2xl:mx-48 border shadow-lg p-8">
+    <div class="float-right text-right">
+      <div class="pr-4 pb-2">
+        <button
+          class="text-blue-500 hover:text-blue-700"
+          @click="$emit('copy')"
+          title="Copy to Clipboard"
+        >
+          <Icon name="solar:copy-outline" />
+        </button>
+      </div>
+      <div v-if="verseOrder" class="p-4 bg-slate-100 shadow font-bold">
+        Order:
+        {{ verseOrder.replace(/\s+/g, "\n") }}
+      </div>
     </div>
     <slot />
   </div>
@@ -13,4 +21,5 @@
 
 <script setup lang="ts">
 defineProps<{ verseOrder: string | null | undefined }>()
+defineEmits<{ copy: [] }>()
 </script>

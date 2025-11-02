@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Head><Title>Songs - MusicTeam</Title></Head>
     <div class="flex flex-row">
       <h1 class="grow">Songs</h1>
       <div>
@@ -27,6 +28,9 @@
       </template>
       <template #tags="{ row }">
         <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>
+      </template>
+      <template #ccli="{ row }">
+        {{ row.ccli_num }}
       </template>
       <template #controls="{ row }">
         <!-- how to pick version and sheet from here?
@@ -58,6 +62,7 @@ const columns: TableColumn[] = [
   { name: "title", title: "Title" },
   { name: "authors", title: "Authors" },
   { name: "tags", title: "Tags" },
+  // { name: "ccli", title: "CCLI #" },
   { name: "controls", title: "" },
 ]
 

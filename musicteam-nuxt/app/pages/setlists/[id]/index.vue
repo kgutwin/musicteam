@@ -1,13 +1,31 @@
 <template>
   <div>
+    <Head>
+      <Title>{{ setlist?.service_date }} Set List - MusicTeam</Title>
+    </Head>
     <div class="div-panel">
       <div class="flex flex-row gap-2">
-        <h1 class="grow">Set List for {{ setlist?.service_date }}</h1>
+        <h1 class="grow">
+          Set List for
+          <MtEditable
+            :model="setlist"
+            prop="service_date"
+            type="date"
+            @save="saveSetlist('service_date')"
+          />
+        </h1>
         <button class="btn-red" @click="deleteSetlist">Delete</button>
         <button class="btn-gray" @click="makeActive">Make Active</button>
       </div>
       <div class="flex flex-row">
-        <h2 class="grow">Leader: {{ setlist?.leader_name }}</h2>
+        <h2 class="grow">
+          Leader:
+          <MtEditable
+            :model="setlist"
+            prop="leader_name"
+            @save="saveSetlist('leader_name')"
+          />
+        </h2>
         <div>
           <span v-for="tag in setlist?.tags ?? []" :key="tag" class="spn-tag">
             {{ tag }}
@@ -78,7 +96,7 @@ import {
   useSetlistRefreshStore,
 } from "@/stores/setlists"
 
-import type { SetlistSheet, SetlistPosition } from "@/services/api"
+import type { SetlistSheet, SetlistPosition, Setlist } from "@/services/api"
 import type { TableColumn } from "@/types/mt"
 
 const activeStore = useActiveSetlistStore()
@@ -126,6 +144,12 @@ function makeActive() {
 function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] {
   if (!sheets) return []
   return sheets.filter((s) => s.setlist_position_id == positionId)
+}
+
+async function saveSetlist(field: keyof Setlist) {
+  if (!setlist.value) return
+  await api.setlists.updateSetlist(id as string, { [field]: setlist.value[field] })
+  await refreshStore.refresh({ setlistId: id as string })
 }
 
 async function savePosition(position: SetlistPosition, field: keyof SetlistPosition) {

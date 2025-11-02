@@ -1,5 +1,7 @@
 <template>
   <div>
+    <Head><Title>My Profile - MusicTeam</Title></Head>
+
     <div class="flex flex-row w-full">
       <h1 class="grow">My Profile</h1>
       <div>

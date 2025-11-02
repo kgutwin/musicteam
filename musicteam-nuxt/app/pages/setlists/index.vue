@@ -1,5 +1,7 @@
 <template>
   <div>
+    <Head><Title>Set Lists - MusicTeam</Title></Head>
+
     <div class="flex flex-row">
       <h1 class="grow">Set Lists</h1>
       <div>
@@ -14,7 +16,7 @@
     >
       <template #service-date="{ row }">
         <NuxtLink :to="`/setlists/${row.id}`" class="hover:underline">
-          {{ row.service_date }}
+          {{ localdate(row.service_date) }}
         </NuxtLink>
       </template>
       <template #leader="{ row }">

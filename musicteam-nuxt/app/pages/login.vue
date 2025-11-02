@@ -1,5 +1,7 @@
 <template>
   <div class="mx-auto max-w-[480px] rounded-xl border shadow-lg p-8">
+    <Head><Title>Login - MusicTeam</Title></Head>
+
     <h1 class="w-full text-center">Sign In to MusicTeam</h1>
     <div v-if="signingIn" class="text-center">
       <Icon name="svg-spinners:270-ring-with-bg" size="32" />

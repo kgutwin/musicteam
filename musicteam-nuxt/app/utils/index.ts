@@ -6,8 +6,9 @@ export function trimArray(arr: string[], cut: number = 3): string[] {
 }
 
 /** Converts UTC datetime into local time; returns date as string */
-export function localdate(datetime?: string): string {
-  if (datetime === undefined) return ""
+export function localdate(datetime?: string | null): string {
+  if (!datetime) return ""
+  if (!datetime.includes("T")) datetime += "T12:00:00"
   if (!datetime.endsWith("Z")) datetime += "Z"
   const d = new Date(datetime)
   return d.toLocaleDateString()

@@ -29,6 +29,7 @@
     "
     @blur="addTag"
   >
+    <!-- <div class="min-w-px"></div> -->
     <div
       v-for="(tag, index) in tags"
       class="inp-array-el group"
@@ -85,6 +86,6 @@ function addTag() {
   @apply absolute top-1 right-2 text-white text-xs;
 }
 .inp-array-newtag {
-  @apply grow focus:border-transparent focus:ring-0;
+  @apply grow min-w-px focus:border-transparent focus:ring-0;
 }
 </style>

@@ -1,5 +1,7 @@
 <template>
   <div>
+    <Head><Title>New Set List - MusicTeam</Title></Head>
+
     <h1>New Set List</h1>
 
     <form class="frm-edit">

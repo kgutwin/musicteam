@@ -19,7 +19,10 @@
         >
           {{ sheet.type }} ({{ sheet.key }})
         </button>
+
         <div class="grow"></div>
+
+        <button class="btn-gray" @click="edit">Edit...</button>
         <button class="btn-gray" @click="addSheet">Add Sheet...</button>
         <button
           v-if="activeSetlistStore.setlist"
@@ -39,6 +42,7 @@
     <SongTextPanel
       v-if="selectedSheet === '!lyrics'"
       :verse-order="version.verse_order"
+      @copy="lyricsToClipboard"
     >
       {{ version.lyrics }}
     </SongTextPanel>
@@ -61,6 +65,8 @@
 </template>
 
 <script setup lang="ts">
+import { useModal } from "tailvue"
+
 import type { SongVersion, SongSheet } from "@/services/api"
 import { api } from "@/services"
 import { useSongSheetlistStore } from "@/stores/songs"
@@ -123,6 +129,43 @@ async function addToCandidates() {
     },
     { status: addCandidateStatus },
   )
+}
+
+function lyricsToClipboard() {
+  if (props.version.lyrics) navigator.clipboard.writeText(props.version.lyrics)
+}
+
+async function editCurrentVersion() {
+  const sheetId = selectedSheet.value === "!lyrics" ? "lyrics" : selectedSheet.value.id
+  await navigateTo({
+    path: `/songs/${props.version.song_id}/edit/${props.version.id}/${sheetId}`,
+  })
+}
+
+function edit() {
+  const modal = useModal()
+
+  modal.show({
+    title: "What would you like to do?",
+    body:
+      "If you have a new set of lyrics, a new verse order, or a new song sheet, " +
+      "it's probably best to click Add a New Version. If you are correcting a " +
+      "mistake, click Edit Current Version.",
+    primary: {
+      label: "Add a New Version",
+      theme: "blue",
+      action: async () =>
+        await navigateTo({
+          path: "/songs/new",
+          query: { song: props.version.song_id },
+        }),
+    },
+    secondary: {
+      label: "Edit Current Version",
+      theme: "white",
+      action: editCurrentVersion,
+    },
+  })
 }
 </script>
 

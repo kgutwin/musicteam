@@ -1,5 +1,11 @@
 <template>
   <div>
+    <Head>
+      <Title v-if="existingSongVersionId">Add Song Sheet - MusicTeam</Title>
+      <Title v-else-if="existingSongId">Add Song Version - MusicTeam</Title>
+      <Title v-else>New Song - MusicTeam</Title>
+    </Head>
+
     <h1 v-if="existingSongVersionId">Add Song Sheet</h1>
     <h1 v-else-if="existingSongId">Add Song Version</h1>
     <h1 v-else>New Song</h1>
