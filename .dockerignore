@@ -1,0 +1,15 @@
+**/*~
+**/.DS_Store
+
+venv/
+deploy/
+instance/
+.env
+
+musicteam-nuxt/.output
+musicteam-nuxt/.data
+musicteam-nuxt/.nuxt
+musicteam-nuxt/.nitro
+musicteam-nuxt/.cache
+musicteam-nuxt/dist
+musicteam-nuxt/node_modules

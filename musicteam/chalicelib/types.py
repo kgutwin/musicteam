@@ -54,7 +54,7 @@ class User(BaseModel):
     name: str
     provider_id: str
     email: str
-    picture: str
+    picture: str | None = None
     role: UserRole
     api_key: str | None = None
 

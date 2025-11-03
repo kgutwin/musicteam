@@ -1,5 +1,6 @@
 import google.auth.transport.requests
 import google.oauth2.id_token
+import jwt.exceptions
 from chalice.app import Blueprint
 from chalice.app import Request
 from chalicelib import db
@@ -40,36 +41,55 @@ def url_for(request: Request, suffix: str) -> str:
 def auth_google() -> Found:
     redirect_uri = url_for(bp.current_request, "/auth/callback")
 
-    oauth_session = OAuth2Session(
-        OAUTH_CLIENT_ID, scope=SCOPE, redirect_uri=redirect_uri
-    )
-    authorization_url, state = oauth_session.authorization_url(AUTHORIZATION_BASE_URL)
-    bp.current_request.context["cookies"]["state"] = state
+    if OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET:
+        oauth_session = OAuth2Session(
+            OAUTH_CLIENT_ID, scope=SCOPE, redirect_uri=redirect_uri
+        )
+        authorization_url, state = oauth_session.authorization_url(
+            AUTHORIZATION_BASE_URL
+        )
+        bp.current_request.context["cookies"]["state"] = state
+
+    else:
+        # bypassing OAuth since client and secret are not defined
+        authorization_url = redirect_uri
 
     return Found(authorization_url)
 
 
 @bp.route("/auth/callback", methods=["GET"])
 def auth_callback() -> Forbidden | Found:
-    assert bp.current_request.query_params is not None
-    state = bp.current_request.query_params.get("state")
+    if OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET:
+        assert bp.current_request.query_params is not None
+        state = bp.current_request.query_params.get("state")
 
-    if state != bp.current_request.context["cookies"]["state"]:
-        return Forbidden()
+        if state != bp.current_request.context["cookies"]["state"]:
+            return Forbidden()
 
-    redirect_uri = url_for(bp.current_request, "/auth/callback")
-    oauth_session = OAuth2Session(
-        OAUTH_CLIENT_ID, state=state, redirect_uri=redirect_uri
-    )
-    token = oauth_session.fetch_token(
-        TOKEN_URL,
-        client_secret=OAUTH_CLIENT_SECRET,
-        code=bp.current_request.query_params["code"],
-    )
+        redirect_uri = url_for(bp.current_request, "/auth/callback")
+        oauth_session = OAuth2Session(
+            OAUTH_CLIENT_ID, state=state, redirect_uri=redirect_uri
+        )
+        token = oauth_session.fetch_token(
+            TOKEN_URL,
+            client_secret=OAUTH_CLIENT_SECRET,
+            code=bp.current_request.query_params["code"],
+        )
 
-    payload = google.oauth2.id_token.verify_oauth2_token(  # type: ignore[no-untyped-call]
-        token["id_token"], google.auth.transport.requests.Request(), OAUTH_CLIENT_ID  # type: ignore[no-untyped-call]
-    )
+        payload = google.oauth2.id_token.verify_oauth2_token(  # type: ignore[no-untyped-call]
+            token["id_token"],
+            google.auth.transport.requests.Request(),  # type: ignore[no-untyped-call]
+            OAUTH_CLIENT_ID,
+        )
+
+    else:
+        # bypassing OAuth since client and secret are not defined
+        payload = {
+            "name": "Local User",
+            "sub": "1111222233334444",
+            "email": "user@example.com",
+            "picture": None,
+        }
 
     with db.connect() as conn:
         curs = conn.execute(
@@ -121,7 +141,7 @@ def auth_session() -> User | NoContent:
     try:
         token = bp.current_request.context["cookies"]["session"]
         return User.from_token(token)
-    except KeyError:
+    except (KeyError, jwt.exceptions.InvalidTokenError):
         return NoContent()
 
 

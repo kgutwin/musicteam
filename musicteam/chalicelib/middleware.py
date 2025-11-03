@@ -8,6 +8,7 @@ from typing import Mapping
 from typing import Self
 from typing import TypeVar
 
+import jwt.exceptions
 from chalice.app import Chalice
 from chalice.app import Request
 from chalice.app import Response
@@ -158,8 +159,11 @@ def register(app: Chalice) -> None:
                 pass
 
         if token is not None:
-            user = User.from_token(token)
-            event.context["user"] = user
+            try:
+                user = User.from_token(token)
+                event.context["user"] = user
+            except jwt.exceptions.InvalidTokenError:
+                pass
 
         return get_response(event)
 

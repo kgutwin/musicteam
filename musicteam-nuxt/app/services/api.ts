@@ -662,8 +662,11 @@ export interface User {
   provider_id: string;
   /** Email */
   email: string;
-  /** Picture */
-  picture: string;
+  /**
+   * Picture
+   * @default null
+   */
+  picture?: string | null;
   /** Role */
   role: "admin" | "manager" | "leader" | "viewer" | "pending" | "inactive";
   /**

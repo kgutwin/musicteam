@@ -1876,8 +1876,11 @@ components:
           title: Email
           type: string
         picture:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
           title: Picture
-          type: string
         role:
           enum:
           - admin
@@ -1899,7 +1902,6 @@ components:
       - name
       - provider_id
       - email
-      - picture
       - role
       title: User
       type: object

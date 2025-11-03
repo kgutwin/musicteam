@@ -4,6 +4,7 @@
     <MtTable :columns="columns" :data="users.data?.users">
       <template #picture="{ row }">
         <img
+          v-if="row.picture"
           :src="row.picture"
           class="h-8 w-8 rounded-full mx-auto"
           referrerpolicy="no-referrer"
