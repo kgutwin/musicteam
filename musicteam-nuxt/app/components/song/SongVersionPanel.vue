@@ -78,6 +78,8 @@ const props = defineProps<{
   version: SongVersion
 }>()
 
+const emit = defineEmits<{ selected: [SongSheet | undefined] }>()
+
 const sheetsStore = useSongSheetlistStore()
 const activeSetlistStore = useActiveSetlistStore()
 const setlistSheetlistStore = useSetlistSheetlistStore()
@@ -91,6 +93,16 @@ const sheets = computed(
 )
 
 const selectedSheet = ref<"!lyrics" | SongSheet>("!lyrics")
+watchEffect(() => {
+  const ss = selectedSheet.value
+  if (sheets.value && ss !== "!lyrics") {
+    // reset the selected sheet if it's no longer in the list of sheets
+    if (!sheets.value.song_sheets.some((s) => s.id === ss.id)) {
+      selectedSheet.value = "!lyrics"
+    }
+  }
+  emit("selected", ss === "!lyrics" ? undefined : ss)
+})
 
 const { query } = useRoute()
 watchEffect(() => {

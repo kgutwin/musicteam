@@ -49,7 +49,37 @@
           </div>
           <div class="basis-1/2 text-right">
             <div class="mb-2">
-              <button class="btn-red" @click="deleteSong">Delete</button>
+              <MtDropdown button-class="btn-red">
+                <template #dropdown-button>Delete</template>
+                <button
+                  :disabled="!selectedSheet"
+                  class="flex flex-col"
+                  @click="deleteSheet"
+                >
+                  <span>Delete Sheet:</span>
+                  <span class="italic ml-1">
+                    {{
+                      selectedSheet
+                        ? `${selectedSheet.type} (${selectedSheet.key})`
+                        : "No sheet selected"
+                    }}
+                  </span>
+                </button>
+                <button
+                  class="flex flex-col"
+                  :disabled="(versions?.song_versions ?? []).length <= 1"
+                  @click="deleteVersion"
+                >
+                  <span>Delete Version:</span>
+                  <span
+                    v-if="(versions?.song_versions ?? []).length <= 1"
+                    class="italic ml-1"
+                    >Cannot delete the only version</span
+                  >
+                  <span v-else class="italic ml-1">{{ version?.label }}</span>
+                </button>
+                <button class="text-red-500" @click="deleteSong">Delete Song</button>
+              </MtDropdown>
             </div>
             <MtEditable :model="song" prop="tags" @save="saveSong('tags')">
               <div class="flex flex-row flex-wrap">
@@ -95,44 +125,51 @@
           <h2 class="grow">Versions</h2>
           <button class="btn-gray" @click="addVersion">Add Version...</button>
         </div>
-        <ul class="list-disc ml-4">
+        <ul class="list-disc ml-4 mt-1">
           <li v-if="versions?.song_versions === undefined">
             <MtText loading="w-32" />
           </li>
           <li v-for="version in versions?.song_versions ?? []" :key="version.id">
-            <div :class="{ 'font-bold': version.id === selectedVersion }">
-              <MtEditable
-                :model="version"
-                prop="label"
-                @save="saveVersion(version, 'label')"
-              >
-                <button @click="selectedVersion = version.id" class="hover:underline">
+            <button
+              @click="selectedVersion = version.id"
+              class="inline-block w-full text-left rounded p-1 hover:bg-blue-100 hover:shadow-lg"
+            >
+              <div :class="{ 'font-bold': version.id === selectedVersion }">
+                <MtEditable
+                  :model="version"
+                  prop="label"
+                  @save="saveVersion(version, 'label')"
+                >
                   {{ version.label }}
-                </button>
-              </MtEditable>
-              ({{ localdate(version.created_on) }})
-            </div>
-            <div>
-              Verse order:
-              <MtEditable
-                :model="version"
-                prop="verse_order"
-                @save="saveVersion(version, 'verse_order')"
-              >
-                <template #input="{ modelValue, updateModelValue }">
-                  <MtArrayInput
-                    :modelValue="modelValue?.split(/\s+/)"
-                    @update:modelValue="(arr) => updateModelValue(arr.join(' '))"
-                  />
-                </template>
-              </MtEditable>
-            </div>
+                </MtEditable>
+                ({{ localdate(version.created_on) }})
+              </div>
+              <div>
+                Verse order:
+                <MtEditable
+                  :model="version"
+                  prop="verse_order"
+                  @save="saveVersion(version, 'verse_order')"
+                >
+                  <template #input="{ modelValue, updateModelValue }">
+                    <MtArrayInput
+                      :modelValue="modelValue?.split(/\s+/)"
+                      @update:modelValue="(arr) => updateModelValue(arr.join(' '))"
+                    />
+                  </template>
+                </MtEditable>
+              </div>
+            </button>
           </li>
         </ul>
       </div>
     </div>
 
-    <SongVersionPanel v-if="version" :version="version" />
+    <SongVersionPanel
+      v-if="version"
+      :version="version"
+      @selected="(sheet) => (selectedSheet = sheet)"
+    />
   </div>
 </template>
 
@@ -146,7 +183,7 @@ import {
 import { useUserStore } from "@/stores/users"
 import { localdate } from "@/utils"
 
-import type { Song, SongVersion } from "@/services/api"
+import type { Song, SongVersion, SongSheet } from "@/services/api"
 
 const songStore = useSongStore()
 const userStore = useUserStore()
@@ -166,6 +203,7 @@ const user = computed(() => {
 })
 
 const selectedVersion = ref<string>()
+const selectedSheet = ref<SongSheet>()
 
 const version = computed(() => {
   if (versions.value && selectedVersion.value) {
@@ -199,6 +237,28 @@ async function deleteSong() {
   await useToaster(async () => await api.songs.deleteSong(id as string))
 
   await navigateTo({ path: "/songs" })
+}
+
+async function deleteVersion() {
+  const sv = selectedVersion.value
+  if (!sv) return
+
+  await useToaster(async () => await api.songs.deleteSongVersion(id as string, sv))
+
+  await refreshStore.refresh({ songId: id as string })
+
+  selectedVersion.value = ""
+}
+
+async function deleteSheet() {
+  const ssid = selectedSheet.value?.id
+  if (!ssid) return
+  const sv = selectedVersion.value
+  if (!sv) return
+
+  await useToaster(async () => await api.songs.deleteSongSheet(id as string, sv, ssid))
+
+  await refreshStore.refresh({ songId: id as string })
 }
 
 async function saveSong(field: keyof Song) {

@@ -54,14 +54,14 @@
         </label>
       </form>
 
-      <PdfEditor
+      <SongPdfEditor
         v-if="sheet?.object_type === 'application/pdf'"
         :song-id="id as string"
         :version-id="versionId as string"
         :sheet-id="sheetId as string"
         @has-save="(save) => (saveSheetObject = save)"
       />
-      <TextEditor
+      <SongTextEditor
         v-else-if="sheet?.object_type === 'text/plain'"
         :song-id="id as string"
         :version-id="versionId as string"

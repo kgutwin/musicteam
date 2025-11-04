@@ -8,19 +8,25 @@
     <div v-if="show" class="dropdown-menu" @click="show = false">
       <slot />
     </div>
-    <button type="button" @click="show = !show">
-      <Icon name="ri:arrow-down-s-line" />
+    <button type="button" :class="buttonClass" @click="show = !show" :title="title">
+      <slot name="dropdown-button">
+        <Icon name="ri:arrow-down-s-line" />
+      </slot>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+defineProps<{
+  title?: string
+  buttonClass?: string
+}>()
 const show = ref(false)
 </script>
 
 <style>
 .dropdown-menu {
-  @apply absolute right-0 top-4 z-20 w-40 text-sm rounded-lg bg-white p-2 border shadow-lg;
+  @apply absolute right-0 top-full z-20 w-40 text-sm rounded-lg bg-white p-2 border shadow-lg;
 }
 .dropdown-menu hr {
   @apply border-slate-500 m-2;
