@@ -3,10 +3,10 @@
     <Head><Title>Login - MusicTeam</Title></Head>
 
     <h1 class="w-full text-center">Sign In to MusicTeam</h1>
-    <div v-if="signingIn" class="text-center">
-      <Icon name="svg-spinners:270-ring-with-bg" size="32" />
+    <div class="text-center my-6" :class="signingIn ? '' : 'invisible'">
+      <Icon name="svg-spinners:3-dots-fade" size="32" />
     </div>
-    <div v-else class="mt-12">
+    <div v-if="!signingIn">
       <a
         href="/api/auth/google"
         class="btn-gray block text-center !p-2"

@@ -37,7 +37,11 @@
             <button
               type="button"
               @click="
-                positions.splice(index + 1, 0, { index: index + 1, is_music: true })
+                positions.splice(index + 1, 0, {
+                  id: randomId(),
+                  index: index + 1,
+                  is_music: true,
+                })
               "
             >
               <Icon name="ri:add-large-line" size="20" />
@@ -65,7 +69,7 @@ import type { NewSetlistPosition } from "@/services/api"
 import type { TableColumn } from "@/types/mt"
 
 import { api } from "@/services"
-import { nextSunday } from "@/utils"
+import { nextSunday, randomId } from "@/utils"
 import { useSetlistRefreshStore } from "@/stores/setlists"
 
 const { data: authData } = useAuth()
@@ -76,7 +80,9 @@ const inputLeaderName = ref<string | undefined>(authData.value?.name)
 const inputServiceDate = ref<string>(nextSunday())
 const inputTags = ref<string[]>([])
 
-const positions = ref<Partial<NewSetlistPosition>[]>([{ index: 1, is_music: true }])
+type PendingPosition = Partial<NewSetlistPosition> & { id: string }
+
+const positions = ref<PendingPosition[]>([{ id: randomId(), index: 1, is_music: true }])
 const columns: TableColumn[] = [
   { name: "label", title: "Label", required: true },
   { name: "presenter", title: "Presenter" },
@@ -88,7 +94,7 @@ watch(
   positions,
   (newV) => {
     if (newV.length === 0) {
-      positions.value = [{ index: 1, is_music: true }]
+      positions.value = [{ id: randomId(), index: 1, is_music: true }]
     }
   },
   { deep: true },

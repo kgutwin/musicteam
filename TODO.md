@@ -2,7 +2,6 @@
 
 ## Frontend
 
-- Add, remove, reorder setlist positions
 - Filter, sort listing of songs, setlists
 - Copy setlist to clipboard
 - Download PDF

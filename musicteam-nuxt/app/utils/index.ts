@@ -36,3 +36,7 @@ export function fileToBase64String(file: Blob): Promise<string> {
     reader.onerror = reject
   })
 }
+
+export function randomId(): string {
+  return Math.random().toString(36).slice(2, 9)
+}

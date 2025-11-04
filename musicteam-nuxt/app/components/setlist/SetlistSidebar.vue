@@ -22,7 +22,14 @@
 
       <hr />
 
-      <div class="italic">Candidates</div>
+      <div class="italic flex flex-row">
+        <div class="grow">Candidates</div>
+        <div>
+          <NuxtLink to="/songs" class="text-blue-500 hover:underline">
+            Find songs
+          </NuxtLink>
+        </div>
+      </div>
 
       <div class="rounded-lg bg-white">
         <draggable

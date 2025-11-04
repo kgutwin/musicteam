@@ -15,6 +15,9 @@
           />
         </h1>
         <button class="btn-red" @click="deleteSetlist">Delete</button>
+        <button class="btn-gray" @click="editOrder = !editOrder">
+          {{ editOrder ? "Done Editing Order" : "Edit Order" }}
+        </button>
         <button class="btn-gray" @click="makeActive">Make Active</button>
       </div>
       <div class="flex flex-row">
@@ -34,7 +37,7 @@
       </div>
     </div>
 
-    <MtTable :columns="columns" :data="positions?.positions">
+    <MtTable :columns="columns" :data="positions?.positions" @drag-end="dragPosition">
       <template #label="{ row }">
         <span :class="{ italic: !row.is_music }">
           <MtEditable :model="row" prop="label" @save="savePosition(row, 'label')" />
@@ -47,31 +50,33 @@
           @save="savePosition(row, 'presenter')"
         />
       </template>
-      <!-- <template #status="{ row }">
-        <button
-          @click="row.status = rotateStatus(row.status)"
-          :title="row.status ?? ''"
-        >
-          <Icon
-            v-if="row.is_music"
-            size="20"
-            :name="
-              {
-                open: 'tabler:circle',
-                'in-progress': 'tabler:circle-half-2',
-                final: 'tabler:circle-dot-filled',
-              }[row.status as Status] ?? 'tabler:circle-dotted'
-            "
-          />
-        </button>
-      </template> -->
-      <template #song="{ row }">
-        <SetlistSidebarSong
-          v-for="sheet in filtered(slist?.sheets, row.id)"
-          :key="sheet.id"
-          :sheet="sheet"
-          :current-position-id="row.id"
+      <template #is-music="{ row }">
+        <input
+          type="checkbox"
+          v-model="row.is_music"
+          @change="savePosition(row, 'is_music')"
         />
+      </template>
+      <template #song="{ row }">
+        <template v-if="row.is_music">
+          <SetlistSidebarSong
+            v-for="sheet in filtered(slist?.sheets, row.id)"
+            :key="sheet.id"
+            :sheet="sheet"
+            :current-position-id="row.id"
+          />
+        </template>
+      </template>
+      <template #controls="{ row }">
+        <div class="flex flex-row gap-1">
+          <button @click="addPosition(row)">
+            <Icon name="ri:add-large-line" size="20" />
+          </button>
+          <button class="hover:text-red-500" @click="deletePosition(row)">
+            <Icon name="ri:delete-bin-6-line" size="20" />
+          </button>
+          <button class="drag-handle"><Icon name="ri:draggable" size="20" /></button>
+        </div>
       </template>
     </MtTable>
 
@@ -82,6 +87,16 @@
         :key="sheet.id"
         :sheet="sheet"
       />
+      <div
+        v-if="filtered(slist?.sheets).length === 0"
+        class="col-span-2 italic p-2 text-center"
+      >
+        <div class="font-bold">No candidates added</div>
+        <div v-if="!activeStore.setlist" class="text-gray-600">
+          Make the set list Active using the button above to be able to add songs as
+          candidates
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -98,6 +113,7 @@ import {
 
 import type { SetlistSheet, SetlistPosition, Setlist } from "@/services/api"
 import type { TableColumn } from "@/types/mt"
+import type { SortableEvent } from "vue-draggable-next"
 
 const activeStore = useActiveSetlistStore()
 const setlistStore = useSetlistStore()
@@ -111,12 +127,20 @@ const setlist = setlistStore.get({ setlistId: id as string }).data
 const positions = setlistPositionlistStore.get({ setlistId: id as string }).data
 const slist = sheetlistStore.get({ setlistId: id as string }).data
 
-const columns: TableColumn[] = [
-  { name: "label", title: "Label" },
-  { name: "presenter", title: "Presenter" },
-  // { name: "status", title: "" },
-  { name: "song", title: "Song" },
-]
+const editOrder = ref(false)
+
+const columns = computed(() => {
+  const rv: TableColumn[] = [
+    { name: "label", title: "Label" },
+    { name: "presenter", title: "Presenter" },
+    { name: "song", title: "Song" },
+  ]
+  if (editOrder.value) {
+    rv.splice(2, 0, { name: "is-music", title: "Is Music?" })
+    rv.push({ name: "controls", title: "", cls: "w-24" })
+  }
+  return rv
+})
 
 type Status = "open" | "in-progress" | "final"
 function rotateStatus(status?: Status | null): Status {
@@ -156,6 +180,67 @@ async function savePosition(position: SetlistPosition, field: keyof SetlistPosit
   await api.setlists.updateSetlistPosition(id as string, position.id, {
     [field]: position[field],
   })
+  if (field === "is_music" && !position[field]) {
+    for (const sheet of slist.value?.sheets ?? []) {
+      if (sheet.setlist_position_id === position.id) {
+        await api.setlists.updateSetlistSheet(id as string, sheet.id, {
+          setlist_position_id: null,
+        })
+      }
+    }
+  }
+  await refreshStore.refresh({ setlistId: id as string })
+}
+
+async function addPosition(position: SetlistPosition) {
+  // what we really need to do is update the index of every position after this
+  // one, then add a new position
+  if (!positions.value) return
+  const promises = []
+  for (let i = positions.value.positions.length - 1; i >= 0; i--) {
+    const pos = positions.value.positions[i]
+    if (!pos || pos.id === position.id) break
+    promises.push(
+      api.setlists.updateSetlistPosition(id as string, pos.id, {
+        index: pos.index + 1,
+      }),
+    )
+  }
+  await Promise.all(promises)
+
+  await api.setlists.newSetlistPosition(id as string, {
+    index: position.index + 1,
+    label: "",
+    is_music: true,
+  })
+  await refreshStore.refresh({ setlistId: id as string })
+}
+
+async function dragPosition(event: SortableEvent) {
+  if (event.newIndex === event.oldIndex) return
+  if (event.newIndex === undefined || event.oldIndex === undefined) return
+  if (!positions.value) return
+
+  const positionIds = positions.value.positions.map((p) => p.id)
+  const movingId = positionIds.splice(event.oldIndex, 1)[0]
+  if (movingId === undefined) return
+  positionIds.splice(event.newIndex, 0, movingId)
+
+  const promises = []
+  for (let i = 0; i < positionIds.length; i++) {
+    promises.push(
+      api.setlists.updateSetlistPosition(id as string, positionIds[i]!, {
+        index: i + 1,
+      }),
+    )
+  }
+  await Promise.all(promises)
+
+  await refreshStore.refresh({ setlistId: id as string })
+}
+
+async function deletePosition(position: SetlistPosition) {
+  await api.setlists.deleteSetlistPosition(id as string, position.id)
   await refreshStore.refresh({ setlistId: id as string })
 }
 </script>

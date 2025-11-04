@@ -8,10 +8,16 @@
         </th>
       </tr>
     </thead>
-    <tbody v-if="data">
+    <draggable
+      v-if="data"
+      v-model="draggableData"
+      tag="tbody"
+      handle=".drag-handle"
+      @end="(ev) => $emit('dragEnd', ev)"
+    >
       <tr
         v-for="(row, index) in data"
-        :key="index"
+        :key="row.id"
         :clickable="!!rowClick"
         @click="
           () => {
@@ -25,7 +31,7 @@
           <slot :name="column.name" :row="row" :index="index" />
         </td>
       </tr>
-    </tbody>
+    </draggable>
     <tbody v-else>
       <tr>
         <td :colspan="columns.length">
@@ -39,14 +45,25 @@
   </table>
 </template>
 
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends { id: string }">
+import { VueDraggableNext as draggable, type SortableEvent } from "vue-draggable-next"
+
 import type { TableColumn } from "@/types/mt"
 
-defineProps<{
+const props = defineProps<{
   columns: TableColumn[]
   data?: T[]
   rowClick?: (row: T) => any
 }>()
+
+defineEmits<{ dragEnd: [SortableEvent] }>()
+
+const draggableData = computed({
+  get() {
+    return props.data
+  },
+  set(newV) {},
+})
 </script>
 
 <style>
