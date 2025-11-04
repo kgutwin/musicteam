@@ -6,5 +6,6 @@
       "api_gateway_stage": "api",
       "automatic_layer": true
     }
-  }
+  },
+  "xray": true
 }

@@ -141,6 +141,7 @@
 <script setup lang="ts">
 import { api } from "@/services"
 import { useSongStore, useSongVersionStore, useSongRefreshStore } from "@/stores/songs"
+import { fileToBase64String } from "@/utils"
 
 import type { ToasterStatus } from "@/types/toast"
 
@@ -214,22 +215,6 @@ const invalid = useInvalid(
 )
 
 const songRefresh = useSongRefreshStore()
-
-function fileToBase64String(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      let encoded = reader.result?.toString() || ""
-      encoded = encoded.replace(/^data:(.*,)?/, "")
-      if (encoded.length % 4 > 0) {
-        encoded += "=".repeat(4 - (encoded.length % 4))
-      }
-      resolve(encoded)
-    }
-    reader.onerror = reject
-  })
-}
 
 const fileStatus = ref<ToasterStatus>()
 

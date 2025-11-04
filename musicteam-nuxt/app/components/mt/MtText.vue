@@ -5,7 +5,7 @@
     :class="loading ?? ''"
   />
   <div v-else-if="text === null" class="inline-block w-6 h-6" />
-  <component v-else :is="is ?? 'div'">{{ text }}</component>
+  <component v-else :is="is ?? 'span'">{{ text }}</component>
 </template>
 
 <script setup lang="ts">

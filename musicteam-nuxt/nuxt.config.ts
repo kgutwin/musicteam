@@ -14,6 +14,15 @@ export default defineNuxtConfig({
     ],
   ],
 
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => {
+        if (tag === "pdfjs-viewer-element") return true
+        return false
+      },
+    },
+  },
+
   // for debugging
   // vite: { build: { minify: false } },
   sourcemap: true,

@@ -72,6 +72,9 @@ hr {
 .frm-edit[disabled="true"] {
   @apply bg-gray-100;
 }
+.frm-edit.frm-grid {
+  @apply grid grid-cols-2;
+}
 
 .inp-text {
   @apply rounded-lg px-2 py-1 ring-1 ring-sky-500;
@@ -95,4 +98,7 @@ hr {
 }
 .txt-lg:user-invalid {
   @apply bg-red-100 ring-2 ring-red-200;
+}
+.txt-panel {
+  @apply font-mono xl:mx-24 2xl:mx-48 min-h-72 border shadow-lg p-8;
 }

@@ -2,7 +2,8 @@
 
 ## Frontend
 
-- Edit song sheets
+- Delete song versions and sheets
+- Add, remove, reorder setlist positions
 - Filter, sort listing of songs, setlists
 - Copy setlist to clipboard
 - Download PDF
@@ -24,8 +25,10 @@
 
 ## Backend
 
+- error responses need bodies (esp. 500)
 - Setlist packet assembly
 - API keys
+  - include link to swagger
 
 * Tags and authors endpoints
 * Set list data model updates
