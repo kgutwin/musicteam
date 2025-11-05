@@ -8,7 +8,13 @@
     <div v-if="show" class="dropdown-menu" @click="show = false">
       <slot />
     </div>
-    <button type="button" :class="buttonClass" @click="show = !show" :title="title">
+    <button
+      type="button"
+      :class="buttonClass"
+      @click="show = !show"
+      :title="title"
+      :disabled="disabled"
+    >
       <slot name="dropdown-button">
         <Icon name="ri:arrow-down-s-line" />
       </slot>
@@ -20,6 +26,7 @@
 defineProps<{
   title?: string
   buttonClass?: string
+  disabled?: boolean
 }>()
 const show = ref(false)
 </script>
@@ -31,10 +38,15 @@ const show = ref(false)
 .dropdown-menu hr {
   @apply border-slate-500 m-2;
 }
-.dropdown-menu button {
+.dropdown-menu button,
+.dropdown-menu label {
   @apply w-full text-left pl-1 py-0.5 rounded-lg hover:bg-slate-100 hover:shadow;
 }
-.dropdown-menu button:disabled {
+.dropdown-menu button:disabled,
+.dropdown-menu label:disabled {
   @apply text-gray-500 hover:bg-slate-50 hover:shadow-none;
+}
+.dropdown-menu input[type=~"search"] {
+  @apply w-full border rounded p-0.5;
 }
 </style>

@@ -2,33 +2,29 @@
 
 ## Frontend
 
-- Filter, sort listing of songs, setlists
 - Copy setlist to clipboard
 - Download PDF
+- Filter on authors and tags
 
-* Cursor to edit in between verse order bubbles
-* Loading indicators
-  - after adding a sheet, we need either a patch or a loading indicator
 * Setlist templates
-* Copy existing setlist
-* Auto-strip chords from lyrics
 * Roles
   - hide edit buttons
   - Manager can change team member roles
   - Manager gets a NavBar notification for pending members
 * Comments
 * Media links
-* Edit song sheets (PDF annotations etc.)
+* Copy existing setlist?
+* Auto-strip chords from lyrics?
 * Public link to lyrics for congregation
 
 ## Backend
 
 - error responses need bodies (esp. 500)
+- Endpoints for all tags and all authors
 - Setlist packet assembly
 - API keys
   - include link to swagger
 
-* Tags and authors endpoints
 * Set list data model updates
   - Title (sermon title)
   - Participants (scheduled team members)

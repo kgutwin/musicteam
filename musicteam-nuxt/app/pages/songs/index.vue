@@ -1,15 +1,70 @@
 <template>
   <div>
     <Head><Title>Songs - MusicTeam</Title></Head>
-    <div class="flex flex-row">
+    <div class="flex flex-row items-baseline gap-2">
       <h1 class="grow">Songs</h1>
       <div>
-        <NuxtLink class="btn-gray" to="/songs/new">New...</NuxtLink>
+        <input
+          v-model="filterTitle"
+          type="search"
+          placeholder="Filter by Title..."
+          class="inp-text"
+        />
+      </div>
+      <MtDropdown button-class="btn-gray" disabled>
+        <template #dropdown-button>Filter</template>
+
+        <div class="italic">Tag:</div>
+        <button>kids</button>
+
+        <hr />
+
+        <div class="italic">Author:</div>
+        <input
+          type="search"
+          placeholder="Name..."
+          @click="(ev) => ev.stopPropagation()"
+        />
+      </MtDropdown>
+      <MtDropdown button-class="btn-gray">
+        <template #dropdown-button>Columns</template>
+        <MtDropdownCheckbox
+          v-for="column in allColumns"
+          :key="column.name"
+          v-model="column.active"
+          :label="column.title"
+        />
+      </MtDropdown>
+      <MtDropdown button-class="btn-gray">
+        <template #dropdown-button>
+          Sort: {{ sortBy }}
+          <Icon :name="sortAsc ? 'ri:sort-asc' : 'ri:sort-desc'" />
+        </template>
+
+        <div class="italic">Sort by ...</div>
+        <MtDropdownRadioGroup
+          v-model="sortBy"
+          :choices="['Title', 'Author', 'Tag', 'Date Uploaded', 'CCLI Number']"
+        />
+
+        <hr />
+
+        <button @click="sortAsc = true">
+          <Icon name="ri:sort-asc" />
+          Ascending
+        </button>
+        <button @click="sortAsc = false">
+          <Icon name="ri:sort-desc" />
+          Descending
+        </button>
+      </MtDropdown>
+      <div>
+        <NuxtLink class="inline-block btn-blue" to="/songs/new">New...</NuxtLink>
       </div>
     </div>
     <MtTable
       :columns="columns"
-      :data="songlist.data?.songs"
+      :data="sorted(filtered(songlist.data?.songs))"
       :row-click="async (row) => await navigateTo(`/songs/${row.id}`)"
     >
       <template #uploaded="{ row }">
@@ -32,15 +87,15 @@
       <template #ccli="{ row }">
         {{ row.ccli_num }}
       </template>
-      <template #controls="{ row }">
-        <!-- how to pick version and sheet from here?
-        <MtDropdown>
-          <button :disabled="!activeSetlistStore.setlist">
-            <Icon name="ri:add-large-line" />
-            Add to Candidates
-          </button>
-        </MtDropdown>
-        -->
+      <template #versions="{ row }">
+        <span
+          v-for="version in versionlist.get({ songId: row.id }).data.value
+            ?.song_versions"
+          :key="version.id"
+          class="spn-tag"
+        >
+          {{ version.label }}
+        </span>
       </template>
     </MtTable>
   </div>
@@ -48,26 +103,92 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@/types/mt"
+import type { Song } from "@/services/api"
 
-import { useSonglistStore } from "@/stores/songs"
+import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
 import { useUserStore } from "@/stores/users"
 import { trimArray, localdate } from "@/utils"
 
 const songlist = useSonglistStore()
 const user = useUserStore()
+const versionlist = useSongVersionlistStore()
 // const activeSetlistStore = useActiveSetlistStore()
 
-const columns: TableColumn[] = [
-  { name: "uploaded", title: "Uploaded" },
-  { name: "title", title: "Title" },
-  { name: "authors", title: "Authors" },
-  { name: "tags", title: "Tags" },
-  // { name: "ccli", title: "CCLI #" },
-  { name: "controls", title: "" },
-]
+const allColumns = ref([
+  { name: "uploaded", title: "Uploaded", active: true },
+  { name: "title", title: "Title", active: true },
+  { name: "authors", title: "Authors", active: true },
+  { name: "tags", title: "Tags", active: true },
+  { name: "ccli", title: "CCLI Number", active: false },
+  { name: "versions", title: "Versions", active: false },
+])
+
+const columns = computed(() => allColumns.value.filter((c) => c.active))
 
 function initials(name?: string) {
   if (!name) return ""
   return name.replace(/(.)(\S*\s*)/g, "$1")
+}
+
+const filterTitle = ref<string>()
+
+function filtered(songs: Song[] | undefined): Song[] | undefined {
+  if (songs === undefined) return undefined
+
+  const titleRe = filterTitle.value ? new RegExp(filterTitle.value, "i") : null
+
+  return songs.filter((song) => {
+    if (titleRe && !song.title.match(titleRe)) return false
+    return true
+  })
+}
+
+function compareArrays(
+  a: string[],
+  b: string[],
+  compareFn = (i: string, j: string) => i.localeCompare(j),
+): number {
+  const all = Object.fromEntries(a.map((v) => [v, -1]))
+  b.forEach((v) => {
+    all[v] = (all[v] ?? 0) + 1
+  })
+  for (const v of Object.keys(all).toSorted(compareFn)) {
+    if (all[v] !== 0 && all[v] !== undefined) return all[v]
+  }
+  return 0
+}
+
+const sortBy = ref<"Title" | "Author" | "Tag" | "Date Uploaded" | "CCLI Number">(
+  "Title",
+)
+const sortAsc = ref(true)
+
+function sorted(songs: Song[] | undefined): Song[] | undefined {
+  if (songs === undefined) return undefined
+
+  return songs.toSorted((a, b) => {
+    let delta = 0
+    switch (sortBy.value) {
+      case "Title":
+        delta = a.title.localeCompare(b.title)
+        break
+      case "Author":
+        delta = compareArrays(a.authors, b.authors, (i, j) =>
+          i.split(" ").pop()!.localeCompare(j.split(" ").pop()!),
+        )
+        break
+      case "Tag":
+        delta = compareArrays(a.tags ?? [], b.tags ?? [])
+        break
+      case "Date Uploaded":
+        delta = a.created_on.localeCompare(b.created_on)
+        break
+      case "CCLI Number":
+        delta = (a.ccli_num ?? 0) - (b.ccli_num ?? 0)
+        break
+    }
+    if (!sortAsc.value) delta = -delta
+    return delta
+  })
 }
 </script>
