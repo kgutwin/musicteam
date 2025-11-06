@@ -8,6 +8,7 @@ from chalicelib.types import _SongSheetObject
 from chalicelib.types import BadRequest
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
+from chalicelib.types import ListSongParams
 from chalicelib.types import NewSong
 from chalicelib.types import NewSongSheet
 from chalicelib.types import NewSongVersion
@@ -28,15 +29,27 @@ bp = Blueprint(__name__)
 
 
 @bp.route("/songs", methods=["GET"])
-def list_songs() -> Forbidden | SongList:
+def list_songs(query_params: ListSongParams) -> Forbidden | SongList:
+    """List songs
+
+    All filter parameters are optional. When no filters are provided,
+    all songs on the site will be returned.
+
+    """
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
     with db.connect() as conn:
+        where = ""
+        params = {}
+        if query_params.ccli_num:
+            where = "WHERE ccli_num = :ccli_num"
+            params["ccli_num"] = query_params.ccli_num
         curs = conn.execute(
-            "SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
-            "FROM songs "
-            "ORDER BY title",
+            f"SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
+            f"FROM songs {where} "
+            f"ORDER BY title",
+            params,
             output=Song,
         )
         return SongList(songs=curs.fetchall())
@@ -44,6 +57,13 @@ def list_songs() -> Forbidden | SongList:
 
 @bp.route("/songs", methods=["POST"])
 def new_song(request_body: NewSong) -> Forbidden | Song:
+    """Create a new song
+
+    NOTE: To attach a sheet to a song, you will need to create a song
+    version, then upload the sheet as an object, then create a song
+    sheet that references that object.
+
+    """
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -64,6 +84,7 @@ def new_song(request_body: NewSong) -> Forbidden | Song:
 
 @bp.route("/songs/{song_id}", methods=["GET"])
 def get_song(song_id: str) -> Forbidden | NotFound | Song:
+    """Retrieve a single song by ID"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
@@ -82,6 +103,7 @@ def get_song(song_id: str) -> Forbidden | NotFound | Song:
 def update_song(
     song_id: str, request_body: UpdateSong
 ) -> Forbidden | NotFound | NoContent:
+    """Update a song's fields"""
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -98,6 +120,10 @@ def update_song(
 
 @bp.route("/songs/{song_id}", methods=["DELETE"])
 def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
+    """Delete a song
+
+    NOTE: A song cannot be deleted if it is referenced in a setlist.
+    """
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -113,6 +139,7 @@ def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
 
 @bp.route("/songs/{song_id}/versions", methods=["GET"])
 def list_song_versions(song_id: str) -> Forbidden | SongVersionList:
+    """List song versions for a given song ID"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
@@ -132,6 +159,7 @@ def list_song_versions(song_id: str) -> Forbidden | SongVersionList:
 def new_song_version(
     song_id: str, request_body: NewSongVersion
 ) -> Forbidden | SongVersion:
+    """Create a new song version"""
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -158,6 +186,7 @@ def new_song_version(
 def get_song_version(
     song_id: str, version_id: str
 ) -> Forbidden | NotFound | SongVersion:
+    """Retrieve a single song version by ID"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
@@ -177,6 +206,7 @@ def get_song_version(
 def update_song_version(
     song_id: str, version_id: str, request_body: UpdateSongVersion
 ) -> Forbidden | NotFound | NoContent:
+    """Update the fields of a song version"""
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -197,6 +227,11 @@ def update_song_version(
 def delete_song_version(
     song_id: str, version_id: str
 ) -> BadRequest | Forbidden | NotFound | NoContent:
+    """Delete a song version
+
+    NOTE: A song version cannot be deleted if it is included in a setlist.
+
+    """
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -216,6 +251,7 @@ def delete_song_version(
 
 @bp.route("/songs/{song_id}/versions/{version_id}/sheets", methods=["GET"])
 def list_song_sheets(song_id: str, version_id: str) -> Forbidden | SongSheetList:
+    """List song sheets for a given song and version ID"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
@@ -236,6 +272,13 @@ def list_song_sheets(song_id: str, version_id: str) -> Forbidden | SongSheetList
 def new_song_sheet(
     song_id: str, version_id: str, request_body: NewSongSheet
 ) -> Forbidden | SongSheet:
+    """Create a new song sheet for a song version
+
+    To attach an object to a song sheet, first use the `/objects`
+    method to upload your object, then provide the resulting ID as the
+    `object_id` field.
+
+    """
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -266,6 +309,7 @@ def new_song_sheet(
 def get_song_sheet(
     song_id: str, version_id: str, sheet_id: str
 ) -> Forbidden | NotFound | SongSheet:
+    """Retrieve a single song sheet by ID"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
@@ -286,6 +330,7 @@ def get_song_sheet(
 def update_song_sheet(
     song_id: str, version_id: str, sheet_id: str, request_body: UpdateSongSheet
 ) -> Forbidden | NotFound | NoContent:
+    """Update the fields of a song sheet"""
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -308,6 +353,11 @@ def update_song_sheet(
 def delete_song_sheet(
     song_id: str, version_id: str, sheet_id: str
 ) -> BadRequest | Forbidden | NotFound | NoContent:
+    """Delete a song sheet
+
+    NOTE: a song sheet cannot be deleted if it is included in a setlist.
+
+    """
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -332,6 +382,13 @@ def delete_song_sheet(
 def get_song_sheet_doc(
     song_id: str, version_id: str, sheet_id: str
 ) -> Forbidden | NotFound | Download | PartialDownload:
+    """Retrieve the document associated with a song sheet
+
+    This method supports range requests.
+
+    NOTE: in the future, this may return a 302 Temporary Redirect.
+
+    """
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 

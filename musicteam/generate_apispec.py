@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import inspect
+import re
 import sys
 from types import GenericAlias
 from types import UnionType
@@ -21,6 +22,7 @@ def generate() -> str:
         version="0.1.0",
         openapi_version="3.0.2",
         info={"description": "a music management tool"},
+        servers=[{"url": "/api"}],
         plugins=[PydanticPlugin()],
     )
 
@@ -118,7 +120,18 @@ def generate() -> str:
                 else:
                     raise Exception(f"unhandled return type: {return_type}")
 
-            op: dict[str, Any] = {"operationId": operation_id, "responses": responses}
+            op: dict[str, Any] = {
+                "operationId": operation_id,
+                "responses": responses,
+                "tags": [operation_id.split(".")[0].title()],
+            }
+
+            # add summary and description if present
+            if func.__doc__:
+                op["summary"] = func.__doc__.splitlines()[0]
+                description = func.__doc__.removeprefix(op["summary"]).strip()
+                if description:
+                    op["description"] = re.sub(r"(\w)\n(\w)", r"\1 \2", description)
 
             # add the request body if present
             if "request_body" in sig.parameters:

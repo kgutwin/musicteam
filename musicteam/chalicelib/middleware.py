@@ -123,7 +123,7 @@ def register(app: Chalice) -> None:
                 if not event._event_dict.get("pathParameters"):
                     event._event_dict["pathParameters"] = {}
                 if hasattr(klass, "model_validate"):
-                    query_params = klass.model_validate(event.query_params)
+                    query_params = klass.model_validate(event.query_params or {})
                     event._event_dict["pathParameters"]["query_params"] = query_params
                 else:
                     raise TypeError(klass)

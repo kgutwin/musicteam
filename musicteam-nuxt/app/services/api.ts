@@ -33,6 +33,15 @@ export interface CommentList {
   comments: Comment[];
 }
 
+/** ListSongParams */
+export interface ListSongParams {
+  /**
+   * Ccli Num
+   * @default null
+   */
+  ccli_num?: number | null;
+}
+
 /** LoginResponse */
 export interface LoginResponse {
   /** Token */
@@ -735,7 +744,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -940,6 +949,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title MusicTeam
  * @version 0.1.0
+ * @baseUrl /api
  *
  * a music management tool
  */
@@ -949,6 +959,7 @@ export class Api<
   /**
    * No description
    *
+   * @tags Index
    * @name Index
    * @request GET:/
    */
@@ -964,6 +975,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Auth
      * @name AuthCallback
      * @request GET:/auth/callback
      */
@@ -977,6 +989,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Auth
      * @name AuthGoogle
      * @request GET:/auth/google
      */
@@ -990,6 +1003,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Auth
      * @name AuthLogin
      * @request POST:/auth/login
      */
@@ -1004,6 +1018,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Auth
      * @name AuthLogout
      * @request POST:/auth/logout
      */
@@ -1017,6 +1032,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Auth
      * @name AuthSession
      * @request GET:/auth/session
      */
@@ -1032,6 +1048,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Comments
      * @name ListComments
      * @request GET:/comments/{resource_id}
      */
@@ -1046,6 +1063,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Comments
      * @name NewComment
      * @request POST:/comments/{resource_id}
      */
@@ -1066,6 +1084,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Comments
      * @name GetComment
      * @request GET:/comments/{resource_id}/{comment_id}
      */
@@ -1084,6 +1103,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Comments
      * @name UpdateComment
      * @request PUT:/comments/{resource_id}/{comment_id}
      */
@@ -1104,6 +1124,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Comments
      * @name DeleteComment
      * @request DELETE:/comments/{resource_id}/{comment_id}
      */
@@ -1120,9 +1141,11 @@ export class Api<
   };
   objects = {
     /**
-     * No description
+     * @description If the `base64` field is True, then the request body will be decoded from Base64 before storage.
      *
+     * @tags Objects
      * @name UploadFile
+     * @summary Upload a file (object) to the site
      * @request POST:/objects
      */
     uploadFile: (
@@ -1150,6 +1173,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name ListSetlistTemplates
      * @request GET:/setlistTemplates
      */
@@ -1164,6 +1188,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name NewSetlistTemplate
      * @request POST:/setlistTemplates
      */
@@ -1183,6 +1208,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name GetSetlistTemplate
      * @request GET:/setlistTemplates/{template_id}
      */
@@ -1197,6 +1223,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name UpdateSetlistTemplate
      * @request PUT:/setlistTemplates/{template_id}
      */
@@ -1216,6 +1243,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name DeleteSetlistTemplate
      * @request DELETE:/setlistTemplates/{template_id}
      */
@@ -1229,6 +1257,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name ListSetlistTemplatePositions
      * @request GET:/setlistTemplates/{template_id}/pos
      */
@@ -1246,6 +1275,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name NewSetlistTemplatePosition
      * @request POST:/setlistTemplates/{template_id}/pos
      */
@@ -1266,6 +1296,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name GetSetlistTemplatePosition
      * @request GET:/setlistTemplates/{template_id}/pos/{position_id}
      */
@@ -1284,6 +1315,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name UpdateSetlistTemplatePosition
      * @request PUT:/setlistTemplates/{template_id}/pos/{position_id}
      */
@@ -1304,6 +1336,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name DeleteSetlistTemplatePosition
      * @request DELETE:/setlistTemplates/{template_id}/pos/{position_id}
      */
@@ -1322,6 +1355,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name ListSetlists
      * @request GET:/setlists
      */
@@ -1336,6 +1370,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name NewSetlist
      * @request POST:/setlists
      */
@@ -1352,6 +1387,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name GetSetlist
      * @request GET:/setlists/{setlist_id}
      */
@@ -1366,6 +1402,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name UpdateSetlist
      * @request PUT:/setlists/{setlist_id}
      */
@@ -1385,6 +1422,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name DeleteSetlist
      * @request DELETE:/setlists/{setlist_id}
      */
@@ -1398,6 +1436,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name ListSetlistPositions
      * @request GET:/setlists/{setlist_id}/pos
      */
@@ -1412,6 +1451,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name NewSetlistPosition
      * @request POST:/setlists/{setlist_id}/pos
      */
@@ -1432,6 +1472,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name GetSetlistPosition
      * @request GET:/setlists/{setlist_id}/pos/{position_id}
      */
@@ -1450,6 +1491,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name UpdateSetlistPosition
      * @request PUT:/setlists/{setlist_id}/pos/{position_id}
      */
@@ -1470,6 +1512,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name DeleteSetlistPosition
      * @request DELETE:/setlists/{setlist_id}/pos/{position_id}
      */
@@ -1487,6 +1530,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name ListSetlistSheets
      * @request GET:/setlists/{setlist_id}/sheets
      */
@@ -1501,6 +1545,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name NewSetlistSheet
      * @request POST:/setlists/{setlist_id}/sheets
      */
@@ -1521,6 +1566,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name GetSetlistSheet
      * @request GET:/setlists/{setlist_id}/sheets/{sheet_id}
      */
@@ -1539,6 +1585,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name UpdateSetlistSheet
      * @request PUT:/setlists/{setlist_id}/sheets/{sheet_id}
      */
@@ -1559,6 +1606,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Setlists
      * @name DeleteSetlistSheet
      * @request DELETE:/setlists/{setlist_id}/sheets/{sheet_id}
      */
@@ -1575,23 +1623,37 @@ export class Api<
   };
   songs = {
     /**
-     * No description
+     * @description All filter parameters are optional. When no filters are provided, all songs on the site will be returned.
      *
+     * @tags Songs
      * @name ListSongs
+     * @summary List songs
      * @request GET:/songs
      */
-    listSongs: (params: RequestParams = {}) =>
+    listSongs: (
+      query?: {
+        /**
+         * Ccli Num
+         * @default null
+         */
+        ccli_num?: number | null;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<SongList, ServerError>({
         path: `/songs`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
 
     /**
-     * No description
+     * @description NOTE: To attach a sheet to a song, you will need to create a song version, then upload the sheet as an object, then create a song sheet that references that object.
      *
+     * @tags Songs
      * @name NewSong
+     * @summary Create a new song
      * @request POST:/songs
      */
     newSong: (data: NewSong, params: RequestParams = {}) =>
@@ -1607,7 +1669,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name GetSong
+     * @summary Retrieve a single song by ID
      * @request GET:/songs/{song_id}
      */
     getSong: (songId: string, params: RequestParams = {}) =>
@@ -1621,7 +1685,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name UpdateSong
+     * @summary Update a song's fields
      * @request PUT:/songs/{song_id}
      */
     updateSong: (
@@ -1638,9 +1704,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description NOTE: A song cannot be deleted if it is referenced in a setlist.
      *
+     * @tags Songs
      * @name DeleteSong
+     * @summary Delete a song
      * @request DELETE:/songs/{song_id}
      */
     deleteSong: (songId: string, params: RequestParams = {}) =>
@@ -1653,7 +1721,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name ListSongVersions
+     * @summary List song versions for a given song ID
      * @request GET:/songs/{song_id}/versions
      */
     listSongVersions: (songId: string, params: RequestParams = {}) =>
@@ -1667,7 +1737,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name NewSongVersion
+     * @summary Create a new song version
      * @request POST:/songs/{song_id}/versions
      */
     newSongVersion: (
@@ -1687,7 +1759,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name GetSongVersion
+     * @summary Retrieve a single song version by ID
      * @request GET:/songs/{song_id}/versions/{version_id}
      */
     getSongVersion: (
@@ -1705,7 +1779,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name UpdateSongVersion
+     * @summary Update the fields of a song version
      * @request PUT:/songs/{song_id}/versions/{version_id}
      */
     updateSongVersion: (
@@ -1723,9 +1799,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description NOTE: A song version cannot be deleted if it is included in a setlist.
      *
+     * @tags Songs
      * @name DeleteSongVersion
+     * @summary Delete a song version
      * @request DELETE:/songs/{song_id}/versions/{version_id}
      */
     deleteSongVersion: (
@@ -1742,7 +1820,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name ListSongSheets
+     * @summary List song sheets for a given song and version ID
      * @request GET:/songs/{song_id}/versions/{version_id}/sheets
      */
     listSongSheets: (
@@ -1758,9 +1838,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description To attach an object to a song sheet, first use the `/objects` method to upload your object, then provide the resulting ID as the `object_id` field.
      *
+     * @tags Songs
      * @name NewSongSheet
+     * @summary Create a new song sheet for a song version
      * @request POST:/songs/{song_id}/versions/{version_id}/sheets
      */
     newSongSheet: (
@@ -1781,7 +1863,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name GetSongSheet
+     * @summary Retrieve a single song sheet by ID
      * @request GET:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}
      */
     getSongSheet: (
@@ -1800,7 +1884,9 @@ export class Api<
     /**
      * No description
      *
+     * @tags Songs
      * @name UpdateSongSheet
+     * @summary Update the fields of a song sheet
      * @request PUT:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}
      */
     updateSongSheet: (
@@ -1819,9 +1905,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description NOTE: a song sheet cannot be deleted if it is included in a setlist.
      *
+     * @tags Songs
      * @name DeleteSongSheet
+     * @summary Delete a song sheet
      * @request DELETE:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}
      */
     deleteSongSheet: (
@@ -1837,9 +1925,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description This method supports range requests. NOTE: in the future, this may return a 302 Temporary Redirect.
      *
+     * @tags Songs
      * @name GetSongSheetDoc
+     * @summary Retrieve the document associated with a song sheet
      * @request GET:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}/doc
      */
     getSongSheetDoc: (
@@ -1858,6 +1948,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Users
      * @name ListUsers
      * @request GET:/users
      */
@@ -1872,6 +1963,7 @@ export class Api<
     /**
      * No description
      *
+     * @tags Users
      * @name GetUser
      * @request GET:/users/{user_id}
      */

@@ -42,6 +42,13 @@
         </tbody>
       </table>
     </div>
+
+    <h2 class="mt-8">API Access</h2>
+    <div>
+      <a href="/swagger-ui/index.html" class="text-blue-500 hover:underline">
+        OpenAPI documentation and live explorer
+      </a>
+    </div>
   </div>
 </template>
 

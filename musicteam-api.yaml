@@ -2,6 +2,8 @@ info:
   description: a music management tool
   title: MusicTeam
   version: 0.1.0
+servers:
+- url: /api
 paths:
   /:
     get:
@@ -14,6 +16,8 @@ paths:
             application/json:
               schema:
                 type: object
+      tags:
+      - Index
   /auth/callback:
     get:
       operationId: auth.auth_callback
@@ -24,6 +28,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '302':
           $ref: '#/components/responses/Found'
+      tags:
+      - Auth
   /auth/google:
     get:
       operationId: auth.auth_google
@@ -32,6 +38,8 @@ paths:
           $ref: '#/components/responses/Error'
         '302':
           $ref: '#/components/responses/Found'
+      tags:
+      - Auth
   /auth/login:
     post:
       operationId: auth.auth_login
@@ -45,6 +53,8 @@ paths:
                 $ref: '#/components/schemas/LoginResponse'
         '403':
           $ref: '#/components/responses/Forbidden'
+      tags:
+      - Auth
   /auth/logout:
     post:
       operationId: auth.auth_logout
@@ -53,6 +63,8 @@ paths:
           $ref: '#/components/responses/Error'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Auth
   /auth/session:
     get:
       operationId: auth.auth_session
@@ -66,6 +78,8 @@ paths:
                 $ref: '#/components/schemas/User'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Auth
   /comments/{resource_id}:
     get:
       operationId: comments.list_comments
@@ -79,6 +93,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommentList'
+      tags:
+      - Comments
     post:
       operationId: comments.new_comment
       responses:
@@ -91,6 +107,8 @@ paths:
             application/json:
               schema: &id001
                 $ref: '#/components/schemas/Comment'
+      tags:
+      - Comments
       requestBody:
         content:
           application/json:
@@ -116,6 +134,8 @@ paths:
           content:
             application/json:
               schema: *id001
+      tags:
+      - Comments
     put:
       operationId: comments.update_comment
       responses:
@@ -127,6 +147,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Comments
       requestBody:
         content:
           application/json:
@@ -143,6 +165,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Comments
     parameters:
     - name: resource_id
       in: path
@@ -167,6 +191,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ObjectId'
+      tags:
+      - Objects
+      summary: Upload a file (object) to the site
+      description: If the `base64` field is True, then the request body will be decoded
+        from Base64 before storage.
       requestBody:
         content:
           text/plain:
@@ -195,6 +224,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SetlistTemplateList'
+      tags:
+      - Setlists
     post:
       operationId: setlists.new_setlist_template
       responses:
@@ -207,6 +238,8 @@ paths:
             application/json:
               schema: &id002
                 $ref: '#/components/schemas/SetlistTemplate'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -226,6 +259,8 @@ paths:
           content:
             application/json:
               schema: *id002
+      tags:
+      - Setlists
     put:
       operationId: setlists.update_setlist_template
       responses:
@@ -237,6 +272,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -253,6 +290,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
     parameters:
     - name: template_id
       in: path
@@ -272,6 +311,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SetlistTemplatePositionList'
+      tags:
+      - Setlists
     post:
       operationId: setlists.new_setlist_template_position
       responses:
@@ -284,6 +325,8 @@ paths:
             application/json:
               schema: &id003
                 $ref: '#/components/schemas/SetlistTemplatePosition'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -309,6 +352,8 @@ paths:
           content:
             application/json:
               schema: *id003
+      tags:
+      - Setlists
     put:
       operationId: setlists.update_setlist_template_position
       responses:
@@ -320,6 +365,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -336,6 +383,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
     parameters:
     - name: template_id
       in: path
@@ -360,6 +409,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SetlistList'
+      tags:
+      - Setlists
     post:
       operationId: setlists.new_setlist
       responses:
@@ -372,6 +423,8 @@ paths:
             application/json:
               schema: &id004
                 $ref: '#/components/schemas/Setlist'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -391,6 +444,8 @@ paths:
           content:
             application/json:
               schema: *id004
+      tags:
+      - Setlists
     put:
       operationId: setlists.update_setlist
       responses:
@@ -402,6 +457,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -418,6 +475,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
     parameters:
     - name: setlist_id
       in: path
@@ -437,6 +496,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SetlistPositionList'
+      tags:
+      - Setlists
     post:
       operationId: setlists.new_setlist_position
       responses:
@@ -449,6 +510,8 @@ paths:
             application/json:
               schema: &id005
                 $ref: '#/components/schemas/SetlistPosition'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -474,6 +537,8 @@ paths:
           content:
             application/json:
               schema: *id005
+      tags:
+      - Setlists
     put:
       operationId: setlists.update_setlist_position
       responses:
@@ -485,6 +550,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -501,6 +568,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
     parameters:
     - name: setlist_id
       in: path
@@ -525,6 +594,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SetlistSheetList'
+      tags:
+      - Setlists
     post:
       operationId: setlists.new_setlist_sheet
       responses:
@@ -537,6 +608,8 @@ paths:
             application/json:
               schema: &id006
                 $ref: '#/components/schemas/SetlistSheet'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -562,6 +635,8 @@ paths:
           content:
             application/json:
               schema: *id006
+      tags:
+      - Setlists
     put:
       operationId: setlists.update_setlist_sheet
       responses:
@@ -573,6 +648,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
       requestBody:
         content:
           application/json:
@@ -589,6 +666,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
     parameters:
     - name: setlist_id
       in: path
@@ -613,6 +692,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SongList'
+      tags:
+      - Songs
+      summary: List songs
+      description: 'All filter parameters are optional. When no filters are provided,
+
+        all songs on the site will be returned.'
+      parameters:
+      - name: ccli_num
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Ccli Num
     post:
       operationId: songs.new_song
       responses:
@@ -625,6 +720,12 @@ paths:
             application/json:
               schema: &id007
                 $ref: '#/components/schemas/Song'
+      tags:
+      - Songs
+      summary: Create a new song
+      description: 'NOTE: To attach a sheet to a song, you will need to create a song
+        version, then upload the sheet as an object, then create a song sheet that
+        references that object.'
       requestBody:
         content:
           application/json:
@@ -644,6 +745,9 @@ paths:
           content:
             application/json:
               schema: *id007
+      tags:
+      - Songs
+      summary: Retrieve a single song by ID
     put:
       operationId: songs.update_song
       responses:
@@ -655,6 +759,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Update a song's fields
       requestBody:
         content:
           application/json:
@@ -673,6 +780,10 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Delete a song
+      description: 'NOTE: A song cannot be deleted if it is referenced in a setlist.'
     parameters:
     - name: song_id
       in: path
@@ -692,6 +803,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SongVersionList'
+      tags:
+      - Songs
+      summary: List song versions for a given song ID
     post:
       operationId: songs.new_song_version
       responses:
@@ -704,6 +818,9 @@ paths:
             application/json:
               schema: &id008
                 $ref: '#/components/schemas/SongVersion'
+      tags:
+      - Songs
+      summary: Create a new song version
       requestBody:
         content:
           application/json:
@@ -729,6 +846,9 @@ paths:
           content:
             application/json:
               schema: *id008
+      tags:
+      - Songs
+      summary: Retrieve a single song version by ID
     put:
       operationId: songs.update_song_version
       responses:
@@ -740,6 +860,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Update the fields of a song version
       requestBody:
         content:
           application/json:
@@ -758,6 +881,11 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Delete a song version
+      description: 'NOTE: A song version cannot be deleted if it is included in a
+        setlist.'
     parameters:
     - name: song_id
       in: path
@@ -782,6 +910,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SongSheetList'
+      tags:
+      - Songs
+      summary: List song sheets for a given song and version ID
     post:
       operationId: songs.new_song_sheet
       responses:
@@ -794,6 +925,14 @@ paths:
             application/json:
               schema: &id009
                 $ref: '#/components/schemas/SongSheet'
+      tags:
+      - Songs
+      summary: Create a new song sheet for a song version
+      description: 'To attach an object to a song sheet, first use the `/objects`
+
+        method to upload your object, then provide the resulting ID as the
+
+        `object_id` field.'
       requestBody:
         content:
           application/json:
@@ -824,6 +963,9 @@ paths:
           content:
             application/json:
               schema: *id009
+      tags:
+      - Songs
+      summary: Retrieve a single song sheet by ID
     put:
       operationId: songs.update_song_sheet
       responses:
@@ -835,6 +977,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Update the fields of a song sheet
       requestBody:
         content:
           application/json:
@@ -853,6 +998,10 @@ paths:
           $ref: '#/components/responses/NotFound'
         '204':
           $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Delete a song sheet
+      description: 'NOTE: a song sheet cannot be deleted if it is included in a setlist.'
     parameters:
     - name: song_id
       in: path
@@ -883,6 +1032,13 @@ paths:
           $ref: '#/components/responses/Download'
         '206':
           $ref: '#/components/responses/PartialDownload'
+      tags:
+      - Songs
+      summary: Retrieve the document associated with a song sheet
+      description: 'This method supports range requests.
+
+
+        NOTE: in the future, this may return a 302 Temporary Redirect.'
     parameters:
     - name: song_id
       in: path
@@ -912,6 +1068,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserList'
+      tags:
+      - Users
   /users/{user_id}:
     get:
       operationId: users.get_user
@@ -926,6 +1084,8 @@ paths:
           content:
             application/json:
               schema: *id010
+      tags:
+      - Users
     parameters:
     - name: user_id
       in: path
@@ -971,6 +1131,16 @@ components:
       required:
       - comments
       title: CommentList
+      type: object
+    ListSongParams:
+      properties:
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Ccli Num
+      title: ListSongParams
       type: object
     LoginResponse:
       properties:

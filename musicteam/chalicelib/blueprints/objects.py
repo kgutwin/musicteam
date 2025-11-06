@@ -16,6 +16,12 @@ bp = Blueprint(__name__)
 def upload_file(
     request_body: bytes, query_params: UploadParams
 ) -> Forbidden | ObjectId:
+    """Upload a file (object) to the site
+
+    If the `base64` field is True, then the request body will be
+    decoded from Base64 before storage.
+
+    """
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 

@@ -123,6 +123,10 @@ class SongList(BaseModel):
     songs: list[Song]
 
 
+class ListSongParams(BaseModel):
+    ccli_num: int | None = None
+
+
 class NewSongVersion(BaseModel):
     label: str
     verse_order: str | None = None

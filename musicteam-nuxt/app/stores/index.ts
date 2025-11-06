@@ -1,4 +1,5 @@
 import type { HttpResponse, UserList, ServerError } from "@/services/api"
+import { useToaster } from "@/composables/toast"
 
 export type Status = "idle" | "pending" | "ok" | "error"
 
@@ -14,7 +15,6 @@ export interface StoreState<T> {
 }
 
 // TODO:
-// - helper for parameter-based store
 // - add useTimeout-based auto expiration
 
 export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>) {
@@ -28,11 +28,13 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
         return currentData.value
 
       try {
-        status.value = "pending"
-        const response = await fetcher()
-        currentData.value = response.data
-        status.value = "ok"
-        return currentData.value
+        return useToaster(async () => {
+          status.value = "pending"
+          const response = await fetcher()
+          currentData.value = response.data
+          status.value = "ok"
+          return currentData.value
+        })
       } catch (resp: any) {
         error.value = {
           Code: resp?.error?.Code ?? resp?.error?.name ?? resp?.name ?? "",

@@ -3,8 +3,9 @@
     <div class="flex flex-row gap-2">
       <div class="grow">
         <h1>
-          Edit
           <MtText :text="song?.title" loading="w-48" />
+          -
+          {{ sheetId === "lyrics" ? "Lyrics" : "Song Sheet" }}
         </h1>
         <h2>
           Version:
