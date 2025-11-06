@@ -5,6 +5,7 @@ from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
 from chalicelib.storage import s3
 from chalicelib.types import _SongSheetObject
+from chalicelib.types import BadRequest
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
 from chalicelib.types import NewSong
@@ -96,13 +97,18 @@ def update_song(
 
 
 @bp.route("/songs/{song_id}", methods=["DELETE"])
-def delete_song(song_id: str) -> Forbidden | NotFound | NoContent:
+def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
     with db.connect() as conn:
-        result = conn.execute("DELETE FROM songs WHERE id = :id", {"id": song_id})
-        return NoContent() if result else NotFound()
+        try:
+            result = conn.execute("DELETE FROM songs WHERE id = :id", {"id": song_id})
+            return NoContent() if result else NotFound()
+        except db.ForeignKeyViolation:
+            return BadRequest(
+                "Unable to delete songs that have been added to a set list"
+            )
 
 
 @bp.route("/songs/{song_id}/versions", methods=["GET"])
@@ -190,16 +196,22 @@ def update_song_version(
 @bp.route("/songs/{song_id}/versions/{version_id}", methods=["DELETE"])
 def delete_song_version(
     song_id: str, version_id: str
-) -> Forbidden | NotFound | NoContent:
+) -> BadRequest | Forbidden | NotFound | NoContent:
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
     with db.connect() as conn:
-        result = conn.execute(
-            "DELETE FROM song_versions WHERE id = :version_id AND song_id = :song_id",
-            {"version_id": version_id, "song_id": song_id},
-        )
-        return NoContent() if result else NotFound()
+        try:
+            result = conn.execute(
+                "DELETE FROM song_versions "
+                "WHERE id = :version_id AND song_id = :song_id",
+                {"version_id": version_id, "song_id": song_id},
+            )
+            return NoContent() if result else NotFound()
+        except db.ForeignKeyViolation:
+            return BadRequest(
+                "Unable to delete song versions that have been added to a set list"
+            )
 
 
 @bp.route("/songs/{song_id}/versions/{version_id}/sheets", methods=["GET"])
@@ -295,17 +307,22 @@ def update_song_sheet(
 )
 def delete_song_sheet(
     song_id: str, version_id: str, sheet_id: str
-) -> Forbidden | NotFound | NoContent:
+) -> BadRequest | Forbidden | NotFound | NoContent:
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
     with db.connect() as conn:
-        result = conn.execute(
-            "DELETE FROM song_sheets "
-            "WHERE id = :sheet_id AND song_version_id = :version_id",
-            {"sheet_id": sheet_id, "version_id": version_id},
-        )
-        return NoContent() if result else NotFound()
+        try:
+            result = conn.execute(
+                "DELETE FROM song_sheets "
+                "WHERE id = :sheet_id AND song_version_id = :version_id",
+                {"sheet_id": sheet_id, "version_id": version_id},
+            )
+            return NoContent() if result else NotFound()
+        except db.ForeignKeyViolation:
+            return BadRequest(
+                "Unable to delete song sheets that have been added to a set list"
+            )
 
 
 @bp.route(

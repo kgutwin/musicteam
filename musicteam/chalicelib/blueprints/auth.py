@@ -64,7 +64,7 @@ def auth_callback() -> Forbidden | Found:
         state = bp.current_request.query_params.get("state")
 
         if state != bp.current_request.context["cookies"]["state"]:
-            return Forbidden()
+            return Forbidden("invalid request state")
 
         redirect_uri = url_for(bp.current_request, "/auth/callback")
         oauth_session = OAuth2Session(

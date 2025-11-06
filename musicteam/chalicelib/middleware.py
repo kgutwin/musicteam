@@ -13,8 +13,10 @@ from chalice.app import Chalice
 from chalice.app import Request
 from chalice.app import Response
 from chalicelib import db
+from chalicelib.types import BadRequest
 from chalicelib.types import User
 from chalicelib.types import UserRole
+from pydantic import ValidationError
 
 T = TypeVar("T")
 
@@ -99,33 +101,38 @@ def register(app: Chalice) -> None:
             return get_response(event)
 
         sig = inspect.signature(route.view_function)
-        if "request_body" in sig.parameters:
-            if "request_body" not in route.view_args:
-                route.view_args.append("request_body")
-            klass = sig.parameters["request_body"].annotation
-            if not event._event_dict.get("pathParameters"):
-                event._event_dict["pathParameters"] = {}
-            if klass is bytes:
-                event._event_dict["pathParameters"]["request_body"] = event.raw_body
-            elif hasattr(klass, "model_validate"):
-                request_body = klass.model_validate(event.json_body)
-                event._event_dict["pathParameters"]["request_body"] = request_body
-            else:
-                raise TypeError(klass)
+        try:
+            if "request_body" in sig.parameters:
+                if "request_body" not in route.view_args:
+                    route.view_args.append("request_body")
+                klass = sig.parameters["request_body"].annotation
+                if not event._event_dict.get("pathParameters"):
+                    event._event_dict["pathParameters"] = {}
+                if klass is bytes:
+                    event._event_dict["pathParameters"]["request_body"] = event.raw_body
+                elif hasattr(klass, "model_validate"):
+                    request_body = klass.model_validate(event.json_body)
+                    event._event_dict["pathParameters"]["request_body"] = request_body
+                else:
+                    raise TypeError(klass)
 
-        if "query_params" in sig.parameters:
-            if "query_params" not in route.view_args:
-                route.view_args.append("query_params")
-            klass = sig.parameters["query_params"].annotation
-            if not event._event_dict.get("pathParameters"):
-                event._event_dict["pathParameters"] = {}
-            if hasattr(klass, "model_validate"):
-                query_params = klass.model_validate(event.query_params)
-                event._event_dict["pathParameters"]["query_params"] = query_params
-            else:
-                raise TypeError(klass)
+            if "query_params" in sig.parameters:
+                if "query_params" not in route.view_args:
+                    route.view_args.append("query_params")
+                klass = sig.parameters["query_params"].annotation
+                if not event._event_dict.get("pathParameters"):
+                    event._event_dict["pathParameters"] = {}
+                if hasattr(klass, "model_validate"):
+                    query_params = klass.model_validate(event.query_params)
+                    event._event_dict["pathParameters"]["query_params"] = query_params
+                else:
+                    raise TypeError(klass)
 
-        response = get_response(event)
+            response = get_response(event)
+
+        except ValidationError as ex:
+            response = BadRequest(str(ex))
+
         if hasattr(response.body, "model_dump"):
             response.body = response.body.model_dump(mode="json")
 

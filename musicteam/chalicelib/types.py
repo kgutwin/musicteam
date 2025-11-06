@@ -343,16 +343,34 @@ class Found(KnownResponse):
         super().__init__(headers={"Location": location})
 
 
+class BadRequest(KnownResponse):
+    """Bad request. The request could not be completed as specified."""
+
+    _code = 400
+    _response_model = ServerError
+
+    def __init__(self, message: str = ""):
+        super().__init__(ServerError(Code="BadRequest", Message=message))
+
+
 class Forbidden(KnownResponse):
     """Forbidden. Based on your user permissions, you may not perform this operation."""
 
     _code = 403
+    _response_model = ServerError
+
+    def __init__(self, message: str = ""):
+        super().__init__(ServerError(Code="Forbidden", Message=message))
 
 
 class NotFound(KnownResponse):
     """Not Found. The requested resource does not exist."""
 
     _code = 404
+    _response_model = ServerError
+
+    def __init__(self, message: str = ""):
+        super().__init__(ServerError(Code="NotFound", Message=message))
 
 
 class Error(KnownResponse):

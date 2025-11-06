@@ -234,7 +234,9 @@ async function addVersion() {
 async function deleteSong() {
   if (!window.confirm("Are you sure you want to delete this song?")) return
 
-  await useToaster(async () => await api.songs.deleteSong(id as string))
+  await useToaster(async () => await api.songs.deleteSong(id as string), {
+    errorTitle: "Could not delete song",
+  })
 
   await navigateTo({ path: "/songs" })
 }
@@ -243,7 +245,9 @@ async function deleteVersion() {
   const sv = selectedVersion.value
   if (!sv) return
 
-  await useToaster(async () => await api.songs.deleteSongVersion(id as string, sv))
+  await useToaster(async () => await api.songs.deleteSongVersion(id as string, sv), {
+    errorTitle: "Could not delete song version",
+  })
 
   await refreshStore.refresh({ songId: id as string })
 
@@ -256,7 +260,10 @@ async function deleteSheet() {
   const sv = selectedVersion.value
   if (!sv) return
 
-  await useToaster(async () => await api.songs.deleteSongSheet(id as string, sv, ssid))
+  await useToaster(
+    async () => await api.songs.deleteSongSheet(id as string, sv, ssid),
+    { errorTitle: "Could not delete song sheet " },
+  )
 
   await refreshStore.refresh({ songId: id as string })
 }

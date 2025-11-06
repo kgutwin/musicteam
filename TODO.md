@@ -3,7 +3,7 @@
 ## Frontend
 
 - Copy setlist to clipboard
-- Download PDF
+- Download PDF of individual songs
 - Filter on authors and tags
 
 * Setlist templates
@@ -19,7 +19,7 @@
 
 ## Backend
 
-- error responses need bodies (esp. 500)
+- Endpoint to find a song based on CCLI number
 - Endpoints for all tags and all authors
 - Setlist packet assembly
 - API keys

@@ -19,7 +19,8 @@ from pydantic import BaseModel
 DatabaseResumingException = boto3.client(
     "rds-data"
 ).exceptions.DatabaseResumingException
-UndefinedTable = aurora_data_api.PostgreSQLError.from_code("42P01")  # type: ignore[attr-defined]
+ForeignKeyViolation = aurora_data_api.PostgreSQLError.from_code("23503")
+UndefinedTable = aurora_data_api.PostgreSQLError.from_code("42P01")
 
 PSYCOPG_PARAM: re.Pattern[str] | None
 
@@ -135,6 +136,19 @@ class Interface:
 
         try:
             curs.execute(sql, parameters)
+        except aurora_data_api.DatabaseError as ex:
+            # try to handle error types that aurora_data_api lets slip through
+            if ex.__class__ is not aurora_data_api.DatabaseError:
+                raise
+            if hit := re.search(r"SQLState: (\w+)$", str(ex)):
+                error_code = hit.group(1)
+                try:
+                    error_class = aurora_data_api.PostgreSQLError.from_code(error_code)
+                    raise error_class(str(ex)) from ex
+                except ValueError:
+                    pass
+            # oh well, just raise it anyway
+            raise
         except Exception:
             print(sql)
             print(parameters)
@@ -162,7 +176,13 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
         raise Exception("Aurora connection details not available")
 
     global UndefinedTable
-    UndefinedTable = psycopg.errors.UndefinedTable
+    UndefinedTable = cast(
+        type[aurora_data_api.DatabaseError], psycopg.errors.UndefinedTable
+    )
+    global ForeignKeyViolation
+    ForeignKeyViolation = cast(
+        type[aurora_data_api.DatabaseError], psycopg.errors.ForeignKeyViolation
+    )
 
     global PGLITE_MANAGER
     if PGLITE_MANAGER is None:

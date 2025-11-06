@@ -15,7 +15,6 @@ export async function useToaster<T>(
     if (options.status) options.status.value = "ok"
     return rv
   } catch (err: any) {
-    console.log(err)
     if (options.status) options.status.value = "error"
     toasthost.toast.show({
       type: "danger",

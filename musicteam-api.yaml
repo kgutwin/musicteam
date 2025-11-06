@@ -665,6 +665,8 @@ paths:
       responses:
         '500':
           $ref: '#/components/responses/Error'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -748,6 +750,8 @@ paths:
       responses:
         '500':
           $ref: '#/components/responses/Error'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -841,6 +845,8 @@ paths:
       responses:
         '500':
           $ref: '#/components/responses/Error'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -1917,6 +1923,12 @@ components:
       title: UserList
       type: object
   responses:
+    BadRequest:
+      description: Bad request. The request could not be completed as specified.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
     Download:
       description: Object download.
       content:
@@ -1933,6 +1945,10 @@ components:
     Forbidden:
       description: Forbidden. Based on your user permissions, you may not perform
         this operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
     Found:
       description: Found. The URI of the requested resource has been changed temporarily.
     NoContent:
@@ -1940,6 +1956,10 @@ components:
         return.
     NotFound:
       description: Not Found. The requested resource does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
     PartialDownload:
       description: Range request download.
       content:
