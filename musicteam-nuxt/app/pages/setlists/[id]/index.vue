@@ -70,11 +70,17 @@
       :edit-order="editOrder"
       :setlist-id="id as string"
     />
-    <object
-      v-else-if="selectedTab === 'pdf'"
-      :data="`/api/setlists/${id}/packet/pdf`"
-      class="w-full h-screen"
-    ></object>
+    <template v-else-if="selectedTab === 'pdf'">
+      <div v-if="pdfLoading">
+        Loading
+        <Icon name="svg-spinners:3-dots-fade" />
+      </div>
+      <iframe
+        :src="`/api/setlists/${id}/packet/pdf`"
+        class="w-full h-screen"
+        @load="pdfLoading = false"
+      ></iframe>
+    </template>
     <SongTextPanel v-else-if="selectedTab === 'lyrics'" @click="copyLyricsToClipboard">
       <object :data="`/api/setlists/${id}/packet/lyrics`" class="w-full h-screen" />
     </SongTextPanel>
@@ -136,6 +142,11 @@ async function saveSetlist(field: keyof Setlist) {
   await api.setlists.updateSetlist(id as string, { [field]: setlist.value[field] })
   await refreshStore.refresh({ setlistId: id as string })
 }
+
+const pdfLoading = ref(false)
+watchEffect(() => {
+  if (selectedTab.value === "pdf") pdfLoading.value = true
+})
 
 const packetWarnings = computed<string[]>(() => {
   const rv: string[] = []

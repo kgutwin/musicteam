@@ -8,7 +8,7 @@ from chalicelib.types import SetlistPosition
 
 def read(object_id: str) -> pymupdf.Document:
     resp = s3.get_object(Bucket=OBJECT_BUCKET_NAME, Key=object_id)
-    return pymupdf.Document(stream=resp["Body"])
+    return pymupdf.Document(stream=resp["Body"].read())
 
 
 def concatenate(documents: list[pymupdf.Document]) -> pymupdf.Document:
@@ -117,7 +117,7 @@ def make_cover_sheet(
 
     insert_pt = pymupdf.Point(72, 72 * 3)
     for pos in positions:
-        row_text = f"- {pos.label}"
+        row_text = f"{pos.label}"
         if pos.presenter:
             row_text += f" ({pos.presenter})"
         fontname = "Helvetica-Bold" if pos.is_music else "Helvetica"
@@ -129,7 +129,7 @@ def make_cover_sheet(
             sheet = sheets[0]
             page.insert_text(
                 insert_pt,
-                f"... {sheet.title} ({sheet.key})",
+                f"   - {sheet.title} ({sheet.key})",
                 fontname=fontname,
                 fontsize=fontsize,
             )

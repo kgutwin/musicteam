@@ -179,15 +179,14 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
     fp.write("Set list:\n")
     fp.write("---------\n")
     for pos in positions:
-        m = "***" if pos.is_music else "   "
-        fp.write(f"{m} {pos.label}")
+        fp.write(f"    {pos.label}")
         if pos.presenter:
             fp.write(f" ({pos.presenter})")
         fp.write("\n")
 
         for lyric in lyric_details:
             if lyric.position_id == pos.id:
-                fp.write(f"    {lyric.title}\n")
+                fp.write(f"*** {lyric.title}\n")
 
     fp.write("\n\n\n")
 
