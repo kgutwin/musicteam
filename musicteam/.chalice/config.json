@@ -3,6 +3,7 @@
   "app_name": "musicteam",
   "stages": {
     "dev": {
+      "lambda_memory_size": 512,
       "api_gateway_stage": "api",
       "automatic_layer": true
     }
