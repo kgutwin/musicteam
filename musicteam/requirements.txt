@@ -4,3 +4,4 @@ requests-oauthlib
 google-auth
 pyjwt
 boto3
+PyMuPDF

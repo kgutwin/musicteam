@@ -1,7 +1,14 @@
+from io import StringIO
+
 from chalice.app import Blueprint
 from chalicelib import db
+from chalicelib import pdf
+from chalicelib import storage
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
+from chalicelib.types import _PositionLyricDetails
+from chalicelib.types import _PositionSheetDetails
+from chalicelib.types import Download
 from chalicelib.types import Forbidden
 from chalicelib.types import NewSetlist
 from chalicelib.types import NewSetlistPosition
@@ -106,6 +113,172 @@ def delete_setlist(setlist_id: str) -> Forbidden | NotFound | NoContent:
     with db.connect() as conn:
         result = conn.execute("DELETE FROM setlists WHERE id = :id", {"id": setlist_id})
         return NoContent() if result else NotFound()
+
+
+@bp.route("/setlists/{setlist_id}/packet/lyrics", methods=["GET"])
+def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Download:
+    """Retrieve the text-format lyric packet for this setlist"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        setlist = conn.execute(
+            "SELECT id, leader_name, service_date, tags, created_on, creator_id "
+            "FROM setlists WHERE id = :setlist_id",
+            {"setlist_id": setlist_id},
+            output=Setlist,
+        ).fetchone()
+
+        if setlist is None:
+            return NotFound()
+
+        positions = conn.execute(
+            "SELECT id, setlist_id, index, label, is_music, presenter, status "
+            "FROM setlist_positions WHERE setlist_id = :setlist_id "
+            "ORDER BY index",
+            {"setlist_id": setlist_id},
+            output=SetlistPosition,
+        ).fetchall()
+
+        lyric_details = conn.execute(
+            "WITH lyric_versions AS ("
+            "  SELECT setlist_sheets.setlist_position_id, song_versions.id"
+            "  FROM setlist_sheets"
+            "  INNER JOIN song_sheets ON setlist_sheets.song_sheet_id = song_sheets.id"
+            "  INNER JOIN song_versions"
+            "     ON song_sheets.song_version_id = song_versions.id"
+            "  WHERE setlist_sheets.setlist_id = :setlist_id"
+            "    AND setlist_sheets.type NOT LIKE '%candidate%'"
+            "  GROUP BY setlist_sheets.setlist_position_id, song_versions.id"
+            ") "
+            "SELECT"
+            "  setlist_positions.id AS position_id,"
+            "  songs.title,"
+            "  song_versions.lyrics,"
+            "  song_versions.verse_order "
+            "FROM setlists "
+            "INNER JOIN setlist_positions"
+            "   ON setlists.id = setlist_positions.setlist_id "
+            "INNER JOIN lyric_versions"
+            "   ON setlist_positions.id = lyric_versions.setlist_position_id "
+            "INNER JOIN song_versions"
+            "   ON lyric_versions.id = song_versions.id "
+            "INNER JOIN songs"
+            "   ON song_versions.song_id = songs.id "
+            "WHERE setlists.id = :setlist_id "
+            "ORDER BY setlist_positions.index",
+            {"setlist_id": setlist_id},
+            output=_PositionLyricDetails,
+        ).fetchall()
+
+    fp = StringIO()
+    fp.write(f"# Set list for {setlist.service_date}\n")
+    fp.write(f"## Leader: {setlist.leader_name}\n")
+    fp.write("\n\n")
+
+    fp.write("Set list:\n")
+    fp.write("---------\n")
+    for pos in positions:
+        m = "***" if pos.is_music else "   "
+        fp.write(f"{m} {pos.label}")
+        if pos.presenter:
+            fp.write(f" ({pos.presenter})")
+        fp.write("\n")
+
+        for lyric in lyric_details:
+            if lyric.position_id == pos.id:
+                fp.write(f"    {lyric.title}\n")
+
+    fp.write("\n\n\n")
+
+    for pos in positions:
+        for lyric in lyric_details:
+            if lyric.position_id != pos.id:
+                continue
+
+            if lyric.verse_order:
+                fp.write(f"[[ Verse order: {lyric.verse_order} ]]\n")
+
+            fp.write(lyric.lyrics)
+            fp.write("\n\n")
+
+    fp.seek(0)
+
+    return Download(fp.read().encode(), headers={"Content-Type": "text/plain"})
+
+
+@bp.route("/setlists/{setlist_id}/packet/pdf", methods=["GET"])
+def get_setlist_packet_pdf(setlist_id: str) -> Forbidden | NotFound | Download:
+    """Retrieve the PDF-format packet for this setlist"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        setlist = conn.execute(
+            "SELECT id, leader_name, service_date, tags, created_on, creator_id "
+            "FROM setlists WHERE id = :setlist_id",
+            {"setlist_id": setlist_id},
+            output=Setlist,
+        ).fetchone()
+
+        if setlist is None:
+            return NotFound()
+
+        positions = conn.execute(
+            "SELECT id, setlist_id, index, label, is_music, presenter, status "
+            "FROM setlist_positions WHERE setlist_id = :setlist_id "
+            "ORDER BY index",
+            {"setlist_id": setlist_id},
+            output=SetlistPosition,
+        ).fetchall()
+
+        sheet_details = conn.execute(
+            "SELECT"
+            "  setlist_positions.id AS position_id,"
+            "  songs.title,"
+            "  song_versions.verse_order,"
+            "  song_sheets.key,"
+            "  song_sheets.object_type,"
+            "  song_sheets.object_id "
+            "FROM setlists "
+            "INNER JOIN setlist_positions"
+            "   ON setlists.id = setlist_positions.setlist_id "
+            "INNER JOIN setlist_sheets"
+            "   ON setlist_positions.id = setlist_sheets.setlist_position_id "
+            "INNER JOIN song_sheets"
+            "   ON setlist_sheets.song_sheet_id = song_sheets.id "
+            "INNER JOIN song_versions"
+            "   ON song_sheets.song_version_id = song_versions.id "
+            "INNER JOIN songs"
+            "   ON song_versions.song_id = songs.id "
+            "WHERE setlists.id = :setlist_id "
+            "  AND setlist_sheets.type NOT LIKE '%candidate%' "
+            "ORDER BY setlist_positions.index, setlist_sheets.type",
+            {"setlist_id": setlist_id},
+            output=_PositionSheetDetails,
+        ).fetchall()
+
+    # build packet
+    music_sheets = [pdf.make_cover_sheet(setlist, positions, sheet_details)]
+    for obj in sheet_details:
+        if obj.object_type == "application/pdf":
+            sheet = pdf.read(obj.object_id)
+        elif obj.object_type == "text/plain":
+            sheet = pdf.text_to_pdf(storage.get(obj.object_id).read().decode())
+        else:
+            raise NotImplementedError(f"file type not supported: {obj.object_type}")
+
+        if obj.verse_order:
+            sheet = pdf.add_verse_order(sheet, obj.verse_order.split())
+
+        music_sheets.append(sheet)
+
+    packet = pdf.concatenate(music_sheets)
+
+    return Download(
+        packet.tobytes(garbage=3, deflate=True, use_objstms=1),
+        headers={"Content-Type": "application/pdf"},
+    )
 
 
 @bp.route("/setlists/{setlist_id}/pos", methods=["GET"])

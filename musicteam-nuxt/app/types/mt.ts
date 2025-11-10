@@ -4,3 +4,8 @@ export interface TableColumn {
   cls?: string
   required?: boolean
 }
+
+export interface Tab {
+  name: string
+  title: string
+}

@@ -39,8 +39,9 @@ const show = ref(false)
   @apply border-slate-500 m-2;
 }
 .dropdown-menu button,
-.dropdown-menu label {
-  @apply w-full text-left pl-1 py-0.5 rounded-lg hover:bg-slate-100 hover:shadow;
+.dropdown-menu label,
+.dropdown-menu a {
+  @apply block w-full text-left pl-1 py-0.5 rounded-lg hover:bg-slate-100 hover:shadow;
 }
 .dropdown-menu button:disabled,
 .dropdown-menu label:disabled {
@@ -48,5 +49,8 @@ const show = ref(false)
 }
 .dropdown-menu input[type=~"search"] {
   @apply w-full border rounded p-0.5;
+}
+.dropdown-menu ul li {
+  @apply list-disc ml-4;
 }
 </style>

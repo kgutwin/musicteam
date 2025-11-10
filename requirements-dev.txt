@@ -9,3 +9,4 @@ apispec
 apispec-pydantic-plugin
 pre-commit
 boto3-stubs
+pymupdf-stubs

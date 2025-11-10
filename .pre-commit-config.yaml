@@ -30,6 +30,7 @@ repos:
           - "apispec"
           - "apispec-pydantic-plugin"
           - "boto3-stubs"
+          - "pymupdf-stubs"
 
   - repo: https://github.com/asottile/reorder-python-imports
     rev: v3.16.0

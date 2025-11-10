@@ -1,7 +1,7 @@
 <template>
   <div class="whitespace-pre-wrap font-mono xl:mx-24 2xl:mx-48 border shadow-lg p-8">
     <div class="float-right text-right">
-      <div class="pr-4 pb-2">
+      <div v-if="!noCopy" class="pr-4 pb-2">
         <button
           class="text-blue-500 hover:text-blue-700"
           @click="$emit('copy')"
@@ -20,6 +20,9 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ verseOrder: string | null | undefined }>()
+defineProps<{
+  verseOrder?: string | null
+  noCopy?: boolean
+}>()
 defineEmits<{ copy: [] }>()
 </script>

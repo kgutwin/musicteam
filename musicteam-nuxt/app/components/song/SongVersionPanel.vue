@@ -1,44 +1,27 @@
 <template>
   <div>
-    <div class="div-panel my-4">
-      <div class="flex flex-row gap-4 items-baseline">
-        <button
-          class="btn-sheet"
-          :selected="selectedSheet === '!lyrics'"
-          @click="selectedSheet = '!lyrics'"
-        >
-          Lyrics
-        </button>
-        <MtText v-if="sheets?.song_sheets === undefined" loading="w-20 mx-4" />
-        <button
-          v-for="sheet in sheets?.song_sheets ?? []"
-          :key="sheet.id"
-          class="btn-sheet"
-          :selected="selectedSheet === sheet"
-          @click="selectedSheet = sheet"
-        >
-          {{ sheet.type }} ({{ sheet.key }})
-        </button>
+    <MtTabPanel
+      v-model="selected"
+      :loading="sheets?.song_sheets === undefined"
+      :options="sheetTabs"
+    >
+      <button class="btn-gray" @click="edit">Edit...</button>
+      <button class="btn-gray" @click="addSheet">Add Sheet...</button>
+      <button
+        v-if="activeSetlistStore.setlist"
+        :disabled="selectedSheet === '!lyrics'"
+        class="btn-gray"
+        @click="addToCandidates"
+      >
+        Add as Candidate
+        <Icon
+          v-if="addCandidateStatus === 'pending'"
+          name="svg-spinners:3-dots-fade"
+          class="ml-2"
+        />
+      </button>
+    </MtTabPanel>
 
-        <div class="grow"></div>
-
-        <button class="btn-gray" @click="edit">Edit...</button>
-        <button class="btn-gray" @click="addSheet">Add Sheet...</button>
-        <button
-          v-if="activeSetlistStore.setlist"
-          :disabled="selectedSheet === '!lyrics'"
-          class="btn-gray"
-          @click="addToCandidates"
-        >
-          Add as Candidate
-          <Icon
-            v-if="addCandidateStatus === 'pending'"
-            name="svg-spinners:3-dots-fade"
-            class="ml-2"
-          />
-        </button>
-      </div>
-    </div>
     <SongTextPanel
       v-if="selectedSheet === '!lyrics'"
       :verse-order="version.verse_order"
@@ -49,6 +32,7 @@
     <SongTextPanel
       v-else-if="selectedSheet.object_type === 'text/plain'"
       :verse-order="version.verse_order"
+      no-copy
     >
       <SongText
         :song-id="version.song_id"
@@ -80,6 +64,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ selected: [SongSheet | undefined] }>()
 
+const { query } = useRoute()
+
 const sheetsStore = useSongSheetlistStore()
 const activeSetlistStore = useActiveSetlistStore()
 const setlistSheetlistStore = useSetlistSheetlistStore()
@@ -92,23 +78,32 @@ const sheets = computed(
     }).data.value,
 )
 
-const selectedSheet = ref<"!lyrics" | SongSheet>("!lyrics")
-watchEffect(() => {
-  const ss = selectedSheet.value
-  if (sheets.value && ss !== "!lyrics") {
-    // reset the selected sheet if it's no longer in the list of sheets
-    if (!sheets.value.song_sheets.some((s) => s.id === ss.id)) {
-      selectedSheet.value = "!lyrics"
-    }
-  }
-  emit("selected", ss === "!lyrics" ? undefined : ss)
+const sheetTabs = computed(() => {
+  return [{ name: "!lyrics", title: "Lyrics" }].concat(
+    (sheets.value?.song_sheets ?? []).map((s) => ({
+      name: s.id,
+      title: `${s.type} (${s.key})`,
+    })),
+  )
 })
+const selected = ref<string>((query.sheet as string) ?? "!lyrics")
+const selectedSheet = computed<"!lyrics" | SongSheet>(
+  () => sheets?.value?.song_sheets?.find((s) => s.id === selected.value) ?? "!lyrics",
+)
 
-const { query } = useRoute()
 watchEffect(() => {
-  if (query.sheet && sheets.value) {
-    const found = sheets.value.song_sheets.find((s) => s.id === query.sheet)
-    if (found) selectedSheet.value = found
+  let ss = selected.value
+  if (sheets.value) {
+    if (ss !== "!lyrics") {
+      // reset the selected sheet if it's no longer in the list of sheets
+      if (!sheets.value.song_sheets.some((s) => s.id === ss)) {
+        ss = selected.value = "!lyrics"
+      }
+    }
+    emit(
+      "selected",
+      sheets.value.song_sheets.find((s) => s.id === ss),
+    )
   }
 })
 
@@ -134,7 +129,7 @@ async function addToCandidates() {
 
       await api.setlists.newSetlistSheet(setlist.id, {
         type: "5:candidate",
-        song_sheet_id: selectedSheet.value.id,
+        song_sheet_id: selected.value,
       })
 
       await setlistSheetlistStore.refresh({ setlistId: setlist.id })
@@ -148,7 +143,7 @@ function lyricsToClipboard() {
 }
 
 async function editCurrentVersion() {
-  const sheetId = selectedSheet.value === "!lyrics" ? "lyrics" : selectedSheet.value.id
+  const sheetId = selected.value === "!lyrics" ? "lyrics" : selected.value
   await navigateTo({
     path: `/songs/${props.version.song_id}/edit/${props.version.id}/${sheetId}`,
   })
@@ -180,13 +175,3 @@ function edit() {
   })
 }
 </script>
-
-<style>
-.btn-sheet {
-  @apply font-semibold rounded-lg px-4 py-1 border-2 border-transparent;
-  @apply hover:border-blue-500 hover:shadow hover:bg-sky-100;
-}
-.btn-sheet[selected="true"] {
-  @apply border-blue-300 shadow hover:border-blue-500;
-}
-</style>

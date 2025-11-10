@@ -483,6 +483,48 @@ paths:
       required: true
       schema:
         type: string
+  /setlists/{setlist_id}/packet/lyrics:
+    get:
+      operationId: setlists.get_setlist_packet_lyrics
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          $ref: '#/components/responses/Download'
+      tags:
+      - Setlists
+      summary: Retrieve the text-format lyric packet for this setlist
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/packet/pdf:
+    get:
+      operationId: setlists.get_setlist_packet_pdf
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          $ref: '#/components/responses/Download'
+      tags:
+      - Setlists
+      summary: Retrieve the PDF-format packet for this setlist
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
   /setlists/{setlist_id}/pos:
     get:
       operationId: setlists.list_setlist_positions

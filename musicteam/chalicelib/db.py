@@ -113,6 +113,7 @@ class Interface:
     ) -> Cursor[T] | int:
         # if in psycopg mode, replace parameter syntax
         if PSYCOPG_PARAM is not None:
+            sql = re.sub("%", "%%", sql)
             sql = PSYCOPG_PARAM.sub(r"%(\1)s", sql)
 
         curs = self.conn.cursor()

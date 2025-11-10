@@ -1437,6 +1437,36 @@ export class Api<
      * No description
      *
      * @tags Setlists
+     * @name GetSetlistPacketLyrics
+     * @summary Retrieve the text-format lyric packet for this setlist
+     * @request GET:/setlists/{setlist_id}/packet/lyrics
+     */
+    getSetlistPacketLyrics: (setlistId: string, params: RequestParams = {}) =>
+      this.request<File, ServerError>({
+        path: `/setlists/${setlistId}/packet/lyrics`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name GetSetlistPacketPdf
+     * @summary Retrieve the PDF-format packet for this setlist
+     * @request GET:/setlists/{setlist_id}/packet/pdf
+     */
+    getSetlistPacketPdf: (setlistId: string, params: RequestParams = {}) =>
+      this.request<File, ServerError>({
+        path: `/setlists/${setlistId}/packet/pdf`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
      * @name ListSetlistPositions
      * @request GET:/setlists/{setlist_id}/pos
      */

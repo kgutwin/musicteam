@@ -257,6 +257,22 @@ class SetlistSheetList(BaseModel):
     sheets: list[SetlistSheet]
 
 
+class _PositionLyricDetails(BaseModel):
+    position_id: str
+    title: str
+    lyrics: str
+    verse_order: str | None = None
+
+
+class _PositionSheetDetails(BaseModel):
+    position_id: str
+    title: str
+    verse_order: str | None = None
+    key: str
+    object_id: str
+    object_type: str
+
+
 class NewSetlistTemplate(BaseModel):
     title: str
     tags: list[str] = []

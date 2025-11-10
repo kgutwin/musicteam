@@ -1,5 +1,7 @@
 import os
 import sys
+from io import RawIOBase
+from typing import cast
 
 import boto3
 from chalicelib.config import IS_CHALICE_LOCAL
@@ -40,3 +42,8 @@ if OBJECT_BUCKET_NAME == "local" and IS_CHALICE_LOCAL and sys.argv[-1] == "local
 
 else:
     s3 = boto3.client("s3")
+
+
+def get(object_id: str) -> RawIOBase:
+    resp = s3.get_object(Bucket=OBJECT_BUCKET_NAME, Key=object_id)
+    return cast(RawIOBase, resp["Body"])
