@@ -71,7 +71,7 @@
       :setlist-id="id as string"
     />
     <template v-else-if="selectedTab === 'pdf'">
-      <div v-if="pdfLoading">
+      <div v-if="pdfLoading" class="div-loading-panel">
         Loading
         <Icon name="svg-spinners:3-dots-fade" />
       </div>

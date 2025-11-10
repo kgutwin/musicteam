@@ -95,7 +95,7 @@ def make_cover_sheet(
     details: list[_PositionSheetDetails],
 ) -> pymupdf.Document:
     fontsize = 18
-    line_height = 20
+    line_height = 24
     insert_pt = pymupdf.Point(72, 72)
 
     doc = pymupdf.open()
@@ -115,24 +115,25 @@ def make_cover_sheet(
         fontsize=fontsize,
     )
 
-    insert_pt = pymupdf.Point(72, 72 * 3)
+    insert_pt = pymupdf.Point(72, 72 * 2.5)
     for pos in positions:
         row_text = f"{pos.label}"
         if pos.presenter:
             row_text += f" ({pos.presenter})"
         fontname = "Helvetica-Bold" if pos.is_music else "Helvetica"
         page.insert_text(insert_pt, row_text, fontname=fontname, fontsize=fontsize)
-        insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
 
         sheets = [d for d in details if d.position_id == pos.id]
         if sheets:
             sheet = sheets[0]
+            insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height - 4)
             page.insert_text(
                 insert_pt,
                 f"   - {sheet.title} ({sheet.key})",
                 fontname=fontname,
                 fontsize=fontsize,
             )
-            insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+
+        insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
 
     return doc
