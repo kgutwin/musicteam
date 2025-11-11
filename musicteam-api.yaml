@@ -4,6 +4,9 @@ info:
   version: 0.1.0
 servers:
 - url: /api
+security:
+- cookie: []
+- api_key: []
 paths:
   /:
     get:
@@ -750,6 +753,15 @@ paths:
           - type: 'null'
           default: null
           title: Ccli Num
+      - name: title
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
     post:
       operationId: songs.new_song
       responses:
@@ -1134,6 +1146,31 @@ paths:
       required: true
       schema:
         type: string
+  /users/{user_id}/apikey:
+    post:
+      operationId: users.create_user_apikey
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserApikey'
+      tags:
+      - Users
+    parameters:
+    - name: user_id
+      in: path
+      required: true
+      schema:
+        type: string
 openapi: 3.0.2
 components:
   schemas:
@@ -1182,6 +1219,12 @@ components:
           - type: 'null'
           default: null
           title: Ccli Num
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
       title: ListSongParams
       type: object
     LoginResponse:
@@ -2123,6 +2166,15 @@ components:
       - role
       title: User
       type: object
+    UserApikey:
+      properties:
+        api_key:
+          title: Api Key
+          type: string
+      required:
+      - api_key
+      title: UserApikey
+      type: object
     UserList:
       properties:
         users:
@@ -2179,3 +2231,14 @@ components:
           schema:
             type: string
             format: binary
+  securitySchemes:
+    cookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: A cookie as issued by a valid login process
+    api_key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: An API key associated with a user

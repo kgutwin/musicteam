@@ -5,6 +5,13 @@
       :loading="sheets?.song_sheets === undefined"
       :options="sheetTabs"
     >
+      <button
+        class="self-center mr-4"
+        title="Download"
+        @click="download(selectedSheet)"
+      >
+        <Icon name="solar:download-minimalistic-bold" size="28" />
+      </button>
       <button class="btn-gray" @click="edit">Edit...</button>
       <button class="btn-gray" @click="addSheet">Add Sheet...</button>
       <button
@@ -59,6 +66,7 @@ import { useActiveSetlistStore, useSetlistSheetlistStore } from "@/stores/setlis
 import type { ToasterStatus } from "@/types/toast"
 
 const props = defineProps<{
+  title: string
   version: SongVersion
 }>()
 
@@ -173,5 +181,24 @@ function edit() {
       action: editCurrentVersion,
     },
   })
+}
+
+function download(sheet: "!lyrics" | SongSheet) {
+  const link = document.createElement("a")
+  if (sheet === "!lyrics") {
+    const blob = new Blob([props.version.lyrics ?? ""], { type: "text/plain" })
+    link.href = URL.createObjectURL(blob)
+    link.download = `${props.title}.txt`
+  } else {
+    let ext = "unknown"
+    if (sheet.object_type === "application/pdf") ext = "pdf"
+    else if (sheet.object_type === "text/plain") ext = "txt"
+    link.href = `/api/songs/${props.version.song_id}/versions/${props.version.id}/sheets/${sheet.id}/doc`
+    link.download = `${props.title} (${sheet.key}).${ext}`
+  }
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 </script>

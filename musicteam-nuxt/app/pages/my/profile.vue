@@ -49,6 +49,7 @@
         OpenAPI documentation and live explorer
       </a>
     </div>
+    <UserGenerateApikey v-if="authData" :user-id="authData.id" />
   </div>
 </template>
 

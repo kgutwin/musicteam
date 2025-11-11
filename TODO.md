@@ -2,10 +2,9 @@
 
 ## Frontend
 
-- Copy setlist to clipboard
-- Download PDF of individual songs
 - Filter on authors and tags
 
+* Should be able to annotate an existing PDF and save as a new version or new sheet
 * Setlist templates
 * Roles
   - hide edit buttons
@@ -19,11 +18,7 @@
 
 ## Backend
 
-- Endpoint to find a song based on CCLI number
 - Endpoints for all tags and all authors
-- Setlist packet assembly
-- API keys
-  - include link to swagger
 
 * Set list data model updates
   - Title (sermon title)

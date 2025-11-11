@@ -101,6 +101,10 @@ class UserList(BaseModel):
     users: list[User]
 
 
+class UserApikey(BaseModel):
+    api_key: str
+
+
 class NewSong(BaseModel):
     title: str
     authors: list[str]
@@ -125,6 +129,7 @@ class SongList(BaseModel):
 
 class ListSongParams(BaseModel):
     ccli_num: int | None = None
+    title: str | None = None
 
 
 class NewSongVersion(BaseModel):

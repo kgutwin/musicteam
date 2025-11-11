@@ -166,7 +166,8 @@
     </div>
 
     <SongVersionPanel
-      v-if="version"
+      v-if="song && version"
+      :title="song.title"
       :version="version"
       @selected="(sheet) => (selectedSheet = sheet)"
     />

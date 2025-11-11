@@ -40,11 +40,16 @@ def list_songs(query_params: ListSongParams) -> Forbidden | SongList:
         return Forbidden()
 
     with db.connect() as conn:
-        where = ""
-        params = {}
+        where_clauses = []
+        params: dict[str, str | int] = {}
         if query_params.ccli_num:
-            where = "WHERE ccli_num = :ccli_num"
+            where_clauses.append("ccli_num = :ccli_num")
             params["ccli_num"] = query_params.ccli_num
+        if query_params.title:
+            where_clauses.append("title ~* :title")
+            params["title"] = query_params.title
+
+        where = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
         curs = conn.execute(
             f"SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
             f"FROM songs {where} "

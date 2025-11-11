@@ -35,6 +35,13 @@
 
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
+        <button
+          class="self-center text-blue-800 hover:text-blue-600"
+          title="Copy to Clipboard"
+          @click="copySetlistToClipboard"
+        >
+          <Icon name="solar:copy-outline" size="28" />
+        </button>
         <button class="btn-gray" @click="editOrder = !editOrder">
           {{ editOrder ? "Done" : "Edit" }}
         </button>
@@ -94,7 +101,7 @@ import {
   useSetlistStore,
   useSetlistRefreshStore,
 } from "@/stores/setlists"
-import { useSongStore } from "@/stores/songs"
+import { useSongStore, useSongSheetStore } from "@/stores/songs"
 
 import type { SetlistSheet, SetlistPosition, Setlist } from "@/services/api"
 import type { Tab } from "@/types/mt"
@@ -105,6 +112,7 @@ const setlistPositionlistStore = useSetlistPositionlistStore()
 const sheetlistStore = useSetlistSheetlistStore()
 const refreshStore = useSetlistRefreshStore()
 const songStore = useSongStore()
+const songSheetStore = useSongSheetStore()
 
 const { id } = useRoute().params
 
@@ -175,10 +183,40 @@ function downloadPacket(type: "pdf" | "lyrics") {
   document.body.removeChild(link)
 }
 
+async function copySetlistToClipboard() {
+  if (!positions.value || !slist.value) return
+  const lines: string[] = ["Set list", "--------"]
+
+  for (const pos of positions.value.positions) {
+    if (!pos.is_music) continue
+    for (const sheet of slist.value.sheets.filter(
+      (s) => s.setlist_position_id === pos.id && !s.type.includes("candidate"),
+    )) {
+      const song = await songStore.get({ songId: sheet.song_id }).get()
+      const songsheet = await songSheetStore
+        .get({
+          songId: sheet.song_id,
+          versionId: sheet.song_version_id,
+          sheetId: sheet.song_sheet_id,
+        })
+        .get()
+      lines.push(`${pos.label}: ${song.title} (${songsheet.key}) [#${song.ccli_num}]`)
+    }
+  }
+
+  navigator.clipboard.writeText(lines.join("\n"))
+}
+
 async function copyLyricsToClipboard() {
-  const blob = await api.setlists.getSetlistPacketLyrics(id as string)
-  const lyrics = await blob.text()
-  console.log(lyrics)
-  await navigator.clipboard.writeText(lyrics)
+  const lyrics = new Promise<string>(async (resolve, reject) => {
+    try {
+      const blob = await api.setlists.getSetlistPacketLyrics(id as string)
+      resolve(await blob.text())
+    } catch (error) {
+      reject(error)
+    }
+  })
+  const clipboardItem = new ClipboardItem({ "text/plain": lyrics })
+  await navigator.clipboard.write([clipboardItem])
 }
 </script>

@@ -40,6 +40,11 @@ export interface ListSongParams {
    * @default null
    */
   ccli_num?: number | null;
+  /**
+   * Title
+   * @default null
+   */
+  title?: string | null;
 }
 
 /** LoginResponse */
@@ -685,6 +690,12 @@ export interface User {
   api_key?: string | null;
 }
 
+/** UserApikey */
+export interface UserApikey {
+  /** Api Key */
+  api_key: string;
+}
+
 /** UserList */
 export interface UserList {
   /** Users */
@@ -962,11 +973,13 @@ export class Api<
    * @tags Index
    * @name Index
    * @request GET:/
+   * @secure
    */
   index = (params: RequestParams = {}) =>
     this.request<object, ServerError>({
       path: `/`,
       method: "GET",
+      secure: true,
       format: "json",
       ...params,
     });
@@ -978,11 +991,13 @@ export class Api<
      * @tags Auth
      * @name AuthCallback
      * @request GET:/auth/callback
+     * @secure
      */
     authCallback: (params: RequestParams = {}) =>
       this.request<any, ServerError>({
         path: `/auth/callback`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -992,11 +1007,13 @@ export class Api<
      * @tags Auth
      * @name AuthGoogle
      * @request GET:/auth/google
+     * @secure
      */
     authGoogle: (params: RequestParams = {}) =>
       this.request<any, ServerError>({
         path: `/auth/google`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -1006,11 +1023,13 @@ export class Api<
      * @tags Auth
      * @name AuthLogin
      * @request POST:/auth/login
+     * @secure
      */
     authLogin: (params: RequestParams = {}) =>
       this.request<LoginResponse, ServerError>({
         path: `/auth/login`,
         method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1021,11 +1040,13 @@ export class Api<
      * @tags Auth
      * @name AuthLogout
      * @request POST:/auth/logout
+     * @secure
      */
     authLogout: (params: RequestParams = {}) =>
       this.request<any, ServerError>({
         path: `/auth/logout`,
         method: "POST",
+        secure: true,
         ...params,
       }),
 
@@ -1035,11 +1056,13 @@ export class Api<
      * @tags Auth
      * @name AuthSession
      * @request GET:/auth/session
+     * @secure
      */
     authSession: (params: RequestParams = {}) =>
       this.request<User, ServerError>({
         path: `/auth/session`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1051,11 +1074,13 @@ export class Api<
      * @tags Comments
      * @name ListComments
      * @request GET:/comments/{resource_id}
+     * @secure
      */
     listComments: (resourceId: string, params: RequestParams = {}) =>
       this.request<CommentList, ServerError>({
         path: `/comments/${resourceId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1066,6 +1091,7 @@ export class Api<
      * @tags Comments
      * @name NewComment
      * @request POST:/comments/{resource_id}
+     * @secure
      */
     newComment: (
       resourceId: string,
@@ -1076,6 +1102,7 @@ export class Api<
         path: `/comments/${resourceId}`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1087,6 +1114,7 @@ export class Api<
      * @tags Comments
      * @name GetComment
      * @request GET:/comments/{resource_id}/{comment_id}
+     * @secure
      */
     getComment: (
       resourceId: string,
@@ -1096,6 +1124,7 @@ export class Api<
       this.request<Comment, ServerError>({
         path: `/comments/${resourceId}/${commentId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1106,6 +1135,7 @@ export class Api<
      * @tags Comments
      * @name UpdateComment
      * @request PUT:/comments/{resource_id}/{comment_id}
+     * @secure
      */
     updateComment: (
       resourceId: string,
@@ -1117,6 +1147,7 @@ export class Api<
         path: `/comments/${resourceId}/${commentId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1127,6 +1158,7 @@ export class Api<
      * @tags Comments
      * @name DeleteComment
      * @request DELETE:/comments/{resource_id}/{comment_id}
+     * @secure
      */
     deleteComment: (
       resourceId: string,
@@ -1136,6 +1168,7 @@ export class Api<
       this.request<any, ServerError>({
         path: `/comments/${resourceId}/${commentId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
   };
@@ -1147,6 +1180,7 @@ export class Api<
      * @name UploadFile
      * @summary Upload a file (object) to the site
      * @request POST:/objects
+     * @secure
      */
     uploadFile: (
       data: string,
@@ -1164,6 +1198,7 @@ export class Api<
         method: "POST",
         query: query,
         body: data,
+        secure: true,
         type: ContentType.Text,
         format: "json",
         ...params,
@@ -1176,11 +1211,13 @@ export class Api<
      * @tags Setlists
      * @name ListSetlistTemplates
      * @request GET:/setlistTemplates
+     * @secure
      */
     listSetlistTemplates: (params: RequestParams = {}) =>
       this.request<SetlistTemplateList, ServerError>({
         path: `/setlistTemplates`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1191,6 +1228,7 @@ export class Api<
      * @tags Setlists
      * @name NewSetlistTemplate
      * @request POST:/setlistTemplates
+     * @secure
      */
     newSetlistTemplate: (
       data: NewSetlistTemplate,
@@ -1200,6 +1238,7 @@ export class Api<
         path: `/setlistTemplates`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1211,11 +1250,13 @@ export class Api<
      * @tags Setlists
      * @name GetSetlistTemplate
      * @request GET:/setlistTemplates/{template_id}
+     * @secure
      */
     getSetlistTemplate: (templateId: string, params: RequestParams = {}) =>
       this.request<SetlistTemplate, ServerError>({
         path: `/setlistTemplates/${templateId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1226,6 +1267,7 @@ export class Api<
      * @tags Setlists
      * @name UpdateSetlistTemplate
      * @request PUT:/setlistTemplates/{template_id}
+     * @secure
      */
     updateSetlistTemplate: (
       templateId: string,
@@ -1236,6 +1278,7 @@ export class Api<
         path: `/setlistTemplates/${templateId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1246,11 +1289,13 @@ export class Api<
      * @tags Setlists
      * @name DeleteSetlistTemplate
      * @request DELETE:/setlistTemplates/{template_id}
+     * @secure
      */
     deleteSetlistTemplate: (templateId: string, params: RequestParams = {}) =>
       this.request<any, ServerError>({
         path: `/setlistTemplates/${templateId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -1260,6 +1305,7 @@ export class Api<
      * @tags Setlists
      * @name ListSetlistTemplatePositions
      * @request GET:/setlistTemplates/{template_id}/pos
+     * @secure
      */
     listSetlistTemplatePositions: (
       templateId: string,
@@ -1268,6 +1314,7 @@ export class Api<
       this.request<SetlistTemplatePositionList, ServerError>({
         path: `/setlistTemplates/${templateId}/pos`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1278,6 +1325,7 @@ export class Api<
      * @tags Setlists
      * @name NewSetlistTemplatePosition
      * @request POST:/setlistTemplates/{template_id}/pos
+     * @secure
      */
     newSetlistTemplatePosition: (
       templateId: string,
@@ -1288,6 +1336,7 @@ export class Api<
         path: `/setlistTemplates/${templateId}/pos`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1299,6 +1348,7 @@ export class Api<
      * @tags Setlists
      * @name GetSetlistTemplatePosition
      * @request GET:/setlistTemplates/{template_id}/pos/{position_id}
+     * @secure
      */
     getSetlistTemplatePosition: (
       templateId: string,
@@ -1308,6 +1358,7 @@ export class Api<
       this.request<SetlistTemplatePosition, ServerError>({
         path: `/setlistTemplates/${templateId}/pos/${positionId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1318,6 +1369,7 @@ export class Api<
      * @tags Setlists
      * @name UpdateSetlistTemplatePosition
      * @request PUT:/setlistTemplates/{template_id}/pos/{position_id}
+     * @secure
      */
     updateSetlistTemplatePosition: (
       templateId: string,
@@ -1329,6 +1381,7 @@ export class Api<
         path: `/setlistTemplates/${templateId}/pos/${positionId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1339,6 +1392,7 @@ export class Api<
      * @tags Setlists
      * @name DeleteSetlistTemplatePosition
      * @request DELETE:/setlistTemplates/{template_id}/pos/{position_id}
+     * @secure
      */
     deleteSetlistTemplatePosition: (
       templateId: string,
@@ -1348,6 +1402,7 @@ export class Api<
       this.request<any, ServerError>({
         path: `/setlistTemplates/${templateId}/pos/${positionId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
   };
@@ -1358,11 +1413,13 @@ export class Api<
      * @tags Setlists
      * @name ListSetlists
      * @request GET:/setlists
+     * @secure
      */
     listSetlists: (params: RequestParams = {}) =>
       this.request<SetlistList, ServerError>({
         path: `/setlists`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1373,12 +1430,14 @@ export class Api<
      * @tags Setlists
      * @name NewSetlist
      * @request POST:/setlists
+     * @secure
      */
     newSetlist: (data: NewSetlist, params: RequestParams = {}) =>
       this.request<Setlist, ServerError>({
         path: `/setlists`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1390,11 +1449,13 @@ export class Api<
      * @tags Setlists
      * @name GetSetlist
      * @request GET:/setlists/{setlist_id}
+     * @secure
      */
     getSetlist: (setlistId: string, params: RequestParams = {}) =>
       this.request<Setlist, ServerError>({
         path: `/setlists/${setlistId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1405,6 +1466,7 @@ export class Api<
      * @tags Setlists
      * @name UpdateSetlist
      * @request PUT:/setlists/{setlist_id}
+     * @secure
      */
     updateSetlist: (
       setlistId: string,
@@ -1415,6 +1477,7 @@ export class Api<
         path: `/setlists/${setlistId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1425,11 +1488,13 @@ export class Api<
      * @tags Setlists
      * @name DeleteSetlist
      * @request DELETE:/setlists/{setlist_id}
+     * @secure
      */
     deleteSetlist: (setlistId: string, params: RequestParams = {}) =>
       this.request<any, ServerError>({
         path: `/setlists/${setlistId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -1440,11 +1505,13 @@ export class Api<
      * @name GetSetlistPacketLyrics
      * @summary Retrieve the text-format lyric packet for this setlist
      * @request GET:/setlists/{setlist_id}/packet/lyrics
+     * @secure
      */
     getSetlistPacketLyrics: (setlistId: string, params: RequestParams = {}) =>
       this.request<File, ServerError>({
         path: `/setlists/${setlistId}/packet/lyrics`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -1455,11 +1522,13 @@ export class Api<
      * @name GetSetlistPacketPdf
      * @summary Retrieve the PDF-format packet for this setlist
      * @request GET:/setlists/{setlist_id}/packet/pdf
+     * @secure
      */
     getSetlistPacketPdf: (setlistId: string, params: RequestParams = {}) =>
       this.request<File, ServerError>({
         path: `/setlists/${setlistId}/packet/pdf`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -1469,11 +1538,13 @@ export class Api<
      * @tags Setlists
      * @name ListSetlistPositions
      * @request GET:/setlists/{setlist_id}/pos
+     * @secure
      */
     listSetlistPositions: (setlistId: string, params: RequestParams = {}) =>
       this.request<SetlistPositionList, ServerError>({
         path: `/setlists/${setlistId}/pos`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1484,6 +1555,7 @@ export class Api<
      * @tags Setlists
      * @name NewSetlistPosition
      * @request POST:/setlists/{setlist_id}/pos
+     * @secure
      */
     newSetlistPosition: (
       setlistId: string,
@@ -1494,6 +1566,7 @@ export class Api<
         path: `/setlists/${setlistId}/pos`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1505,6 +1578,7 @@ export class Api<
      * @tags Setlists
      * @name GetSetlistPosition
      * @request GET:/setlists/{setlist_id}/pos/{position_id}
+     * @secure
      */
     getSetlistPosition: (
       setlistId: string,
@@ -1514,6 +1588,7 @@ export class Api<
       this.request<SetlistPosition, ServerError>({
         path: `/setlists/${setlistId}/pos/${positionId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1524,6 +1599,7 @@ export class Api<
      * @tags Setlists
      * @name UpdateSetlistPosition
      * @request PUT:/setlists/{setlist_id}/pos/{position_id}
+     * @secure
      */
     updateSetlistPosition: (
       setlistId: string,
@@ -1535,6 +1611,7 @@ export class Api<
         path: `/setlists/${setlistId}/pos/${positionId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1545,6 +1622,7 @@ export class Api<
      * @tags Setlists
      * @name DeleteSetlistPosition
      * @request DELETE:/setlists/{setlist_id}/pos/{position_id}
+     * @secure
      */
     deleteSetlistPosition: (
       setlistId: string,
@@ -1554,6 +1632,7 @@ export class Api<
       this.request<any, ServerError>({
         path: `/setlists/${setlistId}/pos/${positionId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -1563,11 +1642,13 @@ export class Api<
      * @tags Setlists
      * @name ListSetlistSheets
      * @request GET:/setlists/{setlist_id}/sheets
+     * @secure
      */
     listSetlistSheets: (setlistId: string, params: RequestParams = {}) =>
       this.request<SetlistSheetList, ServerError>({
         path: `/setlists/${setlistId}/sheets`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1578,6 +1659,7 @@ export class Api<
      * @tags Setlists
      * @name NewSetlistSheet
      * @request POST:/setlists/{setlist_id}/sheets
+     * @secure
      */
     newSetlistSheet: (
       setlistId: string,
@@ -1588,6 +1670,7 @@ export class Api<
         path: `/setlists/${setlistId}/sheets`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1599,6 +1682,7 @@ export class Api<
      * @tags Setlists
      * @name GetSetlistSheet
      * @request GET:/setlists/{setlist_id}/sheets/{sheet_id}
+     * @secure
      */
     getSetlistSheet: (
       setlistId: string,
@@ -1608,6 +1692,7 @@ export class Api<
       this.request<SetlistSheet, ServerError>({
         path: `/setlists/${setlistId}/sheets/${sheetId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1618,6 +1703,7 @@ export class Api<
      * @tags Setlists
      * @name UpdateSetlistSheet
      * @request PUT:/setlists/{setlist_id}/sheets/{sheet_id}
+     * @secure
      */
     updateSetlistSheet: (
       setlistId: string,
@@ -1629,6 +1715,7 @@ export class Api<
         path: `/setlists/${setlistId}/sheets/${sheetId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1639,6 +1726,7 @@ export class Api<
      * @tags Setlists
      * @name DeleteSetlistSheet
      * @request DELETE:/setlists/{setlist_id}/sheets/{sheet_id}
+     * @secure
      */
     deleteSetlistSheet: (
       setlistId: string,
@@ -1648,6 +1736,7 @@ export class Api<
       this.request<any, ServerError>({
         path: `/setlists/${setlistId}/sheets/${sheetId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
   };
@@ -1659,6 +1748,7 @@ export class Api<
      * @name ListSongs
      * @summary List songs
      * @request GET:/songs
+     * @secure
      */
     listSongs: (
       query?: {
@@ -1667,6 +1757,11 @@ export class Api<
          * @default null
          */
         ccli_num?: number | null;
+        /**
+         * Title
+         * @default null
+         */
+        title?: string | null;
       },
       params: RequestParams = {},
     ) =>
@@ -1674,6 +1769,7 @@ export class Api<
         path: `/songs`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1685,12 +1781,14 @@ export class Api<
      * @name NewSong
      * @summary Create a new song
      * @request POST:/songs
+     * @secure
      */
     newSong: (data: NewSong, params: RequestParams = {}) =>
       this.request<Song, ServerError>({
         path: `/songs`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1703,11 +1801,13 @@ export class Api<
      * @name GetSong
      * @summary Retrieve a single song by ID
      * @request GET:/songs/{song_id}
+     * @secure
      */
     getSong: (songId: string, params: RequestParams = {}) =>
       this.request<Song, ServerError>({
         path: `/songs/${songId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1719,6 +1819,7 @@ export class Api<
      * @name UpdateSong
      * @summary Update a song's fields
      * @request PUT:/songs/{song_id}
+     * @secure
      */
     updateSong: (
       songId: string,
@@ -1729,6 +1830,7 @@ export class Api<
         path: `/songs/${songId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1740,11 +1842,13 @@ export class Api<
      * @name DeleteSong
      * @summary Delete a song
      * @request DELETE:/songs/{song_id}
+     * @secure
      */
     deleteSong: (songId: string, params: RequestParams = {}) =>
       this.request<any, ServerError>({
         path: `/songs/${songId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -1755,11 +1859,13 @@ export class Api<
      * @name ListSongVersions
      * @summary List song versions for a given song ID
      * @request GET:/songs/{song_id}/versions
+     * @secure
      */
     listSongVersions: (songId: string, params: RequestParams = {}) =>
       this.request<SongVersionList, ServerError>({
         path: `/songs/${songId}/versions`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1771,6 +1877,7 @@ export class Api<
      * @name NewSongVersion
      * @summary Create a new song version
      * @request POST:/songs/{song_id}/versions
+     * @secure
      */
     newSongVersion: (
       songId: string,
@@ -1781,6 +1888,7 @@ export class Api<
         path: `/songs/${songId}/versions`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1793,6 +1901,7 @@ export class Api<
      * @name GetSongVersion
      * @summary Retrieve a single song version by ID
      * @request GET:/songs/{song_id}/versions/{version_id}
+     * @secure
      */
     getSongVersion: (
       songId: string,
@@ -1802,6 +1911,7 @@ export class Api<
       this.request<SongVersion, ServerError>({
         path: `/songs/${songId}/versions/${versionId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1813,6 +1923,7 @@ export class Api<
      * @name UpdateSongVersion
      * @summary Update the fields of a song version
      * @request PUT:/songs/{song_id}/versions/{version_id}
+     * @secure
      */
     updateSongVersion: (
       songId: string,
@@ -1824,6 +1935,7 @@ export class Api<
         path: `/songs/${songId}/versions/${versionId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1835,6 +1947,7 @@ export class Api<
      * @name DeleteSongVersion
      * @summary Delete a song version
      * @request DELETE:/songs/{song_id}/versions/{version_id}
+     * @secure
      */
     deleteSongVersion: (
       songId: string,
@@ -1844,6 +1957,7 @@ export class Api<
       this.request<any, ServerError>({
         path: `/songs/${songId}/versions/${versionId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -1854,6 +1968,7 @@ export class Api<
      * @name ListSongSheets
      * @summary List song sheets for a given song and version ID
      * @request GET:/songs/{song_id}/versions/{version_id}/sheets
+     * @secure
      */
     listSongSheets: (
       songId: string,
@@ -1863,6 +1978,7 @@ export class Api<
       this.request<SongSheetList, ServerError>({
         path: `/songs/${songId}/versions/${versionId}/sheets`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1874,6 +1990,7 @@ export class Api<
      * @name NewSongSheet
      * @summary Create a new song sheet for a song version
      * @request POST:/songs/{song_id}/versions/{version_id}/sheets
+     * @secure
      */
     newSongSheet: (
       songId: string,
@@ -1885,6 +2002,7 @@ export class Api<
         path: `/songs/${songId}/versions/${versionId}/sheets`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -1897,6 +2015,7 @@ export class Api<
      * @name GetSongSheet
      * @summary Retrieve a single song sheet by ID
      * @request GET:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}
+     * @secure
      */
     getSongSheet: (
       songId: string,
@@ -1907,6 +2026,7 @@ export class Api<
       this.request<SongSheet, ServerError>({
         path: `/songs/${songId}/versions/${versionId}/sheets/${sheetId}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1918,6 +2038,7 @@ export class Api<
      * @name UpdateSongSheet
      * @summary Update the fields of a song sheet
      * @request PUT:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}
+     * @secure
      */
     updateSongSheet: (
       songId: string,
@@ -1930,6 +2051,7 @@ export class Api<
         path: `/songs/${songId}/versions/${versionId}/sheets/${sheetId}`,
         method: "PUT",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1941,6 +2063,7 @@ export class Api<
      * @name DeleteSongSheet
      * @summary Delete a song sheet
      * @request DELETE:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}
+     * @secure
      */
     deleteSongSheet: (
       songId: string,
@@ -1951,6 +2074,7 @@ export class Api<
       this.request<any, ServerError>({
         path: `/songs/${songId}/versions/${versionId}/sheets/${sheetId}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
 
@@ -1961,6 +2085,7 @@ export class Api<
      * @name GetSongSheetDoc
      * @summary Retrieve the document associated with a song sheet
      * @request GET:/songs/{song_id}/versions/{version_id}/sheets/{sheet_id}/doc
+     * @secure
      */
     getSongSheetDoc: (
       songId: string,
@@ -1971,6 +2096,7 @@ export class Api<
       this.request<File, ServerError>({
         path: `/songs/${songId}/versions/${versionId}/sheets/${sheetId}/doc`,
         method: "GET",
+        secure: true,
         ...params,
       }),
   };
@@ -1981,11 +2107,13 @@ export class Api<
      * @tags Users
      * @name ListUsers
      * @request GET:/users
+     * @secure
      */
     listUsers: (params: RequestParams = {}) =>
       this.request<UserList, ServerError>({
         path: `/users`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1996,11 +2124,30 @@ export class Api<
      * @tags Users
      * @name GetUser
      * @request GET:/users/{user_id}
+     * @secure
      */
     getUser: (userId: string, params: RequestParams = {}) =>
       this.request<User, ServerError>({
         path: `/users/${userId}`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Users
+     * @name CreateUserApikey
+     * @request POST:/users/{user_id}/apikey
+     * @secure
+     */
+    createUserApikey: (userId: string, params: RequestParams = {}) =>
+      this.request<UserApikey, ServerError>({
+        path: `/users/${userId}/apikey`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),

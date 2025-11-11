@@ -24,6 +24,25 @@ def generate() -> str:
         info={"description": "a music management tool"},
         servers=[{"url": "/api"}],
         plugins=[PydanticPlugin()],
+        security=[{"cookie": []}, {"api_key": []}],
+    )
+    spec.components.security_scheme(
+        "cookie",
+        {
+            "type": "apiKey",
+            "in": "cookie",
+            "name": "session",
+            "description": "A cookie as issued by a valid login process",
+        },
+    )
+    spec.components.security_scheme(
+        "api_key",
+        {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-API-Key",
+            "description": "An API key associated with a user",
+        },
     )
 
     for model in [getattr(types, e) for e in dir(types)]:

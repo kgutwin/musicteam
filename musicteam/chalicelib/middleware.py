@@ -85,6 +85,7 @@ class CookieJar:
 def register(app: Chalice) -> None:
     @app.middleware("all")
     def wake_db(event: T, get_response: Callable[[T], Any]) -> Any:
+        print("wake db")
         while not db.ping():
             time.sleep(1)
         return get_response(event)
@@ -156,6 +157,23 @@ def register(app: Chalice) -> None:
     def add_user_session(
         event: Request, get_response: Callable[[Request], Response]
     ) -> Response:
+        # first try retrieving the API key from the header
+        if "x-api-key" in event.headers:
+            with db.connect() as conn:
+                user = conn.execute(
+                    "SELECT id, name, provider_id, email, picture, role "
+                    "FROM users "
+                    "WHERE api_key = :api_key",
+                    {"api_key": event.headers["x-api-key"]},
+                    output=User,
+                ).fetchone()
+
+            if user:
+                user.api_key = event.headers["x-api-key"]
+                event.context["user"] = user
+                return get_response(event)
+
+        # get the user from the session cookie
         token = None
         try:
             token = event.context["cookies"]["session"]
