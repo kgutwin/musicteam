@@ -4,6 +4,8 @@
 
 - Filter on authors and tags
 
+* When creating a new song, do a similarity search to existing songs and warn
+  in case there is another song with the same title or CCLI number
 * Should be able to annotate an existing PDF and save as a new version or new sheet
 * Setlist templates
 * Roles
@@ -19,6 +21,7 @@
 ## Backend
 
 - Endpoints for all tags and all authors
+- Flag to disable auto verse order on sheet PDF
 
 * Set list data model updates
   - Title (sermon title)
@@ -30,14 +33,16 @@
 
 ## Bugs
 
+- sometimes login fails with 403 error
+  - getting "invalid request state" now; going back and reloading login page fixes
+    it for the session
+- Login session is too short (30m)?
 - MtArrayInput needs improvements
   - can't insert in between elements (important for verse order)
   - cursor acts strange when there are multiple lines
   - experienced but did not reproduce wonky delete behavior (I think with song tags)
-- Login session is too short (30m)?
 - Adding a set list is very slow since it needs to make one request per position
   - can it be parallelized, or batched?
-- sometimes login fails with 403 error?? maybe only with dev frontend?
 
 ## Performance
 
