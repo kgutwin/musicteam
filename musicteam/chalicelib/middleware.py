@@ -4,6 +4,7 @@ from http.cookies import SimpleCookie
 from typing import Any
 from typing import Callable
 from typing import cast
+from typing import Literal
 from typing import Mapping
 from typing import Self
 from typing import TypeVar
@@ -25,6 +26,8 @@ class CookieJar:
     """Basic cookie management.
 
     >>> c = CookieJar('foo=bar; baz="quux"')
+    >>> c.should_set
+    False
     >>> c['foo']
     'bar'
     >>> c['baz']
@@ -35,14 +38,13 @@ class CookieJar:
     >>> c.should_set
     True
     >>> c.set_header  # doctest: +NORMALIZE_WHITESPACE
-    {'Set-Cookie': ['baz="something \\\\"new\\\\""; HttpOnly; SameSite=Strict',
-                    'foo=bar']}
+    {'Set-Cookie': ['baz="something \\\\"new\\\\""; HttpOnly; Path=/; SameSite=Strict']}
 
     """
 
     def __init__(self, cookie_str: str) -> None:
-        self._cookie = SimpleCookie(cookie_str)
-        self._dirty = False
+        self._stale = SimpleCookie(cookie_str)
+        self._fresh = SimpleCookie()
 
     @classmethod
     def from_headers(cls, headers: Mapping[str, str]) -> Self:
@@ -51,34 +53,43 @@ class CookieJar:
         return cls("")
 
     def __getitem__(self, key: str) -> str:
-        return self._cookie[key].value
+        try:
+            return self._fresh[key].value
+        except KeyError:
+            return self._stale[key].value
 
     def __setitem__(self, key: str, value: str | None) -> None:
         if not value:
-            self._cookie[key] = ""
-            self._cookie[key]["max-age"] = 0
+            self._fresh[key] = ""
+            self._fresh[key]["max-age"] = 0
         else:
-            self._cookie[key] = value
-        self._cookie[key]["httponly"] = True
-        self._cookie[key]["path"] = "/"
+            self._fresh[key] = value
+        self._fresh[key]["httponly"] = True
+        self._fresh[key]["path"] = "/"
+        self._fresh[key]["samesite"] = "Strict"
+        # kgutwin 2025-11-11  setting secure=True breaks frontend dev against live
+        #                     backend on Safari, disabling for the time being
         # self._cookie[key]["secure"] = True
-        # self._cookie[key]["samesite"] = "Strict"
-        self._dirty = True
 
     def __repr__(self) -> str:
-        return repr(self._cookie)
+        return repr(self._stale) + " - " + repr(self._fresh)
+
+    def set_max_age(self, key: str, max_age: int) -> None:
+        self._fresh[key]["max-age"] = max_age
+
+    def set_samesite(self, key: str, samesite: Literal["Strict", "Lax"]) -> None:
+        self._fresh[key]["samesite"] = samesite
+
+    def set_secure(self, key: str, secure: bool) -> None:
+        self._fresh[key]["secure"] = secure
 
     @property
     def should_set(self) -> bool:
-        return self._dirty
-
-    @should_set.setter
-    def should_set(self, val: bool) -> None:
-        self._dirty = True
+        return bool(self._fresh)
 
     @property
     def set_header(self) -> dict[str, list[str]]:
-        output = self._cookie.output(header="")
+        output = self._fresh.output(header="")
         return {"Set-Cookie": [i.strip() for i in output.split("\r\n")]}
 
 

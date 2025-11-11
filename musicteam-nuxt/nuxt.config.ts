@@ -23,6 +23,12 @@ export default defineNuxtConfig({
     },
   },
 
+  icon: {
+    clientBundle: {
+      scan: true,
+    },
+  },
+
   // for debugging
   // vite: { build: { minify: false } },
   sourcemap: true,
@@ -53,11 +59,22 @@ export default defineNuxtConfig({
       // type: "authjs",
       // addDefaultCallbackUrl: true,
       type: "local",
+      token: {
+        maxAgeInSeconds: 21 * 86400, // 3 weeks
+      },
       endpoints: {
         signIn: { path: "/login", method: "post" },
         signOut: { path: "/logout", method: "post" },
         signUp: false,
         getSession: { path: "/session", method: "get" },
+      },
+      refresh: {
+        isEnabled: true,
+        endpoint: { path: "/session", method: "get" },
+        token: {
+          signInResponseRefreshTokenPointer: "/token",
+          refreshResponseTokenPointer: "/token",
+        },
       },
       pages: {
         login: "/login",

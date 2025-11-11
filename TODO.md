@@ -33,10 +33,6 @@
 
 ## Bugs
 
-- sometimes login fails with 403 error
-  - getting "invalid request state" now; going back and reloading login page fixes
-    it for the session
-- Login session is too short (30m)?
 - MtArrayInput needs improvements
   - can't insert in between elements (important for verse order)
   - cursor acts strange when there are multiple lines
@@ -69,3 +65,4 @@
 - Project README
 - User documentation
 - Tests
+- Revisit login token approach, maybe improve security

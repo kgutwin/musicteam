@@ -49,6 +49,8 @@ def auth_google() -> Found:
             AUTHORIZATION_BASE_URL
         )
         bp.current_request.context["cookies"]["state"] = state
+        bp.current_request.context["cookies"].set_max_age("state", 180)  # 3 minutes
+        bp.current_request.context["cookies"].set_samesite("state", "Lax")
 
     else:
         # bypassing OAuth since client and secret are not defined
@@ -63,8 +65,11 @@ def auth_callback() -> Forbidden | Found:
         assert bp.current_request.query_params is not None
         state = bp.current_request.query_params.get("state")
 
-        if state != bp.current_request.context["cookies"]["state"]:
-            return Forbidden("invalid request state")
+        try:
+            if state != bp.current_request.context["cookies"]["state"]:
+                return Forbidden("invalid request state")
+        except KeyError:
+            return Forbidden("missing request state cookie")
 
         redirect_uri = url_for(bp.current_request, "/auth/callback")
         oauth_session = OAuth2Session(
