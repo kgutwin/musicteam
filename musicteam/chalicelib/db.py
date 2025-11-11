@@ -16,6 +16,10 @@ from chalicelib.config import AURORA_CLUSTER_ARN
 from chalicelib.config import AURORA_SECRET_ARN
 from pydantic import BaseModel
 
+###
+### increment this whenever a new db schema update is added
+DB_VERSION = 3
+
 DatabaseResumingException = boto3.client(
     "rds-data"
 ).exceptions.DatabaseResumingException
@@ -46,10 +50,6 @@ try:
 except ImportError:
     PGLITE_AVAILABLE = False
     PSYCOPG_PARAM = None
-
-
-# increment this whenever a new db schema update is added
-DB_VERSION = 2
 
 
 T = TypeVar("T", bound=BaseModel)

@@ -118,6 +118,14 @@
           />
         </div>
       </label>
+
+      <label>
+        <span>Does music sheet already include verse order?</span>
+        <select v-model="inputAutoVerseOrder" class="sel-dropdown">
+          <option value="true">Sheet does not have verse order</option>
+          <option value="false">Sheet already has verse order</option>
+        </select>
+      </label>
     </form>
 
     <div class="flex flex-row gap-2">
@@ -199,6 +207,7 @@ const inputKey = ref<string>()
 const inputSheetType = ref<string>()
 const inputObjectId = ref<string>()
 const inputObjectType = ref<string>()
+const inputAutoVerseOrder = ref<string>("true")
 
 const invalid = useInvalid(
   [
@@ -295,6 +304,7 @@ async function save() {
         key,
         object_id: objectId,
         object_type: objectType,
+        auto_verse_order: inputAutoVerseOrder.value === "true",
       })
 
       await songRefresh.refresh({ songId })

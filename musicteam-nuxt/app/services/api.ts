@@ -87,6 +87,16 @@ export interface NewSetlist {
    * @default []
    */
   tags?: string[];
+  /**
+   * Title
+   * @default null
+   */
+  title?: string | null;
+  /**
+   * Participants
+   * @default []
+   */
+  participants?: string[];
 }
 
 /** NewSetlistPosition */
@@ -184,6 +194,11 @@ export interface NewSongSheet {
   object_id: string;
   /** Object Type */
   object_type: string;
+  /**
+   * Auto Verse Order
+   * @default true
+   */
+  auto_verse_order?: boolean;
 }
 
 /** NewSongVersion */
@@ -235,6 +250,16 @@ export interface Setlist {
    * @default []
    */
   tags?: string[];
+  /**
+   * Title
+   * @default null
+   */
+  title?: string | null;
+  /**
+   * Participants
+   * @default []
+   */
+  participants?: string[];
   /** Id */
   id: string;
   /**
@@ -411,6 +436,11 @@ export interface SongSheet {
   object_id: string;
   /** Object Type */
   object_type: string;
+  /**
+   * Auto Verse Order
+   * @default true
+   */
+  auto_verse_order?: boolean;
   /** Id */
   id: string;
   /**
@@ -494,6 +524,16 @@ export interface UpdateSetlist {
    * @default null
    */
   tags?: string[] | null;
+  /**
+   * Title
+   * @default null
+   */
+  title?: string | null;
+  /**
+   * Participants
+   * @default null
+   */
+  participants?: string[] | null;
   /**
    * Music Packet Object Id
    * @default null
@@ -645,6 +685,11 @@ export interface UpdateSongSheet {
    * @default null
    */
   object_type?: string | null;
+  /**
+   * Auto Verse Order
+   * @default null
+   */
+  auto_verse_order?: boolean | null;
 }
 
 /** UpdateSongVersion */

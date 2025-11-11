@@ -21,7 +21,12 @@
           class="h-12 w-12 rounded-full"
           referrerpolicy="no-referrer"
         />
-        <span v-else>{{ authData.name.split(/\s+/)[0] }}</span>
+        <div
+          v-else
+          class="rounded-full bg-indigo-300 h-12 w-12 flex items-center text-xs text-center font-bold"
+        >
+          {{ authData.name }}
+        </div>
       </NuxtLink>
     </div>
     <div v-else>

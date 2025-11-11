@@ -2,6 +2,7 @@
 
 ## Frontend
 
+- Setlist title and participants
 - Filter on authors and tags
 
 * When creating a new song, do a similarity search to existing songs and warn
@@ -20,16 +21,10 @@
 
 ## Backend
 
-- Endpoints for all tags and all authors
-- Flag to disable auto verse order on sheet PDF
-
-* Set list data model updates
-  - Title (sermon title)
-  - Participants (scheduled team members)
-* Search across songs
-* New users are pending first
-* Bucket maintenance
-* History endpoints
+- Search across songs
+- New users are pending first
+- Bucket maintenance
+- History endpoints
 
 ## Bugs
 

@@ -12,6 +12,7 @@ from chalice.app import Response
 from chalicelib.config import SITE_SECRET
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import field_validator
 
 
 class _ReplacementModel(BaseModel):
@@ -160,6 +161,7 @@ class NewSongSheet(BaseModel):
     tags: list[str] = []
     object_id: str
     object_type: str
+    auto_verse_order: bool = True
 
 
 class UpdateSongSheet(_ReplacementModel):
@@ -168,6 +170,7 @@ class UpdateSongSheet(_ReplacementModel):
     tags: list[str] | None = None
     object_id: str | None = None
     object_type: str | None = None
+    auto_verse_order: bool | None = None
 
 
 class SongSheet(_CoreModel, NewSongSheet):
@@ -187,12 +190,23 @@ class NewSetlist(BaseModel):
     leader_name: str
     service_date: date | None = None
     tags: list[str] = []
+    title: str | None = None
+    participants: list[str] = []
+
+    @field_validator("participants", mode="before")
+    @classmethod
+    def ensure_participants(cls, value: Any) -> Any:
+        if value is None:
+            return []
+        return value
 
 
 class UpdateSetlist(_ReplacementModel):
     leader_name: str | None = None
     service_date: date | None = None
     tags: list[str] | None = None
+    title: str | None = None
+    participants: list[str] | None = None
     music_packet_object_id: str | None = None
     lyric_packet_object_id: str | None = None
 
@@ -274,6 +288,7 @@ class _PositionSheetDetails(BaseModel):
     title: str
     verse_order: str | None = None
     key: str
+    auto_verse_order: bool
     object_id: str
     object_type: str
 

@@ -1318,6 +1318,18 @@ components:
             type: string
           title: Tags
           type: array
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
+        participants:
+          default: []
+          items:
+            type: string
+          title: Participants
+          type: array
       required:
       - leader_name
       title: NewSetlist
@@ -1466,6 +1478,10 @@ components:
         object_type:
           title: Object Type
           type: string
+        auto_verse_order:
+          default: true
+          title: Auto Verse Order
+          type: boolean
       required:
       - type
       - key
@@ -1539,6 +1555,18 @@ components:
           items:
             type: string
           title: Tags
+          type: array
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
+        participants:
+          default: []
+          items:
+            type: string
+          title: Participants
           type: array
         id:
           title: Id
@@ -1825,6 +1853,10 @@ components:
         object_type:
           title: Object Type
           type: string
+        auto_verse_order:
+          default: true
+          title: Auto Verse Order
+          type: boolean
         id:
           title: Id
           type: string
@@ -1948,6 +1980,20 @@ components:
           - type: 'null'
           default: null
           title: Tags
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
+        participants:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Participants
         music_packet_object_id:
           anyOf:
           - type: string
@@ -2135,6 +2181,12 @@ components:
           - type: 'null'
           default: null
           title: Object Type
+        auto_verse_order:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Auto Verse Order
       title: UpdateSongSheet
       type: object
     UpdateSongVersion:

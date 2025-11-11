@@ -264,7 +264,7 @@ def list_song_sheets(song_id: str, version_id: str) -> Forbidden | SongSheetList
         curs = conn.execute(
             "SELECT"
             "    id, song_version_id, type, key, tags, object_id, object_type,"
-            "    created_on, creator_id "
+            "    auto_verse_order, created_on, creator_id "
             "FROM song_sheets WHERE song_version_id = :version_id "
             "ORDER BY key",
             {"version_id": version_id},
@@ -290,13 +290,14 @@ def new_song_sheet(
     with db.connect() as conn:
         curs = conn.execute(
             "INSERT INTO song_sheets ("
-            "    song_version_id, type, key, tags, object_id, object_type, creator_id"
+            "    song_version_id, type, key, tags, object_id, object_type,"
+            "    auto_verse_order, creator_id"
             ") VALUES ("
             "    :song_version_id, :type, :key, :tags, :object_id, :object_type,"
-            "    :creator_id"
+            "    :auto_verse_order, :creator_id"
             ") "
             "RETURNING id, song_version_id, type, key, tags, object_id, object_type,"
-            "    created_on, creator_id",
+            "    auto_verse_order, created_on, creator_id",
             request_body.model_dump()
             | {
                 "song_version_id": version_id,
@@ -322,7 +323,7 @@ def get_song_sheet(
         curs = conn.execute(
             "SELECT"
             "  id, song_version_id, type, key, tags, object_id, object_type,"
-            "  created_on, creator_id "
+            "  auto_verse_order, created_on, creator_id "
             "FROM song_sheets WHERE id = :sheet_id AND song_version_id = :version_id",
             {"sheet_id": sheet_id, "version_id": version_id},
             output=SongSheet,

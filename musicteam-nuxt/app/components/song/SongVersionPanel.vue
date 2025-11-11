@@ -38,7 +38,7 @@
     </SongTextPanel>
     <SongTextPanel
       v-else-if="selectedSheet.object_type === 'text/plain'"
-      :verse-order="version.verse_order"
+      :verse-order="selectedSheet.auto_verse_order ? version.verse_order : null"
       no-copy
     >
       <SongText

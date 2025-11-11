@@ -43,7 +43,9 @@ def list_setlists() -> Forbidden | SetlistList:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT id, leader_name, service_date, tags, created_on, creator_id "
+            "SELECT"
+            "    id, leader_name, service_date, tags, title, participants,"
+            "    created_on, creator_id "
             "FROM setlists "
             "ORDER BY service_date DESC",
             output=Setlist,
@@ -58,9 +60,14 @@ def new_setlist(request_body: NewSetlist) -> Forbidden | Setlist:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "INSERT INTO setlists (leader_name, service_date, tags, creator_id) "
-            "VALUES (:leader_name, :service_date, :tags, :creator_id) "
-            "RETURNING id, leader_name, service_date, tags, created_on, creator_id",
+            "INSERT INTO setlists ("
+            "  leader_name, service_date, tags, title, participants, creator_id"
+            ") VALUES ("
+            "  :leader_name, :service_date, :tags, :title, :participants, :creator_id"
+            ") "
+            "RETURNING"
+            "  id, leader_name, service_date, tags, title, participants, created_on,"
+            "  creator_id",
             request_body.model_dump()
             | {"creator_id": session_user(bp.current_request).id},
             output=Setlist,
@@ -78,7 +85,9 @@ def get_setlist(setlist_id: str) -> Forbidden | NotFound | Setlist:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT id, leader_name, service_date, tags, created_on, creator_id "
+            "SELECT"
+            "  id, leader_name, service_date, tags, title, participants, created_on,"
+            "  creator_id "
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
@@ -123,7 +132,9 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
 
     with db.connect() as conn:
         setlist = conn.execute(
-            "SELECT id, leader_name, service_date, tags, created_on, creator_id "
+            "SELECT"
+            "  id, leader_name, service_date, tags, title, participants, created_on,"
+            "  creator_id "
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
@@ -214,7 +225,9 @@ def get_setlist_packet_pdf(setlist_id: str) -> Forbidden | NotFound | Download:
 
     with db.connect() as conn:
         setlist = conn.execute(
-            "SELECT id, leader_name, service_date, tags, created_on, creator_id "
+            "SELECT"
+            "  id, leader_name, service_date, tags, title, participants, created_on,"
+            "  creator_id "
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
@@ -237,6 +250,7 @@ def get_setlist_packet_pdf(setlist_id: str) -> Forbidden | NotFound | Download:
             "  songs.title,"
             "  song_versions.verse_order,"
             "  song_sheets.key,"
+            "  song_sheets.auto_verse_order,"
             "  song_sheets.object_type,"
             "  song_sheets.object_id "
             "FROM setlists "
@@ -267,7 +281,7 @@ def get_setlist_packet_pdf(setlist_id: str) -> Forbidden | NotFound | Download:
         else:
             raise NotImplementedError(f"file type not supported: {obj.object_type}")
 
-        if obj.verse_order:
+        if obj.verse_order and obj.auto_verse_order:
             sheet = pdf.add_verse_order(sheet, obj.verse_order.split())
 
         music_sheets.append(sheet)

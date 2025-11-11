@@ -53,6 +53,14 @@
           <span>Musical Key <span class="spn-req">*</span></span>
           <input v-model="inputKey" class="inp-text" required placeholder="C" />
         </label>
+
+        <label>
+          <span>Does music sheet already include verse order?</span>
+          <select v-model="inputAutoVerseOrder" class="sel-dropdown">
+            <option value="true">Sheet does not have verse order</option>
+            <option value="false">Sheet already has verse order</option>
+          </select>
+        </label>
       </form>
 
       <SongPdfEditor
@@ -122,6 +130,7 @@ watch(
 
 const inputSheetType = ref<string>()
 const inputKey = ref<string>()
+const inputAutoVerseOrder = ref<string>("true")
 
 if (sheet) {
   watch(
@@ -130,6 +139,7 @@ if (sheet) {
       if (sheet?.value) {
         inputSheetType.value = sheet.value.type
         inputKey.value = sheet.value.key
+        inputAutoVerseOrder.value = sheet.value.auto_verse_order ? "true" : "false"
       }
     },
     { immediate: true },
@@ -168,6 +178,7 @@ async function save() {
         {
           type: inputSheetType.value,
           key: inputKey.value,
+          auto_verse_order: inputAutoVerseOrder.value === "true",
           object_id: response.data.id,
         },
       )
