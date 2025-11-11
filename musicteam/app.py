@@ -4,6 +4,7 @@ from chalice.app import Chalice
 from chalicelib import middleware
 from chalicelib.blueprints import auth
 from chalicelib.blueprints import comments
+from chalicelib.blueprints import info
 from chalicelib.blueprints import objects
 from chalicelib.blueprints import setlists
 from chalicelib.blueprints import songs
@@ -21,6 +22,7 @@ app.register_blueprint(objects.bp)
 app.register_blueprint(setlists.bp)
 app.register_blueprint(songs.bp)
 app.register_blueprint(users.bp)
+app.register_blueprint(info.bp)
 
 
 @app.route("/")

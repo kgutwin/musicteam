@@ -343,6 +343,15 @@ class ObjectId(BaseModel):
     id: str
 
 
+class Entry(BaseModel):
+    entry: str
+    count: int
+
+
+class EntryList(BaseModel):
+    entries: list[Entry]
+
+
 # Chalice response types
 class KnownResponse(Response):
     _code = 200

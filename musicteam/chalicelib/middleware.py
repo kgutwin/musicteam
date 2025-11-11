@@ -96,7 +96,6 @@ class CookieJar:
 def register(app: Chalice) -> None:
     @app.middleware("all")
     def wake_db(event: T, get_response: Callable[[T], Any]) -> Any:
-        print("wake db")
         while not db.ping():
             time.sleep(1)
         return get_response(event)

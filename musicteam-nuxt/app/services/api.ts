@@ -33,6 +33,20 @@ export interface CommentList {
   comments: Comment[];
 }
 
+/** Entry */
+export interface Entry {
+  /** Entry */
+  entry: string;
+  /** Count */
+  count: number;
+}
+
+/** EntryList */
+export interface EntryList {
+  /** Entries */
+  entries: Entry[];
+}
+
 /** ListSongParams */
 export interface ListSongParams {
   /**
@@ -1169,6 +1183,43 @@ export class Api<
         path: `/comments/${resourceId}/${commentId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+  };
+  info = {
+    /**
+     * No description
+     *
+     * @tags Info
+     * @name ListAuthors
+     * @summary List all song authors
+     * @request GET:/info/authors
+     * @secure
+     */
+    listAuthors: (params: RequestParams = {}) =>
+      this.request<EntryList, ServerError>({
+        path: `/info/authors`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Info
+     * @name ListTags
+     * @summary List all tags in the system, across songs, setlists, etc
+     * @request GET:/info/tags
+     * @secure
+     */
+    listTags: (params: RequestParams = {}) =>
+      this.request<EntryList, ServerError>({
+        path: `/info/tags`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };
