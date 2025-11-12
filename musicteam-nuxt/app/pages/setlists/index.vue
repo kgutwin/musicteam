@@ -22,6 +22,14 @@
       <template #leader="{ row }">
         {{ row.leader_name }}
       </template>
+      <template #title="{ row }">
+        {{ row.title }}
+      </template>
+      <template #team="{ row }">
+        <span v-for="name in row.participants" :key="name" class="spn-tag">
+          {{ name }}
+        </span>
+      </template>
       <template #tags="{ row }">
         <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>
       </template>
@@ -46,8 +54,10 @@ const user = useUserStore()
 const columns: TableColumn[] = [
   { name: "service-date", title: "Service Date" },
   { name: "leader", title: "Leader" },
+  { name: "title", title: "Title" },
+  { name: "team", title: "Participants" },
   { name: "tags", title: "Tags" },
-  { name: "created-on", title: "Created On" },
-  { name: "created-by", title: "Created By" },
+  // { name: "created-on", title: "Created On" },
+  // { name: "created-by", title: "Created By" },
 ]
 </script>

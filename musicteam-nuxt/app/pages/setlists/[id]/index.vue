@@ -5,7 +5,7 @@
     </Head>
     <div class="div-panel">
       <div class="flex flex-row gap-2">
-        <h1 class="grow">
+        <h1 class="grow flex flex-row gap-2">
           Set List for
           <MtEditable
             :model="setlist"
@@ -13,23 +13,39 @@
             type="date"
             @save="saveSetlist('service_date')"
           />
+          <Icon name="solar:double-alt-arrow-right-bold-duotone" class="self-center" />
+          <MtEditable :model="setlist" prop="title" @save="saveSetlist('title')" />
         </h1>
         <button class="btn-red" @click="deleteSetlist">Delete</button>
       </div>
       <div class="flex flex-row">
-        <h2 class="grow">
-          Leader:
-          <MtEditable
-            :model="setlist"
-            prop="leader_name"
-            @save="saveSetlist('leader_name')"
-          />
-        </h2>
-        <div>
-          <span v-for="tag in setlist?.tags ?? []" :key="tag" class="spn-tag">
-            {{ tag }}
-          </span>
+        <div class="grow">
+          <h2>
+            Leader:
+            <MtEditable
+              :model="setlist"
+              prop="leader_name"
+              @save="saveSetlist('leader_name')"
+            />
+          </h2>
+          <h3>
+            Participants:
+            <MtEditable
+              :model="setlist"
+              prop="participants"
+              @save="saveSetlist('participants')"
+            >
+              <template #input="{ modelValue, updateModelValue }">
+                <MtArrayInput
+                  :modelValue="modelValue"
+                  @update:modelValue="updateModelValue"
+                  allow-space
+                />
+              </template>
+            </MtEditable>
+          </h3>
         </div>
+        <MtEditableTags :model="setlist" @save="saveSetlist('tags')" />
       </div>
     </div>
 
@@ -54,7 +70,7 @@
           title="Warnings"
         >
           <template #dropdown-button>
-            <Icon name="ri:error-warning-line" size="28" />
+            <Icon name="solar:danger-triangle-broken" size="28" />
           </template>
           <span class="italic">Warnings:</span>
           <ul>

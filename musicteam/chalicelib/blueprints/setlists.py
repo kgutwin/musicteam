@@ -185,6 +185,10 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
     fp = StringIO()
     fp.write(f"# Set list for {setlist.service_date}\n")
     fp.write(f"## Leader: {setlist.leader_name}\n")
+    if setlist.title:
+        fp.write(f"## Title: {setlist.title}\n")
+    if setlist.participants:
+        fp.write(f"## Team: {', '.join(setlist.participants)}\n")
     fp.write("\n\n")
 
     fp.write("Set list:\n")

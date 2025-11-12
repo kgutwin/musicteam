@@ -16,6 +16,16 @@
       </label>
 
       <label>
+        <span>Title</span>
+        <input v-model="inputTitle" class="inp-text" />
+      </label>
+
+      <label>
+        <span>Team Participants</span>
+        <MtArrayInput v-model="inputParticipants" allow-space />
+      </label>
+
+      <label>
         <span>Tags</span>
         <MtArrayInput v-model="inputTags" allow-space />
       </label>
@@ -78,6 +88,8 @@ const setlistRefresh = useSetlistRefreshStore()
 
 const inputLeaderName = ref<string | undefined>(authData.value?.name)
 const inputServiceDate = ref<string>(nextSunday())
+const inputTitle = ref<string>()
+const inputParticipants = ref<string[]>([])
 const inputTags = ref<string[]>([])
 
 type PendingPosition = Partial<NewSetlistPosition> & { id: string }
@@ -109,6 +121,8 @@ async function save() {
 
   const leaderName = inputLeaderName.value
   const serviceDate = inputServiceDate.value
+  const title = inputTitle.value
+  const participants = inputParticipants.value
   const tags = inputTags.value
 
   if (!leaderName) return
@@ -116,6 +130,8 @@ async function save() {
   const setlistResponse = await api.setlists.newSetlist({
     leader_name: leaderName,
     service_date: serviceDate,
+    title,
+    participants,
     tags,
   })
 

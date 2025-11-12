@@ -7,7 +7,7 @@
     <div class="flex flex-row gap-4 w-full">
       <div class="div-panel basis-4/6">
         <div class="flex flex-row">
-          <div class="basis-1/2">
+          <div class="basis-4/6">
             <h1>
               <MtEditable :model="song" prop="title" wide @save="saveSong('title')" />
             </h1>
@@ -47,7 +47,7 @@
               </template>
             </div>
           </div>
-          <div class="basis-1/2 text-right">
+          <div class="basis-2/6 text-right">
             <div class="mb-2">
               <MtDropdown button-class="btn-red">
                 <template #dropdown-button>Delete</template>
@@ -81,28 +81,7 @@
                 <button class="text-red-500" @click="deleteSong">Delete Song</button>
               </MtDropdown>
             </div>
-            <MtEditable :model="song" prop="tags" @save="saveSong('tags')">
-              <div class="flex flex-row flex-wrap">
-                <span
-                  v-if="(song?.tags ?? []).length === 0"
-                  class="italic text-gray-400"
-                >
-                  No tags
-                </span>
-                <span v-for="tag in song?.tags ?? []" :key="tag" class="spn-tag">
-                  {{ tag }}
-                </span>
-              </div>
-
-              <template #input="{ modelValue, updateModelValue }">
-                <MtArrayInput
-                  class="min-w-24"
-                  :modelValue="modelValue"
-                  @update:modelValue="updateModelValue"
-                  allow-space
-                />
-              </template>
-            </MtEditable>
+            <MtEditableTags :model="song" @save="saveSong('tags')" />
           </div>
         </div>
 

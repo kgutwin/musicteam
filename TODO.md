@@ -2,12 +2,12 @@
 
 ## Frontend
 
-- Setlist title and participants
 - Filter on authors and tags
 
 * When creating a new song, do a similarity search to existing songs and warn
   in case there is another song with the same title or CCLI number
 * Should be able to annotate an existing PDF and save as a new version or new sheet
+* Deep links should trigger login and then redirect back
 * Setlist templates
 * Roles
   - hide edit buttons
@@ -32,6 +32,8 @@
   - can't insert in between elements (important for verse order)
   - cursor acts strange when there are multiple lines
   - experienced but did not reproduce wonky delete behavior (I think with song tags)
+- useAuth is raising a fetch exception on GET /api/auth/session since it is hard coded
+  to send a body; probably just need to support POST on /api/auth/session
 - Adding a set list is very slow since it needs to make one request per position
   - can it be parallelized, or batched?
 

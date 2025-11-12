@@ -108,14 +108,31 @@ def make_cover_sheet(
         fontsize=fontsize,
     )
     insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+    if setlist.title:
+        page.insert_text(
+            insert_pt,
+            f'"{setlist.title}"',
+            fontname="Helvetica-Bold",
+            fontsize=fontsize,
+        )
+        insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+
     page.insert_text(
         insert_pt,
         f"Leader: {setlist.leader_name}",
         fontname="Helvetica",
         fontsize=fontsize,
     )
+    insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+    if setlist.participants:
+        page.insert_text(
+            insert_pt,
+            f"Team: {', '.join(setlist.participants)}",
+            fontname="Helvetica",
+            fontsize=fontsize,
+        )
 
-    insert_pt = pymupdf.Point(72, 72 * 2.5)
+    insert_pt = pymupdf.Point(72, 72 * 2.75)
     for pos in positions:
         row_text = f"{pos.label}"
         if pos.presenter:
