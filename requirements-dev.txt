@@ -9,4 +9,5 @@ apispec
 apispec-pydantic-plugin
 pre-commit
 boto3-stubs
-pymupdf-stubs==1.26.1-post1
+PyMuPDF
+pymupdf-stubs

@@ -2,3 +2,5 @@ venv/
 deploy/
 instance/
 .env
+
+musicteam/vendor/

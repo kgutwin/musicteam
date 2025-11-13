@@ -1,6 +1,6 @@
 FROM python:3.13-alpine
 
-RUN apk add --no-cache build-base linux-headers minio nodejs npm git libpq-dev
+RUN apk add --no-cache build-base linux-headers minio nodejs npm git libpq-dev clang-dev
 
 COPY . /srv/musicteam
 WORKDIR /srv/musicteam

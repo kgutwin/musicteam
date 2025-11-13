@@ -24,6 +24,18 @@ popd
 pushd musicteam
 mypy app.py --strict
 
+# Jump through some hoops to get pymupdf, since chalice is being unhelpful for
+# just this one package
+mkdir -p vendor
+TMPD=$(mktemp -d)
+pip download --only-binary=:all: --no-deps --platform manylinux_2_28_x86_64 \
+    --implementation cp --abi cp313 --dest $TMPD pymupdf
+pushd vendor
+rm -rf fitz pymupdf*
+unzip $TMPD/pymupdf*.whl
+popd
+rm -rf $TMPD
+
 chalice package \
         --template-format yaml \
         --merge-template ../cfn.yaml \
