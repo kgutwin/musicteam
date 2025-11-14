@@ -2,7 +2,7 @@
   <label
     @click="(ev) => ev.stopPropagation()"
     :disabled="disabled"
-    class="flex flex-row items-baseline gap-1"
+    class="menu-lbl-checkbox"
   >
     <input v-model="model" type="checkbox" :disabled="disabled" />
     <div class="grow">{{ label }}</div>
@@ -13,3 +13,9 @@
 defineProps<{ label: string; disabled?: boolean }>()
 const model = defineModel<boolean>()
 </script>
+
+<style>
+.dropdown-menu label.menu-lbl-checkbox {
+  @apply flex flex-row items-baseline gap-1;
+}
+</style>
