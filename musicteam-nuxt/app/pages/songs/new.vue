@@ -19,6 +19,7 @@
           class="inp-text"
           required
         />
+        <SongNewLibraryLinks v-if="!existingSongId" :title="inputTitle" />
       </label>
 
       <label>
@@ -36,6 +37,7 @@
           inputmode="numeric"
           pattern="\d*"
         />
+        <SongNewLibraryLinks v-if="!existingSongId" :ccli-num="inputCcliNum" />
       </label>
 
       <label>

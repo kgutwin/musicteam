@@ -4,8 +4,6 @@
 
 - Filter on authors and tags
 
-* When creating a new song, do a similarity search to existing songs and warn
-  in case there is another song with the same title or CCLI number
 * Should be able to annotate an existing PDF and save as a new version or new sheet
 * Deep links should trigger login and then redirect back
 * Setlist templates
