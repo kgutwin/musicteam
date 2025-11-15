@@ -2,20 +2,18 @@
 
 ## Frontend
 
-- Filter on authors and tags
-
-* Should be able to annotate an existing PDF and save as a new version or new sheet
-* Deep links should trigger login and then redirect back
-* Setlist templates
-* Roles
+- Should be able to annotate an existing PDF and save as a new version or new sheet
+- Deep links should trigger login and then redirect back
+- Setlist templates
+- Roles
   - hide edit buttons
   - Manager can change team member roles
   - Manager gets a NavBar notification for pending members
-* Comments
-* Media links
-* Copy existing setlist?
-* Auto-strip chords from lyrics?
-* Public link to lyrics for congregation
+- Comments
+- Media links
+- Copy existing setlist?
+- Auto-strip chords from lyrics?
+- Public link to lyrics for congregation
 
 ## Backend
 

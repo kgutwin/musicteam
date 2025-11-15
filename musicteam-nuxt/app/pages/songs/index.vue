@@ -11,19 +11,32 @@
           class="inp-text"
         />
       </div>
-      <MtDropdown button-class="btn-gray" disabled>
+      <MtDropdown button-class="btn-gray">
         <template #dropdown-button>Filter</template>
 
         <div class="italic">Tag:</div>
-        <button>kids</button>
+        <MtDropdownCheckbox
+          v-for="tag in taglist.data?.entries"
+          :key="tag.entry"
+          v-model="filterTags[tag.entry]"
+          :label="tag.entry"
+        />
 
         <hr />
 
         <div class="italic">Author:</div>
         <input
+          v-model="filterAuthorSearch"
           type="search"
           placeholder="Name..."
+          autocomplete="off"
           @click="(ev) => ev.stopPropagation()"
+        />
+        <MtDropdownCheckbox
+          v-for="author in authors"
+          :key="author.entry"
+          v-model="filterAuthors[author.entry]"
+          :label="author.entry"
         />
       </MtDropdown>
       <MtDropdown button-class="btn-gray">
@@ -103,16 +116,18 @@
 
 <script setup lang="ts">
 import type { TableColumn } from "@/types/mt"
-import type { Song } from "@/services/api"
+import type { Song, Entry } from "@/services/api"
 
 import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
 import { useUserStore } from "@/stores/users"
+import { useAuthorlistStore, useTaglistStore } from "@/stores/info"
 import { trimArray, localdate } from "@/utils"
 
 const songlist = useSonglistStore()
 const user = useUserStore()
 const versionlist = useSongVersionlistStore()
-// const activeSetlistStore = useActiveSetlistStore()
+const authorlist = useAuthorlistStore()
+const taglist = useTaglistStore()
 
 const allColumns = ref([
   { name: "uploaded", title: "Uploaded", active: true },
@@ -131,14 +146,44 @@ function initials(name?: string) {
 }
 
 const filterTitle = ref<string>()
+const filterTags = ref<Record<string, boolean>>({})
+const filterAuthors = ref<Record<string, boolean>>({})
+const filterAuthorSearch = ref<string>()
+
+const authors = computed<Entry[]>(() => {
+  if (!authorlist.data?.entries) return []
+
+  if (!filterAuthorSearch.value) {
+    return authorlist.data.entries.filter((e) => filterAuthors.value[e.entry])
+  }
+
+  const authorRe = new RegExp(filterAuthorSearch.value, "i")
+  return authorlist.data.entries.filter(
+    (e) => e.entry.match(authorRe) || filterAuthors.value[e.entry],
+  )
+})
 
 function filtered(songs: Song[] | undefined): Song[] | undefined {
   if (songs === undefined) return undefined
 
   const titleRe = filterTitle.value ? new RegExp(filterTitle.value, "i") : null
+  const tags = new Set(
+    Object.entries(filterTags.value)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k),
+  )
+  const authors = new Set(
+    Object.entries(filterAuthors.value)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k),
+  )
 
   return songs.filter((song) => {
     if (titleRe && !song.title.match(titleRe)) return false
+    const songTags = new Set(song.tags ?? [])
+    if (tags.size && songTags.intersection(tags).size === 0) return false
+    const songAuthors = new Set(song.authors)
+    if (authors.size && songAuthors.intersection(authors).size === 0) return false
     return true
   })
 }
