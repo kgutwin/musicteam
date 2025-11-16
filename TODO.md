@@ -14,6 +14,7 @@
 - Copy existing setlist?
 - Auto-strip chords from lyrics?
 - Public link to lyrics for congregation
+- Rectangle whiteout in PDF annotation??
 
 ## Backend
 
@@ -42,6 +43,8 @@
     and auto retry
   - we should then find the right way to execute schema upgrades
 - Probably should send presigned S3 URLs rather than downloading the object in the API
+- Write a script to load test; handle errors related to Data API rate limits and
+  return 429 to user
 
 ## Deployment
 

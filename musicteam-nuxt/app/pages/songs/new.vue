@@ -48,7 +48,7 @@
 
     <form class="frm-edit" :disabled="!!existingSongVersionId">
       <label>
-        <span>Label <span class="spn-req">*</span></span>
+        <span>Version Label <span class="spn-req">*</span></span>
         <MtSelectOther
           v-model="inputLabel"
           :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
