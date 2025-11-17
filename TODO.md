@@ -25,10 +25,6 @@
 
 ## Bugs
 
-- MtArrayInput needs improvements
-  - can't insert in between elements (important for verse order)
-  - cursor acts strange when there are multiple lines
-  - experienced but did not reproduce wonky delete behavior (I think with song tags)
 - useAuth is raising a fetch exception on GET /api/auth/session since it is hard coded
   to send a body; probably just need to support POST on /api/auth/session
 - Adding a set list is very slow since it needs to make one request per position
