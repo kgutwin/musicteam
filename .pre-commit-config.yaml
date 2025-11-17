@@ -5,9 +5,9 @@ repos:
     rev: v4.4.0
     hooks:
       - id: trailing-whitespace
-        exclude: "^musicteam-nuxt/public/pdfjs"
+        exclude: '^musicteam-nuxt/public/pdfjs|\.ambr$'
       - id: end-of-file-fixer
-        exclude: "^musicteam-nuxt/public/pdfjs"
+        exclude: '^musicteam-nuxt/public/pdfjs|\.ambr$'
       - id: check-ast
 
   - repo: https://github.com/pre-commit/mirrors-mypy

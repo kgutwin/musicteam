@@ -9,6 +9,8 @@ import boto3
 
 secretsmanager = boto3.client("secretsmanager")
 
+INSTANCE_DIR = "../instance"
+
 IS_CHALICE_LOCAL = sys.argv[0].endswith("chalice")
 
 try:

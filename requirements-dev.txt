@@ -2,6 +2,7 @@ chalice
 black
 mypy
 pytest
+syrupy
 py-pglite
 psycopg
 types-requests-oauthlib

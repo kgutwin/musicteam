@@ -4,12 +4,18 @@ from typing import Any
 import pytest
 from app import app
 from chalice.test import Client
-from chalicelib import db
+from chalicelib import db as app_db
 
 
 @pytest.fixture
-def client(monkeypatch):
-    monkeypatch.setattr(db, "ping", lambda: True)
+def db(monkeypatch, tmp_path):
+    monkeypatch.setattr(app_db, "INSTANCE_DIR", str(tmp_path))
+    yield app_db
+
+
+@pytest.fixture
+def client(monkeypatch, db):
+    monkeypatch.setattr(app_db, "ping", lambda: True)
     with Client(app) as client:
         # add a json kwarg to client request
         original_request = client.http.request

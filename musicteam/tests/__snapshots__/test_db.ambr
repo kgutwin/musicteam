@@ -1,0 +1,578 @@
+# serializer version: 1
+# name: test_upgrade_db
+  '''
+  --
+  -- PostgreSQL database dump
+  --
+  
+  -- Dumped from database version 17.5
+  -- Dumped by pg_dump version 17.5
+  
+  SET statement_timeout = 0;
+  SET lock_timeout = 0;
+  SET idle_in_transaction_session_timeout = 0;
+  SET transaction_timeout = 0;
+  SET client_encoding = 'UTF8';
+  SET standard_conforming_strings = on;
+  SELECT pg_catalog.set_config('search_path', '', false);
+  SET check_function_bodies = false;
+  SET xmloption = content;
+  SET client_min_messages = warning;
+  SET row_security = off;
+  
+  --
+  -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+  --
+  
+  CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+  
+  
+  --
+  -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
+  --
+  
+  COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+  
+  
+  --
+  -- Name: jsonb_to_text_array(jsonb); Type: FUNCTION; Schema: public; Owner: -
+  --
+  
+  CREATE FUNCTION public.jsonb_to_text_array(_json jsonb) RETURNS text[]
+      LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+      AS $$
+      SELECT array(SELECT jsonb_array_elements_text(_json))
+  $$;
+  
+  
+  SET default_tablespace = '';
+  
+  SET default_table_access_method = heap;
+  
+  --
+  -- Name: _version; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public._version (
+      pk text NOT NULL,
+      ver integer
+  );
+  
+  
+  --
+  -- Name: songs; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.songs (
+      id text DEFAULT ('s:'::text || public.uuid_generate_v4()) NOT NULL,
+      title text NOT NULL,
+      authors text[],
+      ccli_num integer,
+      tags text[],
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL
+  );
+  
+  
+  --
+  -- Name: all_authors; Type: VIEW; Schema: public; Owner: -
+  --
+  
+  CREATE VIEW public.all_authors AS
+   SELECT DISTINCT unnest(authors) AS author,
+      count(*) AS count
+     FROM public.songs
+    GROUP BY (unnest(authors))
+    ORDER BY (unnest(authors));
+  
+  
+  --
+  -- Name: setlist_templates; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlist_templates (
+      id text DEFAULT ('t:'::text || public.uuid_generate_v4()) NOT NULL,
+      title text NOT NULL,
+      tags text[],
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL
+  );
+  
+  
+  --
+  -- Name: setlists; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlists (
+      id text DEFAULT ('l:'::text || public.uuid_generate_v4()) NOT NULL,
+      leader_name text NOT NULL,
+      service_date date,
+      tags text[],
+      music_packet_object_id text,
+      lyric_packet_object_id text,
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL,
+      title text,
+      participants text[]
+  );
+  
+  
+  --
+  -- Name: song_media; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.song_media (
+      id text DEFAULT ('sm:'::text || public.uuid_generate_v4()) NOT NULL,
+      song_version_id text NOT NULL,
+      title text NOT NULL,
+      url text,
+      object_id text,
+      media_type text,
+      tags text[],
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL
+  );
+  
+  
+  --
+  -- Name: song_sheets; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.song_sheets (
+      id text DEFAULT ('ss:'::text || public.uuid_generate_v4()) NOT NULL,
+      song_version_id text NOT NULL,
+      type text NOT NULL,
+      key text NOT NULL,
+      tags text[],
+      object_id text NOT NULL,
+      object_type text NOT NULL,
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL,
+      auto_verse_order boolean
+  );
+  
+  
+  --
+  -- Name: song_versions; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.song_versions (
+      id text DEFAULT ('sv:'::text || public.uuid_generate_v4()) NOT NULL,
+      song_id text NOT NULL,
+      label text NOT NULL,
+      verse_order text,
+      lyrics text,
+      tags text[],
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL
+  );
+  
+  
+  --
+  -- Name: all_tags; Type: VIEW; Schema: public; Owner: -
+  --
+  
+  CREATE VIEW public.all_tags AS
+   WITH tags AS (
+           SELECT unnest(songs.tags) AS tag
+             FROM public.songs
+          UNION ALL
+           SELECT unnest(song_versions.tags) AS tag
+             FROM public.song_versions
+          UNION ALL
+           SELECT unnest(song_sheets.tags) AS tag
+             FROM public.song_sheets
+          UNION ALL
+           SELECT unnest(song_media.tags) AS tag
+             FROM public.song_media
+          UNION ALL
+           SELECT unnest(setlists.tags) AS tag
+             FROM public.setlists
+          UNION ALL
+           SELECT unnest(setlist_templates.tags) AS tag
+             FROM public.setlist_templates
+          )
+   SELECT tag,
+      count(*) AS count
+     FROM tags
+    GROUP BY tag
+    ORDER BY tag;
+  
+  
+  --
+  -- Name: comments; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.comments (
+      id text DEFAULT ('c:'::text || public.uuid_generate_v4()) NOT NULL,
+      resource_id text NOT NULL,
+      comment text NOT NULL,
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL
+  );
+  
+  
+  --
+  -- Name: setlist_positions; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlist_positions (
+      id text DEFAULT ('lp:'::text || public.uuid_generate_v4()) NOT NULL,
+      setlist_id text NOT NULL,
+      index integer NOT NULL,
+      label text NOT NULL,
+      is_music boolean,
+      presenter text,
+      status text
+  );
+  
+  
+  --
+  -- Name: setlist_sheets; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlist_sheets (
+      id text DEFAULT ('ls:'::text || public.uuid_generate_v4()) NOT NULL,
+      setlist_id text NOT NULL,
+      type text NOT NULL,
+      song_sheet_id text NOT NULL,
+      setlist_position_id text
+  );
+  
+  
+  --
+  -- Name: setlist_template_positions; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlist_template_positions (
+      id text DEFAULT ('tp:'::text || public.uuid_generate_v4()) NOT NULL,
+      template_id text NOT NULL,
+      index integer NOT NULL,
+      label text NOT NULL,
+      is_music boolean,
+      presenter text
+  );
+  
+  
+  --
+  -- Name: users; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.users (
+      id text DEFAULT ('u:'::text || public.uuid_generate_v4()) NOT NULL,
+      name text NOT NULL,
+      provider_id text NOT NULL,
+      email text,
+      picture text,
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      last_login timestamp without time zone,
+      role text,
+      api_key text
+  );
+  
+  
+  --
+  -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  INSERT INTO public._version VALUES ('db_version', 3);
+  
+  
+  --
+  -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlist_positions; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlist_sheets; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlist_template_positions; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlist_templates; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlists; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: song_media; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: song_sheets; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: song_versions; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: songs; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Name: _version _version_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public._version
+      ADD CONSTRAINT _version_pkey PRIMARY KEY (pk);
+  
+  
+  --
+  -- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.comments
+      ADD CONSTRAINT comments_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlist_positions setlist_positions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_positions
+      ADD CONSTRAINT setlist_positions_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlist_sheets setlist_sheets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_sheets
+      ADD CONSTRAINT setlist_sheets_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlist_template_positions setlist_template_positions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_template_positions
+      ADD CONSTRAINT setlist_template_positions_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlist_templates setlist_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_templates
+      ADD CONSTRAINT setlist_templates_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlists setlists_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlists
+      ADD CONSTRAINT setlists_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: song_media song_media_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_media
+      ADD CONSTRAINT song_media_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: song_sheets song_sheets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_sheets
+      ADD CONSTRAINT song_sheets_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: song_versions song_versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_versions
+      ADD CONSTRAINT song_versions_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: songs songs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.songs
+      ADD CONSTRAINT songs_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.users
+      ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: users users_provider_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.users
+      ADD CONSTRAINT users_provider_id_key UNIQUE (provider_id);
+  
+  
+  --
+  -- Name: comments comments_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.comments
+      ADD CONSTRAINT comments_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: setlist_positions setlist_positions_setlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_positions
+      ADD CONSTRAINT setlist_positions_setlist_id_fkey FOREIGN KEY (setlist_id) REFERENCES public.setlists(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: setlist_sheets setlist_sheets_setlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_sheets
+      ADD CONSTRAINT setlist_sheets_setlist_id_fkey FOREIGN KEY (setlist_id) REFERENCES public.setlists(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: setlist_sheets setlist_sheets_setlist_position_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_sheets
+      ADD CONSTRAINT setlist_sheets_setlist_position_id_fkey FOREIGN KEY (setlist_position_id) REFERENCES public.setlist_positions(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: setlist_sheets setlist_sheets_song_sheet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_sheets
+      ADD CONSTRAINT setlist_sheets_song_sheet_id_fkey FOREIGN KEY (song_sheet_id) REFERENCES public.song_sheets(id);
+  
+  
+  --
+  -- Name: setlist_template_positions setlist_template_positions_template_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_template_positions
+      ADD CONSTRAINT setlist_template_positions_template_id_fkey FOREIGN KEY (template_id) REFERENCES public.setlist_templates(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: setlist_templates setlist_templates_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_templates
+      ADD CONSTRAINT setlist_templates_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: setlists setlists_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlists
+      ADD CONSTRAINT setlists_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: song_media song_media_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_media
+      ADD CONSTRAINT song_media_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: song_media song_media_song_version_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_media
+      ADD CONSTRAINT song_media_song_version_id_fkey FOREIGN KEY (song_version_id) REFERENCES public.song_versions(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: song_sheets song_sheets_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_sheets
+      ADD CONSTRAINT song_sheets_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: song_sheets song_sheets_song_version_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_sheets
+      ADD CONSTRAINT song_sheets_song_version_id_fkey FOREIGN KEY (song_version_id) REFERENCES public.song_versions(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: song_versions song_versions_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_versions
+      ADD CONSTRAINT song_versions_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: song_versions song_versions_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.song_versions
+      ADD CONSTRAINT song_versions_song_id_fkey FOREIGN KEY (song_id) REFERENCES public.songs(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: songs songs_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.songs
+      ADD CONSTRAINT songs_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- PostgreSQL database dump complete
+  --
+  
+  
+  
+  '''
+# ---

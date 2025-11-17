@@ -14,6 +14,7 @@ import aurora_data_api
 import boto3
 from chalicelib.config import AURORA_CLUSTER_ARN
 from chalicelib.config import AURORA_SECRET_ARN
+from chalicelib.config import INSTANCE_DIR
 from pydantic import BaseModel
 
 ###
@@ -187,10 +188,10 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
 
     global PGLITE_MANAGER
     if PGLITE_MANAGER is None:
-        if os.path.exists("../instance/pglite_manager.js"):
-            os.unlink("../instance/pglite_manager.js")
+        if os.path.exists(os.path.join(INSTANCE_DIR, "pglite_manager.js")):
+            os.unlink(os.path.join(INSTANCE_DIR, "pglite_manager.js"))
         config = PGliteConfig(
-            work_dir="../instance",
+            work_dir=INSTANCE_DIR,
             extensions=[
                 "uuid_ossp",
             ],
