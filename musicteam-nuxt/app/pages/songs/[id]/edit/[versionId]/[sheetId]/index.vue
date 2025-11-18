@@ -36,7 +36,11 @@
     </form>
 
     <div v-if="sheetId === 'lyrics'" class="flex flex-col">
-      <textarea v-model="inputLyrics" class="txt-panel"></textarea>
+      <textarea
+        v-model="inputLyrics"
+        class="txt-panel"
+        :placeholder="'Song Title\n\nVerse 1\nYou are...'"
+      ></textarea>
     </div>
 
     <template v-else>
@@ -121,7 +125,8 @@ watch(
   () => {
     if (version.value) {
       inputLabel.value = version.value.label
-      inputVerseOrder.value = version.value.verse_order?.split(/\s+/) ?? []
+      if (version.value.verse_order)
+        inputVerseOrder.value = version.value.verse_order.split(/\s+/)
       inputLyrics.value = version.value.lyrics
     }
   },

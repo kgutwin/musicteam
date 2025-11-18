@@ -47,90 +47,74 @@
     </form>
 
     <form class="frm-edit" :disabled="!!existingSongVersionId">
-      <label>
-        <span>Version Label <span class="spn-req">*</span></span>
-        <MtSelectOther
-          v-model="inputLabel"
-          :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
+      <label v-if="!existingSongId" class="flex !flex-row-reverse text-sm items-center">
+        <span>Not available</span>
+        <input
+          type="checkbox"
+          v-model="inputVersionUnavailable"
           :disabled="!!existingSongVersionId"
         />
       </label>
 
-      <label>
-        <span>Verse Order <span class="spn-req">*</span></span>
-        <MtArrayInput v-model="inputVerseOrder" :disabled="!!existingSongVersionId" />
-      </label>
+      <template v-if="!inputVersionUnavailable">
+        <label>
+          <span>Version Label <span class="spn-req">*</span></span>
+          <MtSelectOther
+            v-model="inputLabel"
+            :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
+            :disabled="!!existingSongVersionId"
+          />
+        </label>
 
-      <label>
-        <div class="flex flex-row gap-4">
-          <span>Lyrics <span class="spn-req">*</span></span>
-          <span v-if="inputCcliNum">
-            <a
-              :href="`https://songselect.ccli.com/songs/${inputCcliNum}`"
-              target="_blank"
-              class="a-hov"
-            >
-              SongSelect
-              <Icon name="solar:square-share-line-outline" size="12" class="ml-2" />
-            </a>
-          </span>
-        </div>
-        <textarea
-          v-model="inputLyrics"
-          :disabled="!!existingSongVersionId"
-          class="txt-lg"
-          rows="12"
-          required
-        />
-      </label>
+        <label>
+          <span>Verse Order <span class="spn-req">*</span></span>
+          <MtArrayInput v-model="inputVerseOrder" :disabled="!!existingSongVersionId" />
+        </label>
+
+        <label>
+          <div class="flex flex-row gap-4">
+            <span>Lyrics <span class="spn-req">*</span></span>
+            <span v-if="inputCcliNum">
+              <a
+                :href="`https://songselect.ccli.com/songs/${inputCcliNum}`"
+                target="_blank"
+                class="a-hov"
+              >
+                SongSelect
+                <Icon name="solar:square-share-line-outline" size="12" class="ml-2" />
+              </a>
+            </span>
+          </div>
+          <textarea
+            v-model="inputLyrics"
+            :disabled="!!existingSongVersionId"
+            class="txt-lg"
+            rows="12"
+            required
+          />
+        </label>
+      </template>
     </form>
 
-    <form class="frm-edit">
-      <label>
-        <span>Music Sheet Type <span class="spn-req">*</span></span>
-        <MtSelectOther
-          v-model="inputSheetType"
-          :options="['Chord', 'Lead', 'Vocal', 'Hymn']"
-        />
-      </label>
+    <div
+      class="grid gap-x-4"
+      :class="{
+        'grid-cols-1': inputSheets.length <= 1,
+        'grid-cols-2': inputSheets.length > 1,
+      }"
+    >
+      <SongNewSheetForm
+        v-for="(sheet, index) in inputSheets"
+        v-model="inputSheets[index]"
+        @remove="
+          () => {
+            inputSheets = inputSheets.toSpliced(index, 1)
+          }
+        "
+      />
+    </div>
 
-      <label>
-        <span>Musical Key <span class="spn-req">*</span></span>
-        <input v-model="inputKey" class="inp-text" required placeholder="C" />
-      </label>
-
-      <label>
-        <span>Select File</span>
-        <div class="flex flex-row gap-2">
-          <input
-            type="file"
-            accept="text/plain, application/pdf, application/vnd.recordare.musicxml+xml"
-            @change="addFile"
-          />
-          <Icon
-            v-if="fileStatus === 'pending'"
-            name="svg-spinners:270-ring-with-bg"
-            size="24"
-          />
-          <Icon
-            v-if="inputObjectId"
-            name="ri:file-check-line"
-            size="24"
-            class="text-green-500"
-          />
-        </div>
-      </label>
-
-      <label>
-        <span>Does music sheet already include verse order?</span>
-        <select v-model="inputAutoVerseOrder" class="sel-dropdown">
-          <option value="true">Sheet does not have verse order</option>
-          <option value="false">Sheet already has verse order</option>
-        </select>
-      </label>
-    </form>
-
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-row gap-2 mt-4">
       <button
         class="btn-gray"
         @click="save"
@@ -143,6 +127,11 @@
           class="ml-4"
         />
       </button>
+      <button class="btn-gray" @click="addSheet">
+        <div class="flex flex-row gap-2 items-center">
+          <Icon name="ri:add-large-fill" /> Add another sheet
+        </div>
+      </button>
       <button class="btn-gray" @click="cancel">Cancel</button>
     </div>
   </div>
@@ -153,6 +142,7 @@ import { api } from "@/services"
 import { useSongStore, useSongVersionStore, useSongRefreshStore } from "@/stores/songs"
 import { fileToBase64String } from "@/utils"
 
+import type { NewSongSheet } from "@/services/api"
 import type { ToasterStatus } from "@/types/toast"
 
 const { song: existingSongId, version: existingSongVersionId } = useRoute().query
@@ -183,6 +173,12 @@ if (existingSongId) {
 const inputLabel = ref<string>()
 const inputVerseOrder = ref<string[]>([])
 const inputLyrics = ref<string>()
+const inputVersionUnavailable = ref(false)
+watch(inputVersionUnavailable, (newV) => {
+  if (newV) {
+    inputLabel.value = "Incomplete"
+  }
+})
 
 if (existingSongId && existingSongVersionId) {
   const songVersionStore = useSongVersionStore()
@@ -205,44 +201,32 @@ if (existingSongId && existingSongVersionId) {
   )
 }
 
-const inputKey = ref<string>()
-const inputSheetType = ref<string>()
-const inputObjectId = ref<string>()
-const inputObjectType = ref<string>()
-const inputAutoVerseOrder = ref<string>("true")
+const inputSheets = ref<Partial<NewSongSheet>[]>([{}])
+const inputSheetsValid = computed<boolean>(() => {
+  for (const sheet of inputSheets.value) {
+    if (!sheet.type || !sheet.key || !sheet.object_id || !sheet.object_type)
+      return false
+  }
+  return true
+})
+
+function addSheet() {
+  inputSheets.value = [...inputSheets.value, {}]
+}
 
 const invalid = useInvalid(
+  [inputTitle, inputAuthors, inputLabel, inputSheetsValid],
   [
-    inputTitle,
-    inputAuthors,
-    inputLabel,
+    inputCcliNum,
+    inputTags,
     inputVerseOrder,
     inputLyrics,
-    inputSheetType,
-    inputKey,
-    inputObjectId,
+    inputVersionUnavailable,
+    inputSheets,
   ],
-  [inputCcliNum],
 )
 
 const songRefresh = useSongRefreshStore()
-
-const fileStatus = ref<ToasterStatus>()
-
-async function addFile(event: any) {
-  const file = event.target?.files?.[0] as File | undefined
-  if (file) {
-    inputObjectType.value = file.type
-    inputObjectId.value = await useToaster(
-      async () => {
-        const encodedFile = await fileToBase64String(file)
-        const response = await api.objects.uploadFile(encodedFile, { base64: true })
-        return response.data.id
-      },
-      { errorTitle: "Could not upload file", status: fileStatus },
-    )
-  }
-}
 
 const saveStatus = ref<ToasterStatus>()
 
@@ -291,23 +275,16 @@ async function save() {
         versionId = versionResponse.data.id
       }
 
-      const sheetType = inputSheetType.value
-      const key = inputKey.value
-      const objectId = inputObjectId.value
-      const objectType = inputObjectType.value
+      const promises = []
 
-      if (!sheetType) throw new Error("no sheet type")
-      if (!key) throw new Error("no key")
-      if (!objectId) throw new Error("no object ID")
-      if (!objectType) throw new Error("no object type")
-
-      await api.songs.newSongSheet(songId, versionId, {
-        type: sheetType,
-        key,
-        object_id: objectId,
-        object_type: objectType,
-        auto_verse_order: inputAutoVerseOrder.value === "true",
-      })
+      for (const sheet of inputSheets.value) {
+        if (sheet.type && sheet.key && sheet.object_id && sheet.object_type) {
+          promises.push(
+            await api.songs.newSongSheet(songId, versionId, sheet as NewSongSheet),
+          )
+        }
+      }
+      await Promise.all(promises)
 
       await songRefresh.refresh({ songId })
       return songId

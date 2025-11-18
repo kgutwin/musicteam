@@ -34,7 +34,7 @@
       :verse-order="version.verse_order"
       @copy="lyricsToClipboard"
     >
-      {{ version.lyrics }}
+      {{ version.lyrics ?? "Lyrics are missing, use the Edit button to add them!" }}
     </SongTextPanel>
     <SongTextPanel
       v-else-if="selectedSheet.object_type === 'text/plain'"
