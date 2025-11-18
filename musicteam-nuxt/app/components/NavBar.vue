@@ -1,13 +1,15 @@
 <template>
   <div
-    class="px-8 py-4 text-xl bg-gradient-to-tr from-blue-300 to-sky-200 flex flex-row gap-4 items-baseline"
+    class="px-4 sm:px-8 py-4 text-xl bg-gradient-to-tr from-blue-300 to-sky-200 flex flex-row gap-4 items-baseline"
   >
     <div
-      class="text-3xl italic font-extrabold tracking-tight text-sky-700 bg-sky-100 rounded-lg shadow-lg px-4 py-1 mr-12"
+      class="text-3xl italic font-extrabold tracking-tight text-sky-700 bg-sky-100 rounded-lg shadow-lg px-4 py-1 mr-4 md:mr-12"
     >
-      <NuxtLink to="/">MusicTeam</NuxtLink>
+      <NuxtLink to="/">
+        M<span class="hide-sm">usic</span>T<span class="hide-sm">eam</span>
+      </NuxtLink>
     </div>
-    <div class="grow flex flex-row gap-8 font-semibold tracking-wide">
+    <div class="grow flex flex-row gap-4 md:gap-8 font-semibold tracking-wide">
       <NuxtLink to="/songs">Songs</NuxtLink>
       <NuxtLink to="/setlists">Set Lists</NuxtLink>
       <NuxtLink to="/team">Team</NuxtLink>

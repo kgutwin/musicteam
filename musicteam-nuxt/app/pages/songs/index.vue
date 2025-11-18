@@ -1,18 +1,21 @@
 <template>
   <div>
     <Head><Title>Songs - MusicTeam</Title></Head>
-    <div class="flex flex-row items-baseline gap-2">
-      <h1 class="grow">Songs</h1>
+    <div class="flex flex-row items-baseline gap-2 flex-wrap sm:flex-nowrap">
+      <h1 class="grow hide-sm">Songs</h1>
       <div>
         <input
           v-model="filterTitle"
           type="search"
           placeholder="Filter by Title..."
-          class="inp-text"
+          class="inp-text w-32 md:w-48"
         />
       </div>
       <MtDropdown button-class="btn-gray">
-        <template #dropdown-button>Filter</template>
+        <template #dropdown-button>
+          <Icon name="ri:filter-2-line" class="show-lg" />
+          <span class="hide-lg">Filter</span>
+        </template>
 
         <div class="italic">Tag:</div>
         <MtDropdownCheckbox
@@ -40,7 +43,10 @@
         />
       </MtDropdown>
       <MtDropdown button-class="btn-gray">
-        <template #dropdown-button>Columns</template>
+        <template #dropdown-button>
+          <Icon name="ri:layout-column-line" class="show-lg" />
+          <span class="hide-lg">Columns</span>
+        </template>
         <MtDropdownCheckbox
           v-for="column in allColumns"
           :key="column.name"
@@ -50,7 +56,8 @@
       </MtDropdown>
       <MtDropdown button-class="btn-gray">
         <template #dropdown-button>
-          Sort: {{ sortBy }}
+          <span class="hide-lg">Sort:</span>
+          {{ sortBy }}
           <Icon :name="sortAsc ? 'ri:sort-asc' : 'ri:sort-desc'" />
         </template>
 
@@ -130,10 +137,10 @@ const authorlist = useAuthorlistStore()
 const taglist = useTaglistStore()
 
 const allColumns = ref([
-  { name: "uploaded", title: "Uploaded", active: true },
+  { name: "uploaded", title: "Uploaded", active: window.innerWidth > 800 },
   { name: "title", title: "Title", active: true },
   { name: "authors", title: "Authors", active: true },
-  { name: "tags", title: "Tags", active: true },
+  { name: "tags", title: "Tags", active: window.innerWidth > 400 },
   { name: "ccli", title: "CCLI Number", active: false },
   { name: "versions", title: "Versions", active: false },
 ])

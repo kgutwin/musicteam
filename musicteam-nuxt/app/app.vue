@@ -2,7 +2,7 @@
   <div class="page-grid page-grid-sidebar-open">
     <NavBar class="col-span-2" />
 
-    <div class="container mx-auto p-8">
+    <div class="container mx-auto p-4 sm:p-8">
       <NuxtPage />
     </div>
 

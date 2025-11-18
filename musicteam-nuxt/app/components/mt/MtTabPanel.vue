@@ -12,7 +12,7 @@
       >
         {{ opt.title }}
       </button>
-      <div class="grow" />
+      <div class="sm:grow" />
       <slot></slot>
     </div>
   </div>
@@ -31,7 +31,7 @@ const selected = defineModel<string>()
 
 <style>
 .div-tab-panel {
-  @apply flex flex-row gap-4 items-baseline;
+  @apply flex flex-row gap-4 items-baseline flex-wrap sm:flex-nowrap;
 }
 .btn-tab {
   @apply font-semibold rounded-lg px-4 py-1 border-2 border-transparent;

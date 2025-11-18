@@ -4,7 +4,7 @@
       <Title>{{ song?.title ?? "Song" }} - MusicTeam</Title>
     </Head>
 
-    <div class="flex flex-row gap-4 w-full">
+    <div class="flex flex-col sm:flex-row gap-4 w-full">
       <div class="div-panel basis-4/6">
         <div class="flex flex-row">
           <div class="basis-4/6">
@@ -102,7 +102,10 @@
       <div class="div-panel basis-2/6">
         <div class="flex flex-row items-baseline">
           <h2 class="grow">Versions</h2>
-          <button class="btn-gray" @click="addVersion">Add Version...</button>
+          <button class="btn-gray" @click="addVersion">
+            <Icon name="ri:add-large-line" class="show-lg" />
+            <span class="hide-lg">Add Version...</span>
+          </button>
         </div>
         <ul class="list-disc ml-4 mt-1">
           <li v-if="versions?.song_versions === undefined">

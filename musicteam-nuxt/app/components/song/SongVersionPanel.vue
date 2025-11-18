@@ -12,15 +12,22 @@
       >
         <Icon name="solar:download-minimalistic-bold" size="28" />
       </button>
-      <button class="btn-gray" @click="edit">Edit...</button>
-      <button class="btn-gray" @click="addSheet">Add Sheet...</button>
+      <button class="btn-gray" @click="edit">
+        <Icon name="ri:edit-2-line" class="show-lg" />
+        <span class="hide-lg">Edit...</span>
+      </button>
+      <button class="btn-gray" @click="addSheet">
+        <Icon name="ri:add-large-line" class="show-lg" />
+        <span class="hide-lg">Add Sheet...</span>
+      </button>
       <button
         v-if="activeSetlistStore.setlist"
         :disabled="selectedSheet === '!lyrics'"
         class="btn-gray"
         @click="addToCandidates"
       >
-        Add as Candidate
+        <Icon name="ri:play-list-add-line" class="show-lg" />
+        <span class="hide-lg">Add as Candidate</span>
         <Icon
           v-if="addCandidateStatus === 'pending'"
           name="svg-spinners:3-dots-fade"
