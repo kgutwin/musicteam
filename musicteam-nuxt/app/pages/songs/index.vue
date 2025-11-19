@@ -3,6 +3,12 @@
     <Head><Title>Songs - MusicTeam</Title></Head>
     <div class="flex flex-row items-baseline gap-2 flex-wrap sm:flex-nowrap">
       <h1 class="grow hide-sm">Songs</h1>
+      <div v-if="numSongs" class="hide-lg">
+        <template v-if="numSongs.filtered !== numSongs.total">
+          {{ numSongs.filtered }} of
+        </template>
+        {{ numSongs.total }} songs
+      </div>
       <div>
         <input
           v-model="filterTitle"
@@ -194,6 +200,15 @@ function filtered(songs: Song[] | undefined): Song[] | undefined {
     return true
   })
 }
+
+const numSongs = computed<{ filtered: number; total: number } | undefined>(() => {
+  if (!songlist.data) return undefined
+
+  return {
+    total: songlist.data.songs.length,
+    filtered: filtered(songlist.data.songs)!.length,
+  }
+})
 
 function compareArrays(
   a: string[],

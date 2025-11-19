@@ -31,7 +31,7 @@ watch(
     if (debounce.value) window.clearTimeout(debounce.value)
 
     let query: Query | null = null
-    if (props.title) {
+    if (props.title && props.title.length > 2) {
       query = { title: props.title }
     } else if (props.ccliNum) {
       query = { ccli_num: parseInt(props.ccliNum) }

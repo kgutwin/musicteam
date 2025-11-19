@@ -14,8 +14,8 @@ const props = defineProps<{
 
 const model = defineModel<string | undefined>()
 
-const other = ref<string | undefined>()
-const selectedOther = ref(false)
+const selectedOther = ref(model.value && !props.options.includes(model.value))
+const other = ref<string | undefined>(selectedOther.value ? model.value : undefined)
 
 const choice = computed({
   get() {

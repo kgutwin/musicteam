@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <form class="frm-edit frm-grid">
+    <form class="frm-edit frm-grid mb-4">
       <label>
         <span>Label</span>
         <MtSelectOther
@@ -44,7 +44,7 @@
     </div>
 
     <template v-else>
-      <form class="frm-edit frm-grid">
+      <form class="frm-edit frm-grid mb-4">
         <label>
           <span>Music Sheet Type <span class="spn-req">*</span></span>
           <MtSelectOther
