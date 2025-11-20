@@ -6,6 +6,7 @@ from chalice.app import Request
 from chalicelib import db
 from chalicelib.config import OAUTH_CLIENT_ID
 from chalicelib.config import OAUTH_CLIENT_SECRET
+from chalicelib.middleware import no_ping_db
 from chalicelib.types import Forbidden
 from chalicelib.types import Found
 from chalicelib.types import LoginResponse
@@ -38,7 +39,10 @@ def url_for(request: Request, suffix: str) -> str:
 
 
 @bp.route("/auth/google", methods=["GET"])
+@no_ping_db
 def auth_google() -> Found:
+    db.ping()  # once, give the database a bit of a head start
+
     redirect_uri = url_for(bp.current_request, "/auth/callback")
 
     if OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET:
@@ -125,6 +129,7 @@ def auth_callback() -> Forbidden | Found:
 
 
 @bp.route("/auth/login", methods=["POST"])
+@no_ping_db
 def auth_login() -> LoginResponse | Forbidden:
     # check the session cookie and return any necessary response
     try:
@@ -135,12 +140,14 @@ def auth_login() -> LoginResponse | Forbidden:
 
 
 @bp.route("/auth/logout", methods=["POST"])
+@no_ping_db
 def auth_logout() -> NoContent:
     bp.current_request.context["cookies"]["session"] = None
     return NoContent()
 
 
 @bp.route("/auth/session", methods=["GET"])
+@no_ping_db
 def auth_session() -> User | NoContent:
     # check the session cookie and return any necessary response
     try:

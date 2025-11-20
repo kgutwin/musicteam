@@ -13,6 +13,7 @@ import jwt.exceptions
 from chalice.app import Chalice
 from chalice.app import Request
 from chalice.app import Response
+from chalice.app import RouteEntry
 from chalicelib import db
 from chalicelib.types import BadRequest
 from chalicelib.types import User
@@ -94,21 +95,34 @@ class CookieJar:
 
 
 def register(app: Chalice) -> None:
+    def _get_route(event: Request) -> RouteEntry | None:
+        try:
+            resource_path = event.context["resourcePath"]
+            http_method = event.context["httpMethod"]
+            return app.routes[resource_path][http_method]
+        except KeyError:
+            return None
+
     @app.middleware("all")
     def wake_db(event: T, get_response: Callable[[T], Any]) -> Any:
-        while not db.ping():
-            time.sleep(1)
+        should_ping = True
+
+        route = _get_route(event) if isinstance(event, Request) else None
+        if route and not getattr(route.view_function, "_needs_db", True):
+            should_ping = False
+
+        if should_ping:
+            while not db.ping():
+                time.sleep(1)
+
         return get_response(event)
 
     @app.middleware("http")
     def handle_modeled_body(
         event: Request, get_response: Callable[[Request], Response]
     ) -> Response:
-        try:
-            resource_path = event.context["resourcePath"]
-            http_method = event.context["httpMethod"]
-            route = app.routes[resource_path][http_method]
-        except KeyError:
+        route = _get_route(event)
+        if route is None:
             return get_response(event)
 
         sig = inspect.signature(route.view_function)
@@ -213,3 +227,8 @@ def session_role(request: Request, role: UserRole) -> bool:
     if "user" not in request.context:
         return False
     return cast(User, request.context["user"]).has_role(role)
+
+
+def no_ping_db(fn: T) -> T:
+    fn._needs_db = False  # type: ignore[attr-defined]
+    return fn
