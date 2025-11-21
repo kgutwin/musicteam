@@ -59,6 +59,10 @@ hr {
   @apply hover:bg-blue-200;
 }
 
+.btn-icon {
+  @apply text-2xl hover:drop-shadow-lg hover:opacity-50;
+}
+
 .spn-tag {
   @apply inline-block rounded bg-slate-100 px-2 py-0.5 mx-1 my-px;
 }

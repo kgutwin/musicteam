@@ -26,12 +26,19 @@ const { signIn } = useAuth()
 const route = useRoute()
 
 const signingIn = ref<boolean>(!!route?.query?.complete)
+const callbackUrl = ref<string | null>(sessionStorage.getItem("callbackUrl"))
+
+if (route?.query?.redirect) {
+  callbackUrl.value = route.query.redirect as string
+  sessionStorage.setItem("callbackUrl", callbackUrl.value!)
+}
 
 watchEffect(() => {
   if (route?.query?.complete) {
     signingIn.value = true
     console.log("signing in")
-    signIn({}, { redirect: true, callbackUrl: "/" })
+    sessionStorage.removeItem("callbackUrl")
+    signIn({}, { redirect: true, callbackUrl: callbackUrl.value ?? "/" })
   }
 })
 </script>

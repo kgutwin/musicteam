@@ -6,11 +6,11 @@
       :options="sheetTabs"
     >
       <button
-        class="self-center mr-4"
+        class="self-end mr-4 btn-icon"
         title="Download"
         @click="download(selectedSheet)"
       >
-        <Icon name="solar:download-minimalistic-bold" size="28" />
+        <Icon name="solar:download-minimalistic-bold" />
       </button>
       <button class="btn-gray" @click="edit">
         <Icon name="ri:edit-2-line" class="show-lg" />

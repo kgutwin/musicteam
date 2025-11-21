@@ -16,6 +16,9 @@
           <Icon name="solar:double-alt-arrow-right-bold-duotone" class="self-center" />
           <MtEditable :model="setlist" prop="title" @save="saveSetlist('title')" />
         </h1>
+        <button class="btn-icon" @click="shareSetlist" title="Share...">
+          <Icon name="solar:share-outline" />
+        </button>
         <button class="btn-red" @click="deleteSetlist">Delete</button>
       </div>
       <div class="flex flex-row">
@@ -52,11 +55,11 @@
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
         <button
-          class="self-center text-blue-800 hover:text-blue-600"
+          class="self-end btn-icon"
           title="Copy to Clipboard"
           @click="copySetlistToClipboard"
         >
-          <Icon name="solar:copy-outline" size="28" />
+          <Icon name="solar:copy-outline" />
         </button>
         <button class="btn-gray" @click="editOrder = !editOrder">
           {{ editOrder ? "Done" : "Edit" }}
@@ -234,5 +237,12 @@ async function copyLyricsToClipboard() {
   })
   const clipboardItem = new ClipboardItem({ "text/plain": lyrics })
   await navigator.clipboard.write([clipboardItem])
+}
+
+function shareSetlist() {
+  window.navigator.share({
+    url: window.location.href,
+    title: `Set list for ${setlist.value?.service_date ?? "unknown"}`,
+  })
 }
 </script>

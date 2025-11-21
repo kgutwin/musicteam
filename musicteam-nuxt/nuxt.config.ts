@@ -53,7 +53,10 @@ export default defineNuxtConfig({
     baseURL: "/api/auth",
 
     // protect all pages by default
-    globalAppMiddleware: true,
+    globalAppMiddleware: {
+      isEnabled: true,
+      addDefaultCallbackUrl: true,
+    },
 
     provider: {
       // type: "authjs",
@@ -70,7 +73,7 @@ export default defineNuxtConfig({
       },
       refresh: {
         isEnabled: true,
-        endpoint: { path: "/session", method: "get" },
+        endpoint: { path: "/session", method: "post" },
         token: {
           signInResponseRefreshTokenPointer: "/token",
           refreshResponseTokenPointer: "/token",

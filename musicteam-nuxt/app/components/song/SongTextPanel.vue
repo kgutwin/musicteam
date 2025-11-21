@@ -5,7 +5,7 @@
     <div class="sm:float-right text-right">
       <div v-if="!noCopy" class="pr-4 pb-2">
         <button
-          class="text-blue-500 hover:text-blue-700"
+          class="btn-icon text-blue-500 hover:text-blue-700"
           @click="$emit('copy')"
           title="Copy to Clipboard"
         >

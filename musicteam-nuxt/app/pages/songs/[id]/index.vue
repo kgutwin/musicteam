@@ -32,11 +32,7 @@
                     class="a-hov"
                   >
                     {{ song.ccli_num }}
-                    <Icon
-                      name="solar:square-share-line-outline"
-                      size="12"
-                      class="ml-2"
-                    />
+                    <Icon name="solar:square-top-down-outline" size="12" class="ml-2" />
                   </a>
                 </MtEditable>
               </template>
@@ -48,7 +44,7 @@
             </div>
           </div>
           <div class="basis-2/6 text-right">
-            <div class="mb-2">
+            <div class="mb-2 flex flex-row-reverse gap-4 items-end">
               <MtDropdown button-class="btn-red">
                 <template #dropdown-button>Delete</template>
                 <button
@@ -80,6 +76,9 @@
                 </button>
                 <button class="text-red-500" @click="deleteSong">Delete Song</button>
               </MtDropdown>
+              <button @click="shareSong" class="btn-icon" title="Share...">
+                <Icon name="solar:share-outline" />
+              </button>
             </div>
             <MtEditableTags :model="song" @save="saveSong('tags')" />
           </div>
@@ -262,5 +261,9 @@ async function saveVersion(version: SongVersion, field: keyof SongVersion) {
     [field]: version[field],
   })
   await refreshStore.refresh({ songId: id as string, versionId: version.id })
+}
+
+function shareSong() {
+  window.navigator.share({ url: window.location.href, title: song.value?.title })
 }
 </script>

@@ -3,7 +3,6 @@
 ## Frontend
 
 - Should be able to annotate an existing PDF and save as a new version or new sheet
-- Deep links should trigger login and then redirect back
 - Setlist templates
 - Roles
   - hide edit buttons
@@ -25,6 +24,9 @@
 
 ## Bugs
 
+- nuxt-auth is expecting get_session endpoint to return a token. We don't need it
+  because we set our own session cookie on the response, but still it's causing errors
+- the /api/auth session cookie is back......
 - Adding a set list is very slow since it needs to make one request per position
   - already using Promise.all, so any speed improvement would be batching
 
