@@ -31,7 +31,7 @@
       </label>
     </form>
 
-    <form class="frm-edit">
+    <form class="frm-edit mb-4">
       <MtTable :columns="columns" :data="positions">
         <template #label="{ row }">
           <input v-model="row.label" class="inp-text w-full" required />
@@ -40,12 +40,13 @@
           <input v-model="row.presenter" class="inp-text w-full" />
         </template>
         <template #is-music="{ row }">
-          <input type="checkbox" v-model="row.is_music" />
+          <input type="checkbox" v-model="row.is_music" tabindex="0" />
         </template>
         <template #controls="{ row, index }">
           <div class="flex flex-row mt-1 gap-2">
             <button
               type="button"
+              tabindex="0"
               @click="
                 positions.splice(index + 1, 0, {
                   id: randomId(),

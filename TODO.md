@@ -26,7 +26,7 @@
 ## Bugs
 
 - Adding a set list is very slow since it needs to make one request per position
-  - can it be parallelized, or batched?
+  - already using Promise.all, so any speed improvement would be batching
 
 ## Performance
 
