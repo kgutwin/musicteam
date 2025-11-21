@@ -81,8 +81,14 @@
                 class="a-hov"
               >
                 SongSelect
-                <Icon name="solar:square-share-line-outline" size="12" class="ml-2" />
+                <Icon name="solar:square-top-down-outline" size="12" class="ml-2" />
               </a>
+            </span>
+            <span class="grow"></span>
+            <span v-if="lyricsHaveChords">
+              <button @click="removeChords" type="button" class="btn-gray">
+                Remove Chords
+              </button>
             </span>
           </div>
           <textarea
@@ -140,7 +146,7 @@
 <script setup lang="ts">
 import { api } from "@/services"
 import { useSongStore, useSongVersionStore, useSongRefreshStore } from "@/stores/songs"
-import { fileToBase64String } from "@/utils"
+import { fileToBase64String, chordRatio } from "@/utils"
 
 import type { NewSongSheet } from "@/services/api"
 import type { ToasterStatus } from "@/types/toast"
@@ -298,5 +304,28 @@ async function save() {
 async function cancel() {
   const path = existingSongId ? `/songs/${existingSongId}` : "/songs"
   await navigateTo({ path })
+}
+
+const lyricsHaveChords = computed<boolean>(() => {
+  if (!inputLyrics.value) return false
+
+  for (const line of inputLyrics.value.split(/\n/)) {
+    if (chordRatio(line) > 0.8) {
+      return true
+    }
+  }
+
+  return false
+})
+
+function removeChords() {
+  if (!inputLyrics.value) return
+
+  const lines: string[] = []
+  for (const line of inputLyrics.value.split(/\n/)) {
+    if (!(chordRatio(line) > 0.8 || line.match(/^[-=]+$/))) lines.push(line)
+  }
+
+  inputLyrics.value = lines.join("\n") + "\n"
 }
 </script>

@@ -1,5 +1,11 @@
 <template>
   <div>
+    <Head>
+      <Title>
+        Edit {{ sheetId === "lyrics" ? "Lyrics" : "Song Sheet" }} - MusicTeam
+      </Title>
+    </Head>
+
     <div class="flex flex-row gap-2">
       <div class="grow">
         <h1>

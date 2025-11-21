@@ -40,3 +40,12 @@ export function fileToBase64String(file: Blob): Promise<string> {
 export function randomId(): string {
   return Math.random().toString(36).slice(2, 9)
 }
+
+/**
+ * Chord ratio is the ratio of the number of chord-like characters (upper case, space)
+ * in a line to the total number of characters.
+ */
+export function chordRatio(line: string): number {
+  const chordCount = (line.match(/[A-Z ]/g) || []).length
+  return chordCount / line.length
+}
