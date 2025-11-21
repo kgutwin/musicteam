@@ -25,10 +25,6 @@
 
 ## Bugs
 
-- useAuth is raising a fetch exception on GET /api/auth/session since it is hard coded
-  to send a body; probably just need to support POST on /api/auth/session
-- revisiting the prod site causes a 15+ sec wait on a blank screen while the session
-  is loaded from the backend
 - Adding a set list is very slow since it needs to make one request per position
   - can it be parallelized, or batched?
 

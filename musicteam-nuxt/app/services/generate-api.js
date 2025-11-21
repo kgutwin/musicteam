@@ -8,7 +8,10 @@ generateApi({
   fileName: "api.ts",
   hooks: {
     onFormatRouteName: (routeInfo) => {
-      const operation = routeInfo.operationId.split(".").pop()
+      let operation = routeInfo.operationId.split(".").pop()
+      if (routeInfo.operationId === "auth.auth_session" && routeInfo.method !== "get") {
+        operation += `_${routeInfo.method}`
+      }
       return _.camelCase(operation)
     },
   },

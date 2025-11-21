@@ -146,7 +146,7 @@ def auth_logout() -> NoContent:
     return NoContent()
 
 
-@bp.route("/auth/session", methods=["GET"])
+@bp.route("/auth/session", methods=["GET", "POST"])
 @no_ping_db
 def auth_session() -> User | NoContent:
     # check the session cookie and return any necessary response
