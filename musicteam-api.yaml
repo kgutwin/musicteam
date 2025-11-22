@@ -77,21 +77,8 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id001
+              schema: &id011
                 $ref: '#/components/schemas/User'
-        '204':
-          $ref: '#/components/responses/NoContent'
-      tags:
-      - Auth
-    post:
-      operationId: auth.auth_session
-      responses:
-        '500':
-          $ref: '#/components/responses/Error'
-        '200':
-          content:
-            application/json:
-              schema: *id001
         '204':
           $ref: '#/components/responses/NoContent'
       tags:
@@ -121,7 +108,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id002
+              schema: &id001
                 $ref: '#/components/schemas/Comment'
       tags:
       - Comments
@@ -149,7 +136,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id002
+              schema: *id001
       tags:
       - Comments
     put:
@@ -205,7 +192,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id003
+              schema: &id002
                 $ref: '#/components/schemas/EntryList'
       tags:
       - Info
@@ -221,7 +208,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id003
+              schema: *id002
       tags:
       - Info
       summary: List all tags in the system, across songs, setlists, etc
@@ -283,7 +270,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id004
+              schema: &id003
                 $ref: '#/components/schemas/SetlistTemplate'
       tags:
       - Setlists
@@ -305,7 +292,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id004
+              schema: *id003
       tags:
       - Setlists
     put:
@@ -370,7 +357,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id005
+              schema: &id004
                 $ref: '#/components/schemas/SetlistTemplatePosition'
       tags:
       - Setlists
@@ -398,7 +385,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id005
+              schema: *id004
       tags:
       - Setlists
     put:
@@ -468,7 +455,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id006
+              schema: &id005
                 $ref: '#/components/schemas/Setlist'
       tags:
       - Setlists
@@ -490,7 +477,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id006
+              schema: *id005
       tags:
       - Setlists
     put:
@@ -597,7 +584,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id007
+              schema: &id006
                 $ref: '#/components/schemas/SetlistPosition'
       tags:
       - Setlists
@@ -625,7 +612,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id007
+              schema: *id006
       tags:
       - Setlists
     put:
@@ -695,7 +682,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id008
+              schema: &id007
                 $ref: '#/components/schemas/SetlistSheet'
       tags:
       - Setlists
@@ -723,7 +710,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id008
+              schema: *id007
       tags:
       - Setlists
     put:
@@ -816,7 +803,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id009
+              schema: &id008
                 $ref: '#/components/schemas/Song'
       tags:
       - Songs
@@ -842,7 +829,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id009
+              schema: *id008
       tags:
       - Songs
       summary: Retrieve a single song by ID
@@ -914,7 +901,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id010
+              schema: &id009
                 $ref: '#/components/schemas/SongVersion'
       tags:
       - Songs
@@ -943,7 +930,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id010
+              schema: *id009
       tags:
       - Songs
       summary: Retrieve a single song version by ID
@@ -1021,7 +1008,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id011
+              schema: &id010
                 $ref: '#/components/schemas/SongSheet'
       tags:
       - Songs
@@ -1060,7 +1047,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id011
+              schema: *id010
       tags:
       - Songs
       summary: Retrieve a single song sheet by ID
@@ -1181,7 +1168,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id001
+              schema: *id011
       tags:
       - Users
     parameters:

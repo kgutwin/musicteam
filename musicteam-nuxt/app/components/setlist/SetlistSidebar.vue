@@ -19,19 +19,36 @@
           {{ active.setlist.service_date }} - {{ active.setlist.leader_name }}
         </NuxtLink>
       </h2>
+      <h3 v-if="(active.setlist.participants ?? []).length">
+        Team: {{ (active.setlist.participants ?? []).join(", ") }}
+      </h3>
 
       <hr />
 
-      <div class="italic flex flex-row">
-        <div class="grow">Candidates</div>
-        <div>
+      <div class="flex flex-row">
+        <div class="grow">
+          <button
+            type="button"
+            class="italic"
+            @click="showCandidates = !showCandidates"
+          >
+            <Icon
+              name="ri:triangle-fill"
+              size="12"
+              class="transition"
+              :class="{ 'rotate-180': showCandidates, 'rotate-90': !showCandidates }"
+            />
+            Candidates
+          </button>
+        </div>
+        <div class="italic">
           <NuxtLink to="/songs" class="text-blue-500 hover:underline">
             Find songs
           </NuxtLink>
         </div>
       </div>
 
-      <div class="rounded-lg bg-white">
+      <div v-if="showCandidates" class="rounded-lg bg-white">
         <draggable
           :model-value="filtered(slist?.sheets)"
           class="min-h-20"
@@ -105,6 +122,7 @@ const sheetlist = useSetlistSheetlistStore()
 const refreshSetlists = useSetlistRefreshStore()
 
 const panelOpen = ref(true)
+const showCandidates = ref(true)
 
 const plist = computed(() => {
   if (!active.setlist) return undefined

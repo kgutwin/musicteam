@@ -2,23 +2,19 @@
 
 ## Frontend
 
-- in main set list, swap label and presenter columns
-- Preview lyrics on hover within song list?
-- Show participants in active set list sidebar
-- Collapsible candidates in active set list sidebar
-
-* Setlist templates
-* Roles
+- Setlist templates
+- Roles
   - hide edit buttons
   - Manager can change team member roles
   - Manager gets a NavBar notification for pending members
-* Comments
-* Media links
-* Complete mobile layout
-* Should be able to annotate an existing PDF and save as a new version or new sheet
-* Copy existing setlist?
-* Public link to lyrics for congregation
-* Rectangle whiteout in PDF annotation??
+- Comments
+- Media links
+- Complete mobile layout
+- Should be able to annotate an existing PDF and save as a new version or new sheet
+- Copy existing setlist?
+- Preview lyrics on hover within song list?
+- Public link to lyrics for congregation
+- Rectangle whiteout in PDF annotation??
 
 ## Backend
 

@@ -1125,23 +1125,6 @@ export class Api<
         format: "json",
         ...params,
       }),
-
-    /**
-     * No description
-     *
-     * @tags Auth
-     * @name AuthSessionPost
-     * @request POST:/auth/session
-     * @secure
-     */
-    authSessionPost: (params: RequestParams = {}) =>
-      this.request<User, ServerError>({
-        path: `/auth/session`,
-        method: "POST",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
   };
   comments = {
     /**

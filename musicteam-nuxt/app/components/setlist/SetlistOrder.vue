@@ -89,8 +89,8 @@ const refreshStore = useSetlistRefreshStore()
 
 const columns = computed(() => {
   const rv: TableColumn[] = [
-    { name: "label", title: "Label" },
     { name: "presenter", title: "Presenter" },
+    { name: "label", title: "Label" },
     { name: "song", title: "Song" },
   ]
   if (props.editOrder) {
