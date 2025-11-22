@@ -323,7 +323,9 @@ function removeChords() {
 
   const lines: string[] = []
   for (const line of inputLyrics.value.split(/\n/)) {
-    if (!(chordRatio(line) > 0.8 || line.match(/^[-=]+$/))) lines.push(line)
+    if (!(chordRatio(line) > 0.75 || line.match(/^\s*[-=]+$/))) {
+      lines.push(line.trimStart())
+    }
   }
 
   inputLyrics.value = lines.join("\n") + "\n"

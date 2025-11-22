@@ -29,8 +29,6 @@
 
 ## Bugs
 
-- PDF verse order positioning is not working in prod
-- Not bolding chord lines when the line has a single Bb chord
 - nuxt-auth is expecting get_session endpoint to return a token. We don't need it
   because we set our own session cookie on the response, but still it's causing errors
 - the /api/auth session cookie is back......
@@ -51,6 +49,7 @@
 
 ## Deployment
 
+- Configure prod for production Google auth
 - More pre-commit hooks
   - eslint (but perhaps a bit relaxed)
   - all pages must have a Head tag

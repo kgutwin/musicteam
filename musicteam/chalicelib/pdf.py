@@ -44,10 +44,11 @@ def text_to_pdf(content: str) -> pymupdf.Document:
 
         for line in para:
             if line:
-                upper_chars = sum(1 for c in line if c == c.upper())
-                space_chars = sum(1 for c in line if c == " ")
-                chord_ratio = (upper_chars + space_chars) / len(line)
-                fontname = "Courier-Bold" if chord_ratio > 0.8 else "Courier"
+                chord_chars = sum(
+                    1 for c in line if c == c.upper() or c in " 0123456789/#b"
+                )
+                chord_ratio = chord_chars / len(line)
+                fontname = "Courier-Bold" if chord_ratio > 0.75 else "Courier"
                 if first_line:
                     fontname = "Courier-Bold"
                     first_line = False
@@ -73,7 +74,7 @@ def add_verse_order(doc: pymupdf.Document, verse_order: list[str]) -> pymupdf.Do
     px = page.get_pixmap(clip=rect)
 
     # slide down to try to find a blank spot
-    while not px.is_unicolor and (rect.y1 + top) > page.rect.height:  # type: ignore[attr-defined]
+    while not px.is_unicolor and (rect.y1 + top) < page.rect.height:  # type: ignore[attr-defined]
         rect = pymupdf.IRect(rect.x0, rect.y0 + 2, rect.x1, rect.y1 + 2)
         px = page.get_pixmap(clip=rect)
 
@@ -81,7 +82,8 @@ def add_verse_order(doc: pymupdf.Document, verse_order: list[str]) -> pymupdf.Do
         # shift back to the original position
         rect = pymupdf.IRect(left, top, left + width, top + height)
 
-    insert_pt = pymupdf.Point(rect.x0 + margin, rect.y0 + margin)
+    # note: the insert_pt is the bottom left corner of the text
+    insert_pt = pymupdf.Point(rect.x0 + margin, rect.y0 + margin + fontsize)
     for line in verse_order:
         page.insert_text(insert_pt, line, fontname="Helvetica-Bold", fontsize=fontsize)
         insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
