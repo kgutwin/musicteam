@@ -94,8 +94,7 @@
       :row-click="async (row) => await navigateTo(`/songs/${row.id}`)"
     >
       <template #uploaded="{ row }">
-        {{ localdate(row.created_on) }} &centerdot;
-        {{ initials(user.get({ userId: row.creator_id })?.data?.value?.name) }}
+        <Created :data="row" />
       </template>
       <template #title="{ row }">
         <NuxtLink :to="`/songs/${row.id}`" class="font-semibold hover:underline">
@@ -132,12 +131,10 @@ import type { TableColumn } from "@/types/mt"
 import type { Song, Entry } from "@/services/api"
 
 import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
-import { useUserStore } from "@/stores/users"
 import { useAuthorlistStore, useTaglistStore } from "@/stores/info"
-import { trimArray, localdate } from "@/utils"
+import { trimArray } from "@/utils"
 
 const songlist = useSonglistStore()
-const user = useUserStore()
 const versionlist = useSongVersionlistStore()
 const authorlist = useAuthorlistStore()
 const taglist = useTaglistStore()
@@ -152,11 +149,6 @@ const allColumns = ref([
 ])
 
 const columns = computed(() => allColumns.value.filter((c) => c.active))
-
-function initials(name?: string) {
-  if (!name) return ""
-  return name.replace(/(.)(\S*\s*)/g, "$1")
-}
 
 const filterTitle = ref<string>()
 const filterTags = ref<Record<string, boolean>>({})

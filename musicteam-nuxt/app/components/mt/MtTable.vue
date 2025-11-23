@@ -19,6 +19,7 @@
         v-for="(row, index) in data"
         :key="row.id"
         :clickable="!!rowClick"
+        :selected="selected?.(row) ?? false"
         @click="
           () => {
             if (rowClick) {
@@ -54,6 +55,7 @@ const props = defineProps<{
   columns: TableColumn[]
   data?: T[]
   rowClick?: (row: T) => any
+  selected?: (row: T) => boolean
 }>()
 
 defineEmits<{ dragEnd: [SortableEvent] }>()
@@ -81,6 +83,12 @@ const draggableData = computed({
     }
     & tr[clickable="true"] {
       @apply hover:bg-gray-100;
+    }
+    & tr[selected="true"] {
+      @apply bg-blue-100;
+    }
+    & tr[clickable="true"][selected="true"] {
+      @apply hover:bg-blue-100;
     }
   }
 

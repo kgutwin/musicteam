@@ -5,19 +5,21 @@ export function useInvalid(required: Ref[], optional: Ref[] = []) {
   watch(
     refs,
     () => {
-      for (const ref of required) {
-        if (!ref.value || (Array.isArray(ref.value) && ref.value.length === 0)) {
-          invalid.value = true
-          return
+      nextTick(() => {
+        for (const ref of required) {
+          if (!ref.value || (Array.isArray(ref.value) && ref.value.length === 0)) {
+            invalid.value = true
+            return
+          }
         }
-      }
-      for (const frm of document.querySelectorAll(".frm-edit")) {
-        if (!(frm as HTMLFormElement).checkValidity()) {
-          invalid.value = true
-          return
+        for (const frm of document.querySelectorAll(".frm-edit")) {
+          if (!(frm as HTMLFormElement).checkValidity()) {
+            invalid.value = true
+            return
+          }
         }
-      }
-      invalid.value = false
+        invalid.value = false
+      })
     },
     { deep: true, flush: "post" },
   )

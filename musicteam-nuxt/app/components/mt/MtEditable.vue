@@ -3,7 +3,12 @@
     <div class="flex flex-row items-baseline">
       <template v-if="!editing">
         <slot>
-          <MtText is="span" :text="getText()" :loading="wide ? 'w-72' : 'w-48'" />
+          <MtText
+            is="span"
+            :text="getText()"
+            :loading="wide ? 'w-72' : 'w-48'"
+            :placeholder="placeholder"
+          />
         </slot>
         <button
           v-if="model"
@@ -39,14 +44,13 @@
 </template>
 
 <script setup lang="ts" generic="T, K extends keyof T">
-// import { tryUpdateModel } from "@/services"
-
 const props = defineProps<{
   is?: string
   model?: T & Partial<Record<K, string | string[] | number | null>>
   prop: K
   type?: "text" | "date"
   wide?: boolean
+  placeholder?: string
 }>()
 
 const emit = defineEmits<{ save: [newV: T[K]] }>()
@@ -77,8 +81,6 @@ async function save() {
 
   // patch model first
   props.model[props.prop] = editableValue.value as any
-
-  // await tryUpdateModel(props.model, props.prop)
 
   emit("save", editableValue.value)
 

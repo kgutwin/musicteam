@@ -1,6 +1,13 @@
 import type { HttpResponse, UserList, ServerError } from "@/services/api"
 import { useToaster } from "@/composables/toast"
 
+/**
+ * Status states:
+ * - idle: store has not yet loaded or has expired
+ * - pending: store is in progress for loading
+ * - ok: store data is available
+ * - error: an error was caught during loading
+ */
 export type Status = "idle" | "pending" | "ok" | "error"
 
 export interface StoreState<T> {
@@ -20,9 +27,24 @@ export interface StoreState<T> {
 export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>) {
   return (): StoreState<T> => {
     const status = ref<Status>("idle")
+
+    /**
+     * The current state of the store.
+     *
+     * Equivalent to the `data` computed property, but reading this does not
+     * automatically trigger a load.
+     */
     const currentData = ref<T | undefined>()
+
+    /** If the `status` is "error", this holds the error details. */
     const error = ref<ServerError | undefined>()
 
+    /**
+     * Retrieve the store data, via an async Promise.
+     *
+     * Use this when you are willing to await on the store data and do not want
+     * to handle reactive dependencies or undefined return values.
+     */
     async function get(): Promise<T> {
       if (status.value === "ok" && currentData.value !== undefined)
         return currentData.value
@@ -45,16 +67,27 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
       }
     }
 
+    /** Schedule an update of the store data without wiping the existing state. */
     function refresh() {
       status.value = "pending"
       get()
     }
 
+    /**
+     * Wipe the existing state, triggering a refresh if the store is currently in use.
+     */
     function expire() {
       status.value = "idle"
       currentData.value = undefined
     }
 
+    /**
+     * A computed reactive property representing the store state.
+     *
+     * Automatically requests the store data, asynchronously, if it is
+     * not loaded. While loading is in progress, this property will be
+     * undefined.
+     */
     const data = computed<T | undefined>(() => {
       if (status.value === "idle") get()
       return currentData.value
@@ -70,6 +103,14 @@ export function createParamStoreState<P, T>(
   return () => {
     const stores = shallowRef<Record<string, StoreState<T>>>({})
 
+    /**
+     * Retrieve a store that invokes the fetcher with the provided params.
+     *
+     * The resulting value is an instance of StoreState and can
+     * therefore be used via its `get()` method or its `data` computed
+     * property. The store instance will be cached and will be reused
+     * on subsequent invocations.
+     */
     function get(params: P): StoreState<T> {
       const encoded = JSON.stringify(params)
 
@@ -81,6 +122,13 @@ export function createParamStoreState<P, T>(
       return store
     }
 
+    /**
+     * Refresh some or all of the stores associated with this param store.
+     *
+     * If the params arg is omitted or empty, all stores will be
+     * refreshed. Otherwise, only the stores that have a superset of
+     * parameters to the ones provided will be refreshed.
+     */
     function refresh(params?: Partial<P>) {
       if (!params) return
 

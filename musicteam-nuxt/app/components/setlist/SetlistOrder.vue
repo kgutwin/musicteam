@@ -3,7 +3,12 @@
     <MtTable :columns="columns" :data="positions?.positions" @drag-end="dragPosition">
       <template #label="{ row }">
         <span :class="{ italic: !row.is_music }">
-          <MtEditable :model="row" prop="label" @save="savePosition(row, 'label')" />
+          <MtEditable
+            :model="row"
+            prop="label"
+            @save="savePosition(row, 'label')"
+            placeholder="Label"
+          />
         </span>
       </template>
       <template #presenter="{ row }">
@@ -11,6 +16,7 @@
           :model="row"
           prop="presenter"
           @save="savePosition(row, 'presenter')"
+          placeholder="Name"
         />
       </template>
       <template #is-music="{ row }">
@@ -94,7 +100,7 @@ const columns = computed(() => {
     { name: "song", title: "Song" },
   ]
   if (props.editOrder) {
-    rv.splice(2, 0, { name: "is-music", title: "Is Music?" })
+    rv.splice(2, 0, { name: "is-music", title: "Needs Music?" })
     rv.push({ name: "controls", title: "", cls: "w-24" })
   }
   return rv

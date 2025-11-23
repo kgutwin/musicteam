@@ -32,6 +32,26 @@
     </form>
 
     <form class="frm-edit mb-4">
+      <div class="flex flex-row mt-2">
+        <div class="grow" />
+        <div>
+          <MtDropdown button-class="btn-gray">
+            <template #dropdown-button>Use template...</template>
+
+            <button
+              v-for="template in templates.data?.templates ?? []"
+              @click="applyTemplate(template.id)"
+            >
+              {{ template.title }}
+            </button>
+
+            <hr />
+
+            <NuxtLink to="/setlists/templates">Edit templates...</NuxtLink>
+          </MtDropdown>
+        </div>
+      </div>
+
       <MtTable :columns="columns" :data="positions">
         <template #label="{ row }">
           <input v-model="row.label" class="inp-text w-full" required />
@@ -82,10 +102,14 @@ import type { TableColumn } from "@/types/mt"
 import { api } from "@/services"
 import { nextSunday, randomId } from "@/utils"
 import { useSetlistRefreshStore } from "@/stores/setlists"
+import { useSetlistTemplatelistStore } from "@/stores/setlistTemplates"
+import { useSetlistTemplatePositionlistStore } from "@/stores/setlistTemplates"
 
 const { data: authData } = useAuth()
 
 const setlistRefresh = useSetlistRefreshStore()
+const templates = useSetlistTemplatelistStore()
+const templatePositionStore = useSetlistTemplatePositionlistStore()
 
 const inputLeaderName = ref<string | undefined>(authData.value?.name)
 const inputServiceDate = ref<string>(nextSunday())
@@ -97,8 +121,8 @@ type PendingPosition = Partial<NewSetlistPosition> & { id: string }
 
 const positions = ref<PendingPosition[]>([{ id: randomId(), index: 1, is_music: true }])
 const columns: TableColumn[] = [
-  { name: "label", title: "Label", required: true },
   { name: "presenter", title: "Presenter" },
+  { name: "label", title: "Label", required: true },
   { name: "is-music", title: "Needs Music?" },
   { name: "controls", title: "" },
 ]
@@ -112,6 +136,17 @@ watch(
   },
   { deep: true },
 )
+
+async function applyTemplate(templateId: string) {
+  const tpl = await templatePositionStore.get({ templateId }).get()
+  positions.value = tpl.positions.map(({ id, index, is_music, label, presenter }) => ({
+    id,
+    index,
+    is_music,
+    label,
+    presenter,
+  }))
+}
 
 const invalid = useInvalid([inputLeaderName, inputServiceDate, positions])
 

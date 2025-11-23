@@ -2,7 +2,6 @@
 
 ## Frontend
 
-- Setlist templates
 - Roles
   - hide edit buttons
   - Manager can change team member roles
@@ -20,13 +19,12 @@
 
 - Search across songs
 - New users are pending first
+- Cache packets so they load faster
 - Bucket maintenance
 - History endpoints
 
 ## Bugs
 
-- nuxt-auth is expecting get_session endpoint to return a token. We don't need it
-  because we set our own session cookie on the response, but still it's causing errors
 - the /api/auth session cookie is back......
 - Adding a set list is very slow since it needs to make one request per position
   - already using Promise.all, so any speed improvement would be batching
