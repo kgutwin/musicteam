@@ -25,7 +25,6 @@
 
 ## Bugs
 
-- sheet does not change when switching between two text-format sheets
 - the /api/auth session cookie is back......
 - Adding a set list is very slow since it needs to make one request per position
   - already using Promise.all, so any speed improvement would be batching

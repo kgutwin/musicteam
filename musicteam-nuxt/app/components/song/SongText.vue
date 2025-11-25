@@ -13,10 +13,18 @@ const props = defineProps<{
 
 const songText = ref("")
 
-const blob = await api.songs.getSongSheetDoc(
-  props.songId,
-  props.versionId,
-  props.sheetId,
+watch(
+  props,
+  async () => {
+    songText.value = "Loading ..."
+
+    const blob = await api.songs.getSongSheetDoc(
+      props.songId,
+      props.versionId,
+      props.sheetId,
+    )
+    songText.value = await blob.text()
+  },
+  { immediate: true },
 )
-songText.value = await blob.text()
 </script>

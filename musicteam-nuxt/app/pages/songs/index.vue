@@ -11,7 +11,7 @@
       </div>
       <div>
         <input
-          v-model="filterTitle"
+          v-model="prefs.filters.title"
           type="search"
           placeholder="Filter by Title..."
           class="inp-text w-32 md:w-48"
@@ -27,9 +27,10 @@
         <MtDropdownCheckbox
           v-for="tag in taglist.data?.entries"
           :key="tag.entry"
-          v-model="filterTags[tag.entry]"
+          v-model="prefs.filters.tags[tag.entry]"
           :label="tag.entry"
         />
+        <Icon v-if="taglist.status === 'pending'" name="svg-spinners:3-dots-fade" />
 
         <hr />
 
@@ -44,7 +45,7 @@
         <MtDropdownCheckbox
           v-for="author in authors"
           :key="author.entry"
-          v-model="filterAuthors[author.entry]"
+          v-model="prefs.filters.authors[author.entry]"
           :label="author.entry"
         />
       </MtDropdown>
@@ -63,23 +64,23 @@
       <MtDropdown button-class="btn-gray">
         <template #dropdown-button>
           <span class="hide-lg">Sort:</span>
-          {{ sortBy }}
-          <Icon :name="sortAsc ? 'ri:sort-asc' : 'ri:sort-desc'" />
+          {{ prefs.sortBy }}
+          <Icon :name="prefs.sortAsc ? 'ri:sort-asc' : 'ri:sort-desc'" />
         </template>
 
         <div class="italic">Sort by ...</div>
         <MtDropdownRadioGroup
-          v-model="sortBy"
+          v-model="prefs.sortBy"
           :choices="['Title', 'Author', 'Tag', 'Date Uploaded', 'CCLI Number']"
         />
 
         <hr />
 
-        <button @click="sortAsc = true">
+        <button @click="prefs.sortAsc = true">
           <Icon name="ri:sort-asc" />
           Ascending
         </button>
-        <button @click="sortAsc = false">
+        <button @click="prefs.sortAsc = false">
           <Icon name="ri:sort-desc" />
           Descending
         </button>
@@ -132,12 +133,15 @@ import type { Song, Entry } from "@/services/api"
 
 import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
 import { useAuthorlistStore, useTaglistStore } from "@/stores/info"
+import { useSonglistPrefsStore } from "@/stores/prefs"
 import { trimArray } from "@/utils"
 
 const songlist = useSonglistStore()
 const versionlist = useSongVersionlistStore()
 const authorlist = useAuthorlistStore()
 const taglist = useTaglistStore()
+
+const prefs = useSonglistPrefsStore()
 
 const allColumns = ref([
   { name: "uploaded", title: "Uploaded", active: window.innerWidth > 800 },
@@ -150,35 +154,32 @@ const allColumns = ref([
 
 const columns = computed(() => allColumns.value.filter((c) => c.active))
 
-const filterTitle = ref<string>()
-const filterTags = ref<Record<string, boolean>>({})
-const filterAuthors = ref<Record<string, boolean>>({})
 const filterAuthorSearch = ref<string>()
 
 const authors = computed<Entry[]>(() => {
   if (!authorlist.data?.entries) return []
 
   if (!filterAuthorSearch.value) {
-    return authorlist.data.entries.filter((e) => filterAuthors.value[e.entry])
+    return authorlist.data.entries.filter((e) => prefs.filters.authors[e.entry])
   }
 
   const authorRe = new RegExp(filterAuthorSearch.value, "i")
   return authorlist.data.entries.filter(
-    (e) => e.entry.match(authorRe) || filterAuthors.value[e.entry],
+    (e) => e.entry.match(authorRe) || prefs.filters.authors[e.entry],
   )
 })
 
 function filtered(songs: Song[] | undefined): Song[] | undefined {
   if (songs === undefined) return undefined
 
-  const titleRe = filterTitle.value ? new RegExp(filterTitle.value, "i") : null
+  const titleRe = prefs.filters.title ? new RegExp(prefs.filters.title, "i") : null
   const tags = new Set(
-    Object.entries(filterTags.value)
+    Object.entries(prefs.filters.tags)
       .filter(([k, v]) => v)
       .map(([k, v]) => k),
   )
   const authors = new Set(
-    Object.entries(filterAuthors.value)
+    Object.entries(prefs.filters.authors)
       .filter(([k, v]) => v)
       .map(([k, v]) => k),
   )
@@ -217,17 +218,12 @@ function compareArrays(
   return 0
 }
 
-const sortBy = ref<"Title" | "Author" | "Tag" | "Date Uploaded" | "CCLI Number">(
-  "Title",
-)
-const sortAsc = ref(true)
-
 function sorted(songs: Song[] | undefined): Song[] | undefined {
   if (songs === undefined) return undefined
 
   return songs.toSorted((a, b) => {
     let delta = 0
-    switch (sortBy.value) {
+    switch (prefs.sortBy) {
       case "Title":
         delta = a.title.localeCompare(b.title)
         break
@@ -246,7 +242,7 @@ function sorted(songs: Song[] | undefined): Song[] | undefined {
         delta = (a.ccli_num ?? 0) - (b.ccli_num ?? 0)
         break
     }
-    if (!sortAsc.value) delta = -delta
+    if (!prefs.sortAsc) delta = -delta
     return delta
   })
 }

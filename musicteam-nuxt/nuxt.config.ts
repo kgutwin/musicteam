@@ -12,6 +12,7 @@ export default defineNuxtConfig({
       "vite-plugin-version-mark/nuxt",
       { ifShortSHA: true, ifMeta: true, ifLog: true, ifGlobal: true },
     ],
+    "pinia-plugin-persistedstate/nuxt",
   ],
 
   vue: {
@@ -92,5 +93,10 @@ export default defineNuxtConfig({
         },
       },
     },
+  },
+
+  piniaPluginPersistedstate: {
+    storage: "sessionStorage",
+    key: "mt_%id",
   },
 })
