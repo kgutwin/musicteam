@@ -816,6 +816,29 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/NewSong'
+  /songs/search:
+    get:
+      operationId: songs.search_songs
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchSongList'
+      tags:
+      - Songs
+      summary: Search for songs
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          title: Search query
+          type: string
   /songs/{song_id}:
     get:
       operationId: songs.get_song
@@ -1525,6 +1548,82 @@ components:
       - id
       title: ObjectId
       type: object
+    Song:
+      properties:
+        title:
+          title: Title
+          type: string
+        authors:
+          items:
+            type: string
+          title: Authors
+          type: array
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+      required:
+      - title
+      - authors
+      - ccli_num
+      - id
+      - created_on
+      - creator_id
+      title: Song
+      type: object
+    SearchSongHit:
+      properties:
+        song:
+          $ref: '#/components/schemas/Song'
+        highlighted:
+          title: Highlighted
+          type: string
+        rank:
+          title: Rank
+          type: number
+      required:
+      - song
+      - highlighted
+      - rank
+      title: SearchSongHit
+      type: object
+    SearchSongList:
+      properties:
+        hits:
+          items:
+            $ref: '#/components/schemas/SearchSongHit'
+          title: Hits
+          type: array
+      required:
+      - hits
+      title: SearchSongList
+      type: object
+    SearchSongParams:
+      properties:
+        q:
+          title: Search query
+          type: string
+      required:
+      - q
+      title: SearchSongParams
+      type: object
     ServerError:
       properties:
         Code:
@@ -1781,46 +1880,6 @@ components:
       required:
       - positions
       title: SetlistTemplatePositionList
-      type: object
-    Song:
-      properties:
-        title:
-          title: Title
-          type: string
-        authors:
-          items:
-            type: string
-          title: Authors
-          type: array
-        ccli_num:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: CCLI Number
-        tags:
-          default: []
-          items:
-            type: string
-          title: Tags
-          type: array
-        id:
-          title: Id
-          type: string
-        created_on:
-          format: date-time
-          title: Created On
-          type: string
-        creator_id:
-          title: Creator Id
-          type: string
-      required:
-      - title
-      - authors
-      - ccli_num
-      - id
-      - created_on
-      - creator_id
-      title: Song
       type: object
     SongList:
       properties:

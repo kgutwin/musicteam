@@ -4,6 +4,7 @@ from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
 from chalicelib.storage import s3
+from chalicelib.types import _SearchSongRow
 from chalicelib.types import _SongSheetObject
 from chalicelib.types import BadRequest
 from chalicelib.types import Download
@@ -15,6 +16,8 @@ from chalicelib.types import NewSongVersion
 from chalicelib.types import NoContent
 from chalicelib.types import NotFound
 from chalicelib.types import PartialDownload
+from chalicelib.types import SearchSongList
+from chalicelib.types import SearchSongParams
 from chalicelib.types import Song
 from chalicelib.types import SongList
 from chalicelib.types import SongSheet
@@ -443,3 +446,45 @@ def get_song_sheet_doc(
         return PartialDownload(body, headers=headers)
     else:
         return Download(body, headers=headers)
+
+
+@bp.route("/songs/search", methods=["GET"])
+def search_songs(query_params: SearchSongParams) -> Forbidden | SearchSongList:
+    """Search for songs"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "WITH song_hits AS ("
+            "  SELECT"
+            "    song_id,"
+            "    max("
+            "      ts_rank_cd(lyrics_tsv, websearch_to_tsquery('english', :query))"
+            "    ) AS rank,"
+            "    any_value("
+            "      ts_headline("
+            "        'english', lyrics, websearch_to_tsquery('english', :query)"
+            "      )"
+            "    ) AS highlighted"
+            "  FROM song_versions"
+            "  WHERE lyrics_tsv @@ websearch_to_tsquery('english', :query)"
+            "  GROUP BY song_id"
+            ") "
+            "SELECT"
+            "  songs.id,"
+            "  songs.title,"
+            "  songs.authors,"
+            "  songs.ccli_num,"
+            "  songs.tags,"
+            "  songs.created_on,"
+            "  songs.creator_id, "
+            "  song_hits.rank, "
+            "  song_hits.highlighted "
+            "FROM songs "
+            "INNER JOIN song_hits ON songs.id = song_hits.song_id "
+            "ORDER BY song_hits.rank DESC",
+            {"query": query_params.q},
+            output=_SearchSongRow,
+        )
+        return SearchSongList(hits=[row.hit for row in curs.fetchall()])

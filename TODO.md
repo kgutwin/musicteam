@@ -17,7 +17,6 @@
 
 ## Backend
 
-- Search across songs
 - New users are pending first
 - Cache packets so they load faster
 - Bucket maintenance

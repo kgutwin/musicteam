@@ -63,9 +63,11 @@
       </MtDropdown>
       <MtDropdown button-class="btn-gray">
         <template #dropdown-button>
-          <span class="hide-lg">Sort:</span>
-          {{ prefs.sortBy }}
-          <Icon :name="prefs.sortAsc ? 'ri:sort-asc' : 'ri:sort-desc'" />
+          <div class="flex flex-row gap-1 items-center">
+            <span class="hide-lg">Sort:</span>
+            <span>{{ prefs.sortBy }}</span>
+            <Icon :name="prefs.sortAsc ? 'ri:sort-asc' : 'ri:sort-desc'" />
+          </div>
         </template>
 
         <div class="italic">Sort by ...</div>
@@ -86,6 +88,12 @@
         </button>
       </MtDropdown>
       <div>
+        <NuxtLink class="inline-block btn-gray mr-2" to="/songs/search">
+          <div class="flex flex-row gap-1 items-center">
+            <span class="hide-lg">Search</span>
+            <Icon name="ri:search-line" />
+          </div>
+        </NuxtLink>
         <NuxtLink class="inline-block btn-blue" to="/songs/new">New...</NuxtLink>
       </div>
     </div>

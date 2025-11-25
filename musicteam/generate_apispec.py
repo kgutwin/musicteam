@@ -10,6 +10,7 @@ from typing import get_origin
 
 import app
 from apispec import APISpec
+from apispec.exceptions import DuplicateComponentNameError
 from apispec_pydantic_plugin import PydanticPlugin
 from apispec_pydantic_plugin import Registry
 from chalicelib import types
@@ -53,7 +54,14 @@ def generate() -> str:
             and model is not BaseModel
             and not model.__name__.startswith("_")
         ):
-            spec.components.schema(model.__name__, schema=model)
+            try:
+                spec.components.schema(model.__name__, schema=model)
+            except DuplicateComponentNameError:
+                # currently assuming that we are getting this error
+                # because the component came in as a dependency of
+                # another component.
+                pass
+
             Registry.register(model)
         elif (
             issubclass(model, types.KnownResponse) and model is not types.KnownResponse

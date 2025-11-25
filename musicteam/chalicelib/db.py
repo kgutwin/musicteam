@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 3
+DB_VERSION = 4
 
 DatabaseResumingException = boto3.client(
     "rds-data"

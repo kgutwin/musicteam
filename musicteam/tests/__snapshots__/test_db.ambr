@@ -164,7 +164,8 @@
       lyrics text,
       tags text[],
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
-      creator_id text NOT NULL
+      creator_id text NOT NULL,
+      lyrics_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english'::regconfig, COALESCE(lyrics, ''::text))) STORED
   );
   
   
@@ -275,7 +276,7 @@
   -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
   --
   
-  INSERT INTO public._version VALUES ('db_version', 3);
+  INSERT INTO public._version VALUES ('db_version', 4);
   
   
   --
@@ -446,6 +447,13 @@
   
   ALTER TABLE ONLY public.users
       ADD CONSTRAINT users_provider_id_key UNIQUE (provider_id);
+  
+  
+  --
+  -- Name: lyrics_idx; Type: INDEX; Schema: public; Owner: -
+  --
+  
+  CREATE INDEX lyrics_idx ON public.song_versions USING gin (lyrics_tsv);
   
   
   --

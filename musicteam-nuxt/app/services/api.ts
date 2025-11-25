@@ -228,6 +228,51 @@ export interface ObjectId {
   id: string;
 }
 
+/** Song */
+export interface Song {
+  /** Title */
+  title: string;
+  /** Authors */
+  authors: string[];
+  /** CCLI Number */
+  ccli_num: number | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Id */
+  id: string;
+  /**
+   * Created On
+   * @format date-time
+   */
+  created_on: string;
+  /** Creator Id */
+  creator_id: string;
+}
+
+/** SearchSongHit */
+export interface SearchSongHit {
+  song: Song;
+  /** Highlighted */
+  highlighted: string;
+  /** Rank */
+  rank: number;
+}
+
+/** SearchSongList */
+export interface SearchSongList {
+  /** Hits */
+  hits: SearchSongHit[];
+}
+
+/** SearchSongParams */
+export interface SearchSongParams {
+  /** Search query */
+  q: string;
+}
+
 /** ServerError */
 export interface ServerError {
   /** Code */
@@ -389,30 +434,6 @@ export interface SetlistTemplatePosition {
 export interface SetlistTemplatePositionList {
   /** Positions */
   positions: SetlistTemplatePosition[];
-}
-
-/** Song */
-export interface Song {
-  /** Title */
-  title: string;
-  /** Authors */
-  authors: string[];
-  /** CCLI Number */
-  ccli_num: number | null;
-  /**
-   * Tags
-   * @default []
-   */
-  tags?: string[];
-  /** Id */
-  id: string;
-  /**
-   * Created On
-   * @format date-time
-   */
-  created_on: string;
-  /** Creator Id */
-  creator_id: string;
 }
 
 /** SongList */
@@ -1886,6 +1907,31 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name SearchSongs
+     * @summary Search for songs
+     * @request GET:/songs/search
+     * @secure
+     */
+    searchSongs: (
+      query: {
+        /** Search query */
+        q: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<SearchSongList, ServerError>({
+        path: `/songs/search`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),

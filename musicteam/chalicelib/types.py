@@ -133,6 +133,41 @@ class ListSongParams(BaseModel):
     title: str | None = None
 
 
+class SearchSongParams(BaseModel):
+    q: str = Field(title="Search query")
+
+
+class SearchSongHit(BaseModel):
+    song: Song
+    highlighted: str
+    rank: float
+
+
+class SearchSongList(BaseModel):
+    hits: list[SearchSongHit]
+
+
+class _SearchSongRow(Song):
+    highlighted: str
+    rank: float
+
+    @property
+    def hit(self) -> SearchSongHit:
+        return SearchSongHit(
+            song=Song(
+                id=self.id,
+                title=self.title,
+                authors=self.authors,
+                ccli_num=self.ccli_num,
+                tags=self.tags,
+                created_on=self.created_on,
+                creator_id=self.creator_id,
+            ),
+            highlighted=self.highlighted,
+            rank=self.rank,
+        )
+
+
 class NewSongVersion(BaseModel):
     label: str
     verse_order: str | None = None
