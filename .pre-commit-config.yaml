@@ -66,6 +66,14 @@ repos:
         files: "musicteam/app.py|musicteam/chalicelib|musicteam-api.yaml"
         types: [file]
 
+      - id: check-page-title
+        name: all pages must have titles
+        language: pygrep
+        entry: "<Title"
+        args: [--negate]
+        files: "musicteam-nuxt/app/pages"
+        types: [file]
+
       - id: typecheck
         name: nuxt typecheck
         language: system

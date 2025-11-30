@@ -38,7 +38,6 @@
 
 ## Deployment
 
-- Configure prod for production Google auth
 - More pre-commit hooks
   - eslint (but perhaps a bit relaxed)
   - all pages must have a Head tag
@@ -47,6 +46,9 @@
 
 ## Think through
 
+- How should we track changes?
+  - Simply note the last person to touch something (last modified date/person)?
+  - Record the previous version of whatever resource?
 - Do we need tags on song versions and song sheets?
   - How should they be shown, and how do we avoid confusion with song tags?
 

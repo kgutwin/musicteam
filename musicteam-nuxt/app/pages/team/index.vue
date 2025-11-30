@@ -1,5 +1,7 @@
 <template>
   <div>
+    <Head><Title>Team - MusicTeam</Title></Head>
+
     <h1>Team Members</h1>
     <MtTable :columns="columns" :data="users.data?.users">
       <template #picture="{ row }">
