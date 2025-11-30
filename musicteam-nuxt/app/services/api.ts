@@ -737,6 +737,37 @@ export interface UpdateSongVersion {
   tags?: string[] | null;
 }
 
+/** UpdateUser */
+export interface UpdateUser {
+  /**
+   * Name
+   * @default null
+   */
+  name?: string | null;
+  /**
+   * Email
+   * @default null
+   */
+  email?: string | null;
+  /**
+   * Picture
+   * @default null
+   */
+  picture?: string | null;
+  /**
+   * Role
+   * @default null
+   */
+  role?:
+    | "admin"
+    | "manager"
+    | "leader"
+    | "viewer"
+    | "pending"
+    | "inactive"
+    | null;
+}
+
 /** UploadParams */
 export interface UploadParams {
   /**
@@ -2274,6 +2305,28 @@ export class Api<
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Users
+     * @name UpdateUser
+     * @request PUT:/users/{user_id}
+     * @secure
+     */
+    updateUser: (
+      userId: string,
+      data: UpdateUser,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/users/${userId}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
 

@@ -19,7 +19,7 @@
         <button class="btn-icon" @click="shareSetlist" title="Share...">
           <Icon name="solar:share-outline" />
         </button>
-        <button class="btn-red" @click="deleteSetlist">Delete</button>
+        <button v-if="canLead" class="btn-red" @click="deleteSetlist">Delete</button>
       </div>
       <div class="flex flex-row">
         <div class="grow">
@@ -61,10 +61,10 @@
         >
           <Icon name="solar:copy-outline" />
         </button>
-        <button class="btn-gray" @click="editOrder = !editOrder">
+        <button v-if="canLead" class="btn-gray" @click="editOrder = !editOrder">
           {{ editOrder ? "Done" : "Edit" }}
         </button>
-        <button class="btn-gray" @click="makeActive">Make Active</button>
+        <button v-if="canLead" class="btn-gray" @click="makeActive">Make Active</button>
       </template>
       <template v-else>
         <MtDropdown
@@ -132,6 +132,7 @@ const sheetlistStore = useSetlistSheetlistStore()
 const refreshStore = useSetlistRefreshStore()
 const songStore = useSongStore()
 const songSheetStore = useSongSheetStore()
+const { canLead } = useRole()
 
 const { id } = useRoute().params
 

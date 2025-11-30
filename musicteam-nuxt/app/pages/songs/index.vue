@@ -94,7 +94,9 @@
             <Icon name="ri:search-line" />
           </div>
         </NuxtLink>
-        <NuxtLink class="inline-block btn-blue" to="/songs/new">New...</NuxtLink>
+        <NuxtLink v-if="canEdit" class="inline-block btn-blue" to="/songs/new">
+          New...
+        </NuxtLink>
       </div>
     </div>
     <MtTable
@@ -150,6 +152,8 @@ const authorlist = useAuthorlistStore()
 const taglist = useTaglistStore()
 
 const prefs = useSonglistPrefsStore()
+
+const { canEdit } = useRole()
 
 const allColumns = ref([
   { name: "uploaded", title: "Uploaded", active: window.innerWidth > 800 },

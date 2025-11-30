@@ -101,10 +101,19 @@ def auth_callback() -> Forbidden | Found:
         }
 
     with db.connect() as conn:
+        # The role will default to 'pending' as long as there is at
+        # least one admin; otherwise, the next (or first) user to sign
+        # in will be an admin.
         curs = conn.execute(
             (
                 "INSERT INTO users (name, provider_id, email, picture, role) "
-                "VALUES (:name, :provider_id, :email, :picture, :role) "
+                "SELECT"
+                "  :name AS name,"
+                "  :provider_id AS provider_id,"
+                "  :email AS email,"
+                "  :picture AS picture,"
+                "  CASE WHEN count(*) > 0 THEN 'pending' ELSE 'admin' END AS role "
+                "FROM users "
                 "ON CONFLICT (provider_id) DO UPDATE"
                 "  SET name = EXCLUDED.name, email = EXCLUDED.email,"
                 "  picture = EXCLUDED.picture "
@@ -115,7 +124,6 @@ def auth_callback() -> Forbidden | Found:
                 "provider_id": payload["sub"],
                 "email": payload["email"],
                 "picture": payload["picture"],
-                "role": "admin",
             },
             output=User,
         )

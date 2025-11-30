@@ -98,6 +98,13 @@ class User(BaseModel):
         )
 
 
+class UpdateUser(_ReplacementModel):
+    name: str | None = None
+    email: str | None = None
+    picture: str | None = None
+    role: UserRole | None = None
+
+
 class UserList(BaseModel):
     users: list[User]
 

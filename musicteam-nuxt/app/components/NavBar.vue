@@ -14,7 +14,8 @@
       <NuxtLink to="/setlists">Set Lists</NuxtLink>
       <NuxtLink to="/team">Team</NuxtLink>
     </div>
-    <div v-if="status === 'authenticated'" class="self-start">
+    <div v-if="status === 'authenticated'" class="self-start flex flex-row gap-4">
+      <TeamMembersPending v-if="canManage" />
       <NuxtLink v-if="authData" to="/my/profile">
         <img
           v-if="authData?.picture"
@@ -39,4 +40,6 @@
 
 <script setup lang="ts">
 const { status, signOut, data: authData } = useAuth()
+
+const { canManage } = useRole()
 </script>

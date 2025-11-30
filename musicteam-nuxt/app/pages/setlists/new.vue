@@ -111,6 +111,9 @@ const setlistRefresh = useSetlistRefreshStore()
 const templates = useSetlistTemplatelistStore()
 const templatePositionStore = useSetlistTemplatePositionlistStore()
 
+const { mustHave } = useRole()
+mustHave("leader", "/setlists")
+
 const inputLeaderName = ref<string | undefined>(authData.value?.name)
 const inputServiceDate = ref<string>(nextSunday())
 const inputTitle = ref<string>()

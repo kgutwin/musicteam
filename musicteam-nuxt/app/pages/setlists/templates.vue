@@ -4,7 +4,7 @@
 
     <div class="flex flex-row">
       <h1 class="grow">Set List Templates</h1>
-      <div>
+      <div v-if="canLead">
         <button class="btn-gray" @click="newTemplate">New Template</button>
       </div>
     </div>
@@ -53,7 +53,6 @@
 
 <script setup lang="ts">
 import { api } from "@/services"
-import { useToaster } from "@/composables/toast"
 import { useSetlistTemplatelistStore } from "@/stores/setlistTemplates"
 
 import type { TableColumn } from "@/types/mt"
@@ -61,6 +60,7 @@ import type { SetlistTemplate } from "@/services/api"
 
 const templates = useSetlistTemplatelistStore()
 const refreshStore = useSetlistTemplateRefreshStore()
+const { canLead } = useRole()
 
 const templatesColumns: TableColumn[] = [
   { name: "created", title: "Created" },

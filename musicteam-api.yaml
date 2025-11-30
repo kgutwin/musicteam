@@ -1194,6 +1194,24 @@ paths:
               schema: *id011
       tags:
       - Users
+    put:
+      operationId: users.update_user
+      responses:
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
     parameters:
     - name: user_id
       in: path
@@ -2277,6 +2295,41 @@ components:
           default: null
           title: Tags
       title: UpdateSongVersion
+      type: object
+    UpdateUser:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Email
+        picture:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Picture
+        role:
+          anyOf:
+          - enum:
+            - admin
+            - manager
+            - leader
+            - viewer
+            - pending
+            - inactive
+            type: string
+          - type: 'null'
+          default: null
+          title: Role
+      title: UpdateUser
       type: object
     UploadParams:
       properties:

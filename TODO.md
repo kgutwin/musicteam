@@ -2,10 +2,6 @@
 
 ## Frontend
 
-- Roles
-  - hide edit buttons
-  - Manager can change team member roles
-  - Manager gets a NavBar notification for pending members
 - Comments
 - Media links
 - Complete mobile layout
@@ -14,10 +10,10 @@
 - Preview lyrics on hover within song list?
 - Public link to lyrics for congregation
 - Rectangle whiteout in PDF annotation??
+- Allow users to upload their own profile picture, change other profile details
 
 ## Backend
 
-- New users are pending first
 - Cache packets so they load faster
 - Bucket maintenance
 - History endpoints

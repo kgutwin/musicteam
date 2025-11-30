@@ -151,6 +151,9 @@ import { fileToBase64String, chordRatio } from "@/utils"
 import type { NewSongSheet } from "@/services/api"
 import type { ToasterStatus } from "@/types/toast"
 
+const { mustHave } = useRole()
+mustHave("leader", "/songs")
+
 const { song: existingSongId, version: existingSongVersionId } = useRoute().query
 
 const inputTitle = ref<string>()

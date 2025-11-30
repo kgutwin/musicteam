@@ -45,7 +45,7 @@
           </div>
           <div class="basis-2/6 text-right">
             <div class="mb-2 flex flex-row-reverse gap-4 items-end">
-              <MtDropdown button-class="btn-red">
+              <MtDropdown v-if="canEdit" button-class="btn-red">
                 <template #dropdown-button>Delete</template>
                 <button
                   :disabled="!selectedSheet"
@@ -101,7 +101,7 @@
       <div class="div-panel basis-2/6">
         <div class="flex flex-row items-baseline">
           <h2 class="grow">Versions</h2>
-          <button class="btn-gray" @click="addVersion">
+          <button v-if="canEdit" class="btn-gray" @click="addVersion">
             <Icon name="ri:add-large-line" class="show-lg" />
             <span class="hide-lg">Add Version...</span>
           </button>
@@ -171,6 +171,8 @@ const songStore = useSongStore()
 const userStore = useUserStore()
 const versionsStore = useSongVersionlistStore()
 const refreshStore = useSongRefreshStore()
+
+const { canEdit } = useRole()
 
 const { id } = useRoute().params
 

@@ -4,7 +4,7 @@
 
     <div class="flex flex-row">
       <h1 class="grow">Set Lists</h1>
-      <div>
+      <div v-if="canLead">
         <NuxtLink class="btn-gray" to="/setlists/new">New...</NuxtLink>
       </div>
     </div>
@@ -50,6 +50,8 @@ import type { TableColumn } from "@/types/mt"
 
 const setlists = useSetlistlistStore()
 const user = useUserStore()
+
+const { canLead } = useRole()
 
 const columns: TableColumn[] = [
   { name: "service-date", title: "Service Date" },

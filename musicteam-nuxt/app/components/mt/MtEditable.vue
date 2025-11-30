@@ -11,7 +11,7 @@
           />
         </slot>
         <button
-          v-if="model"
+          v-if="model && canEdit"
           class="invisible group-hover/edit:visible text-base ml-2"
           @click="editing = true"
         >
@@ -51,9 +51,13 @@ const props = defineProps<{
   type?: "text" | "date"
   wide?: boolean
   placeholder?: string
+  editNeeds?: "viewer" | "leader" | "manager" | "admin"
 }>()
 
 const emit = defineEmits<{ save: [newV: T[K]] }>()
+
+const { hasRole } = useRole()
+const canEdit = hasRole(props.editNeeds ?? "leader")
 
 const editing = ref(false)
 const editableValue = ref<T[K]>()

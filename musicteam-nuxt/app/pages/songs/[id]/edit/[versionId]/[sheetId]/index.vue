@@ -106,7 +106,9 @@ const versionStore = useSongVersionStore()
 const sheetStore = useSongSheetStore()
 const refreshStore = useSongRefreshStore()
 
+const { mustHave } = useRole()
 const { id, versionId, sheetId } = useRoute().params
+mustHave("leader", `/songs/${id}`)
 
 const song = songStore.get({ songId: id as string }).data
 const version = versionStore.get({

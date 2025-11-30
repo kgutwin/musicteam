@@ -49,7 +49,7 @@
       </template>
     </MtTable>
 
-    <div class="mt-8 rounded-lg shadow-lg grid grid-cols-2 gap-2">
+    <div v-if="canLead" class="mt-8 rounded-lg shadow-lg grid grid-cols-2 gap-2">
       <div class="italic col-span-2 p-2 bg-gray-200">Candidates</div>
       <SetlistSidebarSong
         v-for="sheet in filtered(slist?.sheets)"
@@ -61,7 +61,7 @@
         class="col-span-2 italic p-2 text-center"
       >
         <div class="font-bold">No candidates added</div>
-        <div v-if="!activeStore.setlist" class="text-gray-600">
+        <div v-if="canLead && !activeStore.setlist" class="text-gray-600">
           Make the set list Active using the button above to be able to add songs as
           candidates
         </div>
@@ -92,6 +92,7 @@ const activeStore = useActiveSetlistStore()
 const setlistPositionlistStore = useSetlistPositionlistStore()
 const sheetlistStore = useSetlistSheetlistStore()
 const refreshStore = useSetlistRefreshStore()
+const { canLead } = useRole()
 
 const columns = computed(() => {
   const rv: TableColumn[] = [

@@ -12,16 +12,16 @@
       >
         <Icon name="solar:download-minimalistic-bold" />
       </button>
-      <button class="btn-gray" @click="edit">
+      <button v-if="canEdit" class="btn-gray" @click="edit">
         <Icon name="ri:edit-2-line" class="show-lg" />
         <span class="hide-lg">Edit...</span>
       </button>
-      <button class="btn-gray" @click="addSheet">
+      <button v-if="canEdit" class="btn-gray" @click="addSheet">
         <Icon name="ri:add-large-line" class="show-lg" />
         <span class="hide-lg">Add Sheet...</span>
       </button>
       <button
-        v-if="activeSetlistStore.setlist"
+        v-if="canLead && activeSetlistStore.setlist"
         :disabled="selectedSheet === '!lyrics'"
         class="btn-gray"
         @click="addToCandidates"
@@ -84,6 +84,8 @@ const { query } = useRoute()
 const sheetsStore = useSongSheetlistStore()
 const activeSetlistStore = useActiveSetlistStore()
 const setlistSheetlistStore = useSetlistSheetlistStore()
+
+const { canEdit, canLead } = useRole()
 
 const sheets = computed(
   () =>
