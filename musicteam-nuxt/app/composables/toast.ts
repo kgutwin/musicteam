@@ -16,10 +16,15 @@ export async function useToaster<T>(
     return rv
   } catch (err: any) {
     if (options.status) options.status.value = "error"
+    let message = err?.error?.Message ?? err.toString()
+    if (!message && err?.statusText) {
+      message = err.statusText
+    }
+    console.error(err)
     toasthost.toast.show({
       type: "danger",
       title: options.errorTitle ?? "Something went wrong...",
-      message: err?.error?.Message ?? err.toString(),
+      message,
       timeout: 5,
     })
     return Promise.reject(err)

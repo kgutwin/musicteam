@@ -1,5 +1,7 @@
 <template>
   <div>
+    <SongVersionPanelCommentsMedia :version-id="version.id" class="my-4" />
+
     <MtTabPanel
       v-model="selected"
       :loading="sheets?.song_sheets === undefined"
@@ -210,4 +212,6 @@ function download(sheet: "!lyrics" | SongSheet) {
   link.click()
   document.body.removeChild(link)
 }
+
+const commentsOpen = ref(false)
 </script>

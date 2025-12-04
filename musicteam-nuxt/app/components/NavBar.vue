@@ -17,19 +17,7 @@
     <div v-if="status === 'authenticated'" class="self-start flex flex-row gap-4">
       <TeamMembersPending v-if="canManage" />
       <NuxtLink v-if="authData" to="/my/profile">
-        <img
-          v-if="authData?.picture"
-          :src="authData.picture"
-          :alt="authData.name"
-          class="h-12 w-12 rounded-full"
-          referrerpolicy="no-referrer"
-        />
-        <div
-          v-else
-          class="rounded-full bg-indigo-300 h-12 w-12 flex items-center text-xs text-center font-bold"
-        >
-          {{ authData.name }}
-        </div>
+        <UserIcon :user-id="authData.id" large />
       </NuxtLink>
     </div>
     <div v-else>

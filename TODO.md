@@ -14,12 +14,23 @@
 
 ## Backend
 
+- Change tracking
+  - Triggers on INSERT and DELETE push previous version to resource tables
+    (songs -> song_history etc.)
+  - Endpoints to list changes
 - Cache packets so they load faster
 - Bucket maintenance
 - History endpoints
+- Bulk endpoints (all songs, all setlists, etc.)
+  - Export as CSV or JSON
 
 ## Bugs
 
+- editing tags on songs is right-aligned which is weird
+- PDF editing seems broken - there are errors in the console
+  - only on Safari 17.2.1, not on 26.1 ? must test other browsers
+- on mobile, the PDF embed only shows the first page and you can't really scroll
+  to the next page
 - the /api/auth session cookie is back......
 - Adding a set list is very slow since it needs to make one request per position
   - already using Promise.all, so any speed improvement would be batching
@@ -40,15 +51,11 @@
 
 - More pre-commit hooks
   - eslint (but perhaps a bit relaxed)
-  - all pages must have a Head tag
 - GitHub action for deployment
   - GitHub identity federation
 
 ## Think through
 
-- How should we track changes?
-  - Simply note the last person to touch something (last modified date/person)?
-  - Record the previous version of whatever resource?
 - Do we need tags on song versions and song sheets?
   - How should they be shown, and how do we avoid confusion with song tags?
 

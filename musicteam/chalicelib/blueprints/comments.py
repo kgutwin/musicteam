@@ -24,6 +24,7 @@ def list_comments(resource_id: str) -> Forbidden | CommentList:
             "FROM comments "
             "WHERE resource_id = :resource_id "
             "ORDER BY created_on",
+            {"resource_id": resource_id},
             output=Comment,
         )
         return CommentList(comments=curs.fetchall())
