@@ -26,6 +26,9 @@
 
 ## Bugs
 
+- got InternalServerError tonight:
+  - botocore.exceptions.ClientError: An error occurred (ThrottlingException) when calling the ExecuteStatement operation (reached max retries: 4): The request was throttled because of insufficient resources on the database.
+  - botocore.errorfactory.InternalServerErrorException: An error occurred (InternalServerErrorException) when calling the ExecuteStatement operation (reached max retries: 4):
 - editing tags on songs is right-aligned which is weird
 - PDF editing seems broken - there are errors in the console
   - only on Safari 17.2.1, not on 26.1 ? must test other browsers

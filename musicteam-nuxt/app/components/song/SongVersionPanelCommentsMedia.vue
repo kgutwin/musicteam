@@ -4,7 +4,7 @@
       <div class="div-panel-sub-head" @click="open = !open">
         <Icon name="ri:triangle-fill" class="icon-triangle" :class="{ open }" />
         <label>Comments</label>
-        <CommentsIcons :resource-id="versionId" />
+        <CommentsIcons :resource-id="versionId" class="h-6" />
       </div>
       <CommentsPanel v-if="open" class="mt-1" :resource-id="versionId" />
     </div>
@@ -26,7 +26,7 @@ const open = ref(false)
 
 <style>
 .div-panel-sub-head {
-  @apply flex flex-row items-baseline gap-1 cursor-pointer;
+  @apply flex flex-row items-center gap-1 cursor-pointer;
 
   & .icon-triangle {
     @apply self-center text-sm transition;
