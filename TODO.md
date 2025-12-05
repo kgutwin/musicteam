@@ -2,8 +2,8 @@
 
 ## Frontend
 
-- Comments
-- Media links
+- Comments - on set lists
+- Media links - on set lists too!
 - Complete mobile layout
 - Should be able to annotate an existing PDF and save as a new version or new sheet
 - Copy existing setlist?
@@ -30,6 +30,14 @@
   - botocore.exceptions.ClientError: An error occurred (ThrottlingException) when calling the ExecuteStatement operation (reached max retries: 4): The request was throttled because of insufficient resources on the database.
   - botocore.errorfactory.InternalServerErrorException: An error occurred (InternalServerErrorException) when calling the ExecuteStatement operation (reached max retries: 4):
 - editing tags on songs is right-aligned which is weird
+- random re-ordering of candidates/songs when changing status is not OK
+- adding a position to the middle of a set list was very slow, and there is no UI
+  feedback that it is working
+- dragging positions is also quite slow
+- weird animation when dragging songs in active setlist that looks like the song is
+  going back to its original spot, even though it doesn't
+- would be good to keep the search results when using the back button
+- need word wrap on the cover page of the music packet
 - PDF editing seems broken - there are errors in the console
   - only on Safari 17.2.1, not on 26.1 ? must test other browsers
 - on mobile, the PDF embed only shows the first page and you can't really scroll

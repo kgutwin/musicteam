@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-col">
-    <textarea v-model="textContent" class="txt-panel"></textarea>
+    <textarea v-model="textContent" class="txt-panel h-[48rem] with-size-guide">
+    </textarea>
   </div>
 </template>
 
@@ -31,3 +32,13 @@ onMounted(async () => {
   )
 })
 </script>
+
+<style>
+.with-size-guide {
+  background-image: linear-gradient(to right, rgb(255 200 200), white);
+  background-repeat: no-repeat;
+  background-size: 1ch 100%;
+  /* 60 chars of text plus 4ch left padding */
+  background-position-x: 64ch;
+}
+</style>
