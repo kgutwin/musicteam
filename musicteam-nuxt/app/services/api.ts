@@ -47,6 +47,15 @@ export interface EntryList {
   entries: Entry[];
 }
 
+/** GetPacketPdfParams */
+export interface GetPacketPdfParams {
+  /**
+   * Two Page Align
+   * @default false
+   */
+  two_page_align?: boolean;
+}
+
 /** ListSongParams */
 export interface ListSongParams {
   /**
@@ -1672,10 +1681,21 @@ export class Api<
      * @request GET:/setlists/{setlist_id}/packet/pdf
      * @secure
      */
-    getSetlistPacketPdf: (setlistId: string, params: RequestParams = {}) =>
+    getSetlistPacketPdf: (
+      setlistId: string,
+      query?: {
+        /**
+         * Two Page Align
+         * @default false
+         */
+        two_page_align?: boolean;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<File, ServerError>({
         path: `/setlists/${setlistId}/packet/pdf`,
         method: "GET",
+        query: query,
         secure: true,
         ...params,
       }),

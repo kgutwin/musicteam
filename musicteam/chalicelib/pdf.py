@@ -11,10 +11,15 @@ def read(object_id: str) -> pymupdf.Document:
     return pymupdf.Document(stream=resp["Body"].read())
 
 
-def concatenate(documents: list[pymupdf.Document]) -> pymupdf.Document:
+def concatenate(
+    documents: list[pymupdf.Document], two_page_align: bool = False
+) -> pymupdf.Document:
     rv = pymupdf.open()
     for doc in documents:
         rv.insert_pdf(doc)
+        if two_page_align and doc is not documents[-1] and doc.page_count % 2 == 1:
+            # add a blank page to align to a two-page screen
+            rv.new_page(width=612, height=792)  # 8.5 x 11
 
     return rv
 
@@ -96,63 +101,78 @@ def make_cover_sheet(
     positions: list[SetlistPosition],
     details: list[_PositionSheetDetails],
 ) -> pymupdf.Document:
-    fontsize = 18
-    line_height = 24
-    insert_pt = pymupdf.Point(72, 72)
-
     doc = pymupdf.open()
     page = doc.new_page(width=612, height=792)  # 8.5 x 11
 
-    page.insert_text(
-        insert_pt,
-        f"Set list for {setlist.service_date}",
-        fontname="Helvetica-Bold",
-        fontsize=fontsize,
-    )
-    insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+    css = """
+    body {
+      margin: 1in;
+
+      font-family: sans-serif;
+      font-size: 18pt;
+      font-weight: 400;
+    }
+
+    h1, h2 {
+      font-size: 18pt;
+      margin: 0;
+    }
+    h2 {
+      font-weight: 400;
+    }
+    .set-list {
+      padding-left: 0px;
+      margin-top: 2em;
+      list-style-type: none;
+    }
+    .set-list li {
+      margin-bottom: 0.5em;
+    }
+    .sheet-list {
+      padding-left: 36pt;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      list-style-type: "-";
+      font-weight: 900;
+    }
+    """
+
+    text = pymupdf.Story(user_css=css)  # type: ignore[attr-defined]
+    with text.body.add_header(1) as h:
+        h.add_text(f"Set list for {setlist.service_date}")
     if setlist.title:
-        page.insert_text(
-            insert_pt,
-            f'"{setlist.title}"',
-            fontname="Helvetica-Bold",
-            fontsize=fontsize,
-        )
-        insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+        with text.body.add_header(1) as h:
+            h.add_text(f'"{setlist.title}"')
 
-    page.insert_text(
-        insert_pt,
-        f"Leader: {setlist.leader_name}",
-        fontname="Helvetica",
-        fontsize=fontsize,
-    )
-    insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+    with text.body.add_header(2) as h:
+        h.add_text(f"Leader: {setlist.leader_name}")
     if setlist.participants:
-        page.insert_text(
-            insert_pt,
-            f"Team: {', '.join(setlist.participants)}",
-            fontname="Helvetica",
-            fontsize=fontsize,
-        )
+        with text.body.add_header(2) as h:
+            h.add_text(f"Team: {', '.join(setlist.participants)}")
 
-    insert_pt = pymupdf.Point(72, 72 * 2.75)
-    for pos in positions:
-        row_text = f"{pos.label}"
-        if pos.presenter:
-            row_text += f" ({pos.presenter})"
-        fontname = "Helvetica-Bold" if pos.is_music else "Helvetica"
-        page.insert_text(insert_pt, row_text, fontname=fontname, fontsize=fontsize)
+    with text.body.add_bullet_list() as b:
+        b.add_class("set-list")
+        for pos in positions:
+            row_text = f"‣ {pos.label}"
+            if pos.presenter:
+                row_text += f" ({pos.presenter})"
 
-        sheets = [d for d in details if d.position_id == pos.id]
-        if sheets:
-            sheet = sheets[0]
-            insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height - 4)
-            page.insert_text(
-                insert_pt,
-                f"   - {sheet.title} ({sheet.key})",
-                fontname=fontname,
-                fontsize=fontsize,
-            )
+            with b.add_list_item() as row:
+                row.add_text(row_text)
 
-        insert_pt = pymupdf.Point(insert_pt.x, insert_pt.y + line_height)
+                sheets = [d for d in details if d.position_id == pos.id]
+                if not sheets:
+                    continue
 
+                with row.add_bullet_list() as bb:
+                    bb.add_class("sheet-list")
+                    titles = set()
+                    for sheet in sheets:
+                        if sheet.title in titles:
+                            continue
+                        with bb.add_list_item() as bbrow:
+                            bbrow.add_text(f"{sheet.title} ({sheet.key})")
+                        titles.add(sheet.title)
+
+    page.insert_htmlbox(page.rect, text)  # type: ignore[attr-defined]
     return doc

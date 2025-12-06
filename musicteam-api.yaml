@@ -553,6 +553,14 @@ paths:
       tags:
       - Setlists
       summary: Retrieve the PDF-format packet for this setlist
+      parameters:
+      - name: two_page_align
+        in: query
+        required: false
+        schema:
+          default: false
+          title: Two Page Align
+          type: boolean
     parameters:
     - name: setlist_id
       in: path
@@ -1306,6 +1314,14 @@ components:
       required:
       - entries
       title: EntryList
+      type: object
+    GetPacketPdfParams:
+      properties:
+        two_page_align:
+          default: false
+          title: Two Page Align
+          type: boolean
+      title: GetPacketPdfParams
       type: object
     ListSongParams:
       properties:

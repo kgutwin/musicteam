@@ -261,6 +261,10 @@ class SetlistList(BaseModel):
     setlists: list[Setlist]
 
 
+class GetPacketPdfParams(BaseModel):
+    two_page_align: bool = False
+
+
 class NewSetlistPosition(BaseModel):
     index: int
     label: str
@@ -321,7 +325,7 @@ class SetlistSheetList(BaseModel):
 class _PositionLyricDetails(BaseModel):
     position_id: str
     title: str
-    lyrics: str
+    lyrics: str | None
     verse_order: str | None = None
 
 

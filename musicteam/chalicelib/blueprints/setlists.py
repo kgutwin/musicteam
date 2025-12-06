@@ -10,6 +10,7 @@ from chalicelib.types import _PositionLyricDetails
 from chalicelib.types import _PositionSheetDetails
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
+from chalicelib.types import GetPacketPdfParams
 from chalicelib.types import NewSetlist
 from chalicelib.types import NewSetlistPosition
 from chalicelib.types import NewSetlistSheet
@@ -213,7 +214,10 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
             if lyric.verse_order:
                 fp.write(f"[[ Verse order: {lyric.verse_order} ]]\n")
 
-            fp.write(lyric.lyrics)
+            if lyric.lyrics:
+                fp.write(lyric.lyrics)
+            else:
+                fp.write(f"** LYRICS NOT AVAILABLE FOR {lyric.title} **")
             fp.write("\n\n")
 
     fp.seek(0)
@@ -222,7 +226,9 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
 
 
 @bp.route("/setlists/{setlist_id}/packet/pdf", methods=["GET"])
-def get_setlist_packet_pdf(setlist_id: str) -> Forbidden | NotFound | Download:
+def get_setlist_packet_pdf(
+    setlist_id: str, query_params: GetPacketPdfParams
+) -> Forbidden | NotFound | Download:
     """Retrieve the PDF-format packet for this setlist"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
@@ -290,7 +296,7 @@ def get_setlist_packet_pdf(setlist_id: str) -> Forbidden | NotFound | Download:
 
         music_sheets.append(sheet)
 
-    packet = pdf.concatenate(music_sheets)
+    packet = pdf.concatenate(music_sheets, two_page_align=query_params.two_page_align)
 
     return Download(
         packet.tobytes(garbage=3, deflate=True, use_objstms=1),

@@ -88,6 +88,15 @@
         >
           <Icon name="solar:download-minimalistic-bold" size="28" />
         </button>
+        <button
+          v-if="selectedTab === 'pdf'"
+          class="self-center mr-4"
+          :class="{ 'text-blue-500': twoPageAlign }"
+          title="Two-page Align"
+          @click="twoPageAlign = !twoPageAlign"
+        >
+          <Icon name="solar:notebook-minimalistic-outline" size="28" />
+        </button>
       </template>
     </MtTabPanel>
 
@@ -102,7 +111,7 @@
         <Icon name="svg-spinners:3-dots-fade" />
       </div>
       <iframe
-        :src="`/api/setlists/${id}/packet/pdf`"
+        :src="pdfPacketSrc"
         class="w-full h-screen"
         @load="pdfLoading = false"
       ></iframe>
@@ -247,4 +256,11 @@ function shareSetlist() {
     title: `Set list for ${setlist.value?.service_date ?? "unknown"}`,
   })
 }
+
+const twoPageAlign = ref(false)
+const pdfPacketSrc = computed(() => {
+  let rv = `/api/setlists/${id}/packet/pdf`
+  if (twoPageAlign.value) rv += "?two_page_align=true"
+  return rv
+})
 </script>
