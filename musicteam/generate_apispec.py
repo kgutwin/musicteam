@@ -116,7 +116,7 @@ def generate() -> str:
                 )
 
             # determine the expected responses from the return annotation
-            responses: dict[str, Any] = {"500": "Error"}
+            responses: dict[str, Any] = {"429": "TooManyRequests", "500": "Error"}
 
             return_types = (
                 get_args(sig.return_annotation)

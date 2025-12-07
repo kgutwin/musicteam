@@ -12,6 +12,8 @@ paths:
     get:
       operationId: index
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '200':
@@ -25,6 +27,8 @@ paths:
     get:
       operationId: auth.auth_callback
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -37,6 +41,8 @@ paths:
     get:
       operationId: auth.auth_google
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '302':
@@ -47,6 +53,8 @@ paths:
     post:
       operationId: auth.auth_login
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '200':
@@ -62,6 +70,8 @@ paths:
     post:
       operationId: auth.auth_logout
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '204':
@@ -72,6 +82,8 @@ paths:
     get:
       operationId: auth.auth_session
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '200':
@@ -87,6 +99,8 @@ paths:
     get:
       operationId: comments.list_comments
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -101,6 +115,8 @@ paths:
     post:
       operationId: comments.new_comment
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -127,6 +143,8 @@ paths:
     get:
       operationId: comments.get_comment
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -142,6 +160,8 @@ paths:
     put:
       operationId: comments.update_comment
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -160,6 +180,8 @@ paths:
     delete:
       operationId: comments.delete_comment
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -185,6 +207,8 @@ paths:
     get:
       operationId: info.list_authors
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -201,6 +225,8 @@ paths:
     get:
       operationId: info.list_tags
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -216,6 +242,8 @@ paths:
     post:
       operationId: objects.upload_file
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -249,6 +277,8 @@ paths:
     get:
       operationId: setlists.list_setlist_templates
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -263,6 +293,8 @@ paths:
     post:
       operationId: setlists.new_setlist_template
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -283,6 +315,8 @@ paths:
     get:
       operationId: setlists.get_setlist_template
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -298,6 +332,8 @@ paths:
     put:
       operationId: setlists.update_setlist_template
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -316,6 +352,8 @@ paths:
     delete:
       operationId: setlists.delete_setlist_template
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -336,6 +374,8 @@ paths:
     get:
       operationId: setlists.list_setlist_template_positions
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -350,6 +390,8 @@ paths:
     post:
       operationId: setlists.new_setlist_template_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -376,6 +418,8 @@ paths:
     get:
       operationId: setlists.get_setlist_template_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -391,6 +435,8 @@ paths:
     put:
       operationId: setlists.update_setlist_template_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -409,6 +455,8 @@ paths:
     delete:
       operationId: setlists.delete_setlist_template_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -434,6 +482,8 @@ paths:
     get:
       operationId: setlists.list_setlists
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -448,6 +498,8 @@ paths:
     post:
       operationId: setlists.new_setlist
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -468,6 +520,8 @@ paths:
     get:
       operationId: setlists.get_setlist
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -483,6 +537,8 @@ paths:
     put:
       operationId: setlists.update_setlist
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -501,6 +557,8 @@ paths:
     delete:
       operationId: setlists.delete_setlist
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -521,6 +579,8 @@ paths:
     get:
       operationId: setlists.get_setlist_packet_lyrics
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -542,6 +602,8 @@ paths:
     get:
       operationId: setlists.get_setlist_packet_pdf
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -571,6 +633,8 @@ paths:
     get:
       operationId: setlists.list_setlist_positions
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -585,6 +649,8 @@ paths:
     post:
       operationId: setlists.new_setlist_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -611,6 +677,8 @@ paths:
     get:
       operationId: setlists.get_setlist_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -626,6 +694,8 @@ paths:
     put:
       operationId: setlists.update_setlist_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -644,6 +714,8 @@ paths:
     delete:
       operationId: setlists.delete_setlist_position
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -669,6 +741,8 @@ paths:
     get:
       operationId: setlists.list_setlist_sheets
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -683,6 +757,8 @@ paths:
     post:
       operationId: setlists.new_setlist_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -709,6 +785,8 @@ paths:
     get:
       operationId: setlists.get_setlist_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -724,6 +802,8 @@ paths:
     put:
       operationId: setlists.update_setlist_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -742,6 +822,8 @@ paths:
     delete:
       operationId: setlists.delete_setlist_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -767,6 +849,8 @@ paths:
     get:
       operationId: songs.list_songs
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -804,6 +888,8 @@ paths:
     post:
       operationId: songs.new_song
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -828,6 +914,8 @@ paths:
     get:
       operationId: songs.search_songs
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -851,6 +939,8 @@ paths:
     get:
       operationId: songs.get_song
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -867,6 +957,8 @@ paths:
     put:
       operationId: songs.update_song
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -886,6 +978,8 @@ paths:
     delete:
       operationId: songs.delete_song
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '400':
@@ -910,6 +1004,8 @@ paths:
     get:
       operationId: songs.list_song_versions
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -925,6 +1021,8 @@ paths:
     post:
       operationId: songs.new_song_version
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -952,6 +1050,8 @@ paths:
     get:
       operationId: songs.get_song_version
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -968,6 +1068,8 @@ paths:
     put:
       operationId: songs.update_song_version
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -987,6 +1089,8 @@ paths:
     delete:
       operationId: songs.delete_song_version
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '400':
@@ -1017,6 +1121,8 @@ paths:
     get:
       operationId: songs.list_song_sheets
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1032,6 +1138,8 @@ paths:
     post:
       operationId: songs.new_song_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1069,6 +1177,8 @@ paths:
     get:
       operationId: songs.get_song_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1085,6 +1195,8 @@ paths:
     put:
       operationId: songs.update_song_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1104,6 +1216,8 @@ paths:
     delete:
       operationId: songs.delete_song_sheet
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '400':
@@ -1138,6 +1252,8 @@ paths:
     get:
       operationId: songs.get_song_sheet_doc
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1175,6 +1291,8 @@ paths:
     get:
       operationId: users.list_users
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1190,6 +1308,8 @@ paths:
     get:
       operationId: users.get_user
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1205,6 +1325,8 @@ paths:
     put:
       operationId: users.update_user
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -1230,6 +1352,8 @@ paths:
     post:
       operationId: users.create_user_apikey
       responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '500':
           $ref: '#/components/responses/Error'
         '403':
@@ -2466,6 +2590,15 @@ components:
           schema:
             type: string
             format: binary
+    TooManyRequests:
+      description: 'Too Many Requests. The server cannot handle the rate of requests
+        it is
+
+        receiving.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
   securitySchemes:
     cookie:
       type: apiKey

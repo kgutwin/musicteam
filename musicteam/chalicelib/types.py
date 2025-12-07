@@ -468,6 +468,14 @@ class NotFound(KnownResponse):
         super().__init__(ServerError(Code="NotFound", Message=message))
 
 
+class TooManyRequests(KnownResponse):
+    """Too Many Requests. The server cannot handle the rate of requests it is
+    receiving."""
+
+    _code = 429
+    _response_model = ServerError
+
+
 class Error(KnownResponse):
     """Error. Something went wrong on the server side."""
 

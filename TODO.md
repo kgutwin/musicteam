@@ -26,9 +26,6 @@
 
 ## Bugs
 
-- got InternalServerError tonight:
-  - botocore.exceptions.ClientError: An error occurred (ThrottlingException) when calling the ExecuteStatement operation (reached max retries: 4): The request was throttled because of insufficient resources on the database.
-  - botocore.errorfactory.InternalServerErrorException: An error occurred (InternalServerErrorException) when calling the ExecuteStatement operation (reached max retries: 4):
 - editing tags on songs is right-aligned which is weird
 - random re-ordering of candidates/songs when changing status is not OK
 - adding a position to the middle of a set list was very slow, and there is no UI

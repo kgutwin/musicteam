@@ -1,7 +1,9 @@
 import contextlib
 import json
 import os.path
+import random
 import re
+import time
 from typing import Any
 from typing import cast
 from typing import Generic
@@ -12,6 +14,8 @@ from typing import TypeVar
 
 import aurora_data_api
 import boto3
+from botocore.exceptions import ClientError
+from chalice.app import TooManyRequestsError
 from chalicelib.config import AURORA_CLUSTER_ARN
 from chalicelib.config import AURORA_SECRET_ARN
 from chalicelib.config import INSTANCE_DIR
@@ -150,6 +154,15 @@ class Interface:
                 except ValueError:
                     pass
             # oh well, just raise it anyway
+            raise
+        except ClientError as ex:
+            if "ThrottlingException" in str(ex):
+                # send a 429 to the client after a bit of a delay
+                time.sleep(random.random())
+                raise TooManyRequestsError() from ex
+
+            print(sql)
+            print(parameters)
             raise
         except Exception:
             print(sql)
