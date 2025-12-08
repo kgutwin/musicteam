@@ -80,7 +80,7 @@
                 <Icon name="solar:share-outline" />
               </button>
             </div>
-            <MtEditableTags :model="song" @save="saveSong('tags')" />
+            <MtEditableTags :model="song" @save="saveSong('tags')" class="text-left" />
           </div>
         </div>
 

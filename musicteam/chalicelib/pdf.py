@@ -1,3 +1,5 @@
+import os.path
+
 import pymupdf
 from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.storage import s3
@@ -105,20 +107,29 @@ def make_cover_sheet(
     page = doc.new_page(width=612, height=792)  # 8.5 x 11
 
     css = """
+    @font-face {
+      font-family: "Verdana-Bold";
+      src: url('Verdana-Bold.ttf');
+    }
+    @font-face {
+      font-family: "Verdana";
+      src: url('Verdana.ttf');
+    }
+
     body {
       margin: 1in;
 
-      font-family: sans-serif;
+      font-family: "Verdana";
       font-size: 18pt;
-      font-weight: 400;
     }
 
     h1, h2 {
+      font-family: "Verdana-Bold";
       font-size: 18pt;
       margin: 0;
     }
     h2 {
-      font-weight: 400;
+      font-family: "Verdana";
     }
     .set-list {
       padding-left: 0px;
@@ -133,11 +144,17 @@ def make_cover_sheet(
       margin-top: 0px;
       margin-bottom: 0px;
       list-style-type: "-";
-      font-weight: 900;
+      font-family: "Verdana-Bold";
     }
     """
 
-    text = pymupdf.Story(user_css=css)  # type: ignore[attr-defined]
+    archive = pymupdf.Archive()  # type: ignore[attr-defined]
+    for font_file in ["Verdana-Bold.ttf", "Verdana.ttf"]:
+        font_full_file = os.path.join(os.path.dirname(__file__), font_file)
+        with open(font_full_file, "rb") as fp:
+            archive.add(fp.read(), font_file)
+
+    text = pymupdf.Story(user_css=css, archive=archive)  # type: ignore[attr-defined]
     with text.body.add_header(1) as h:
         h.add_text(f"Set list for {setlist.service_date}")
     if setlist.title:

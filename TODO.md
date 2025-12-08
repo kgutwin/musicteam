@@ -26,7 +26,6 @@
 
 ## Bugs
 
-- editing tags on songs is right-aligned which is weird
 - random re-ordering of candidates/songs when changing status is not OK
 - adding a position to the middle of a set list was very slow, and there is no UI
   feedback that it is working
