@@ -228,6 +228,30 @@ class _SongSheetObject(BaseModel):
     object_type: str
 
 
+class NewSongMedia(BaseModel):
+    title: str
+    url: str | None = None
+    object_id: str | None = None
+    media_type: str | None = None
+    tags: list[str] = []
+
+
+class UpdateSongMedia(_ReplacementModel):
+    title: str | None = None
+    url: str | None = None
+    object_id: str | None = None
+    media_type: str | None = None
+    tags: list[str] | None = None
+
+
+class SongMedia(_CoreModel, NewSongMedia):
+    song_version_id: str
+
+
+class SongMediaList(BaseModel):
+    song_media: list[SongMedia]
+
+
 class NewSetlist(BaseModel):
     leader_name: str
     service_date: date | None = None

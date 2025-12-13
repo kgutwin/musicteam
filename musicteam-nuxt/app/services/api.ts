@@ -188,6 +188,32 @@ export interface NewSong {
   tags?: string[];
 }
 
+/** NewSongMedia */
+export interface NewSongMedia {
+  /** Title */
+  title: string;
+  /**
+   * Url
+   * @default null
+   */
+  url?: string | null;
+  /**
+   * Object Id
+   * @default null
+   */
+  object_id?: string | null;
+  /**
+   * Media Type
+   * @default null
+   */
+  media_type?: string | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+}
+
 /** NewSongSheet */
 export interface NewSongSheet {
   /** Type */
@@ -451,6 +477,49 @@ export interface SongList {
   songs: Song[];
 }
 
+/** SongMedia */
+export interface SongMedia {
+  /** Title */
+  title: string;
+  /**
+   * Url
+   * @default null
+   */
+  url?: string | null;
+  /**
+   * Object Id
+   * @default null
+   */
+  object_id?: string | null;
+  /**
+   * Media Type
+   * @default null
+   */
+  media_type?: string | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Id */
+  id: string;
+  /**
+   * Created On
+   * @format date-time
+   */
+  created_on: string;
+  /** Creator Id */
+  creator_id: string;
+  /** Song Version Id */
+  song_version_id: string;
+}
+
+/** SongMediaList */
+export interface SongMediaList {
+  /** Song Media */
+  song_media: SongMedia[];
+}
+
 /** SongSheet */
 export interface SongSheet {
   /** Type */
@@ -681,6 +750,35 @@ export interface UpdateSong {
    * @default null
    */
   ccli_num?: number | null;
+  /**
+   * Tags
+   * @default null
+   */
+  tags?: string[] | null;
+}
+
+/** UpdateSongMedia */
+export interface UpdateSongMedia {
+  /**
+   * Title
+   * @default null
+   */
+  title?: string | null;
+  /**
+   * Url
+   * @default null
+   */
+  url?: string | null;
+  /**
+   * Object Id
+   * @default null
+   */
+  object_id?: string | null;
+  /**
+   * Media Type
+   * @default null
+   */
+  media_type?: string | null;
   /**
    * Tags
    * @default null
@@ -2149,6 +2247,123 @@ export class Api<
     ) =>
       this.request<any, ServerError>({
         path: `/songs/${songId}/versions/${versionId}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name ListSongMedia
+     * @summary List media for a given song and version ID
+     * @request GET:/songs/{song_id}/versions/{version_id}/media
+     * @secure
+     */
+    listSongMedia: (
+      songId: string,
+      versionId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SongMediaList, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/media`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description To attach an object to a media entry, first use the `/objects` method to upload your object, then provide the resulting ID as the `object_id` field.
+     *
+     * @tags Songs
+     * @name NewSongMedia
+     * @summary Create a new media entry for a song version
+     * @request POST:/songs/{song_id}/versions/{version_id}/media
+     * @secure
+     */
+    newSongMedia: (
+      songId: string,
+      versionId: string,
+      data: NewSongMedia,
+      params: RequestParams = {},
+    ) =>
+      this.request<SongMedia, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/media`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name GetSongMedia
+     * @summary Retrieve a single song media by ID
+     * @request GET:/songs/{song_id}/versions/{version_id}/media/{media_id}
+     * @secure
+     */
+    getSongMedia: (
+      songId: string,
+      versionId: string,
+      mediaId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SongMedia, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/media/${mediaId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name UpdateSongMedia
+     * @summary Update the fields of a media entry
+     * @request PUT:/songs/{song_id}/versions/{version_id}/media/{media_id}
+     * @secure
+     */
+    updateSongMedia: (
+      songId: string,
+      versionId: string,
+      mediaId: string,
+      data: UpdateSongMedia,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/media/${mediaId}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name DeleteSongMedia
+     * @summary Delete a media entry for a song version
+     * @request DELETE:/songs/{song_id}/versions/{version_id}/media/{media_id}
+     * @secure
+     */
+    deleteSongMedia: (
+      songId: string,
+      versionId: string,
+      mediaId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/media/${mediaId}`,
         method: "DELETE",
         secure: true,
         ...params,

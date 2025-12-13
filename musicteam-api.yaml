@@ -89,7 +89,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id011
+              schema: &id012
                 $ref: '#/components/schemas/User'
         '204':
           $ref: '#/components/responses/NoContent'
@@ -1117,6 +1117,134 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/versions/{version_id}/media:
+    get:
+      operationId: songs.list_song_media
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongMediaList'
+      tags:
+      - Songs
+      summary: List media for a given song and version ID
+    post:
+      operationId: songs.new_song_media
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id010
+                $ref: '#/components/schemas/SongMedia'
+      tags:
+      - Songs
+      summary: Create a new media entry for a song version
+      description: 'To attach an object to a media entry, first use the `/objects`
+
+        method to upload your object, then provide the resulting ID as the
+
+        `object_id` field.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSongMedia'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /songs/{song_id}/versions/{version_id}/media/{media_id}:
+    get:
+      operationId: songs.get_song_media
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id010
+      tags:
+      - Songs
+      summary: Retrieve a single song media by ID
+    put:
+      operationId: songs.update_song_media
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Update the fields of a media entry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSongMedia'
+    delete:
+      operationId: songs.delete_song_media
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Songs
+      summary: Delete a media entry for a song version
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: media_id
+      in: path
+      required: true
+      schema:
+        type: string
   /songs/{song_id}/versions/{version_id}/sheets:
     get:
       operationId: songs.list_song_sheets
@@ -1147,7 +1275,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id010
+              schema: &id011
                 $ref: '#/components/schemas/SongSheet'
       tags:
       - Songs
@@ -1188,7 +1316,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id010
+              schema: *id011
       tags:
       - Songs
       summary: Retrieve a single song sheet by ID
@@ -1319,7 +1447,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id011
+              schema: *id012
       tags:
       - Users
     put:
@@ -1638,6 +1766,39 @@ components:
       - authors
       - ccli_num
       title: NewSong
+      type: object
+    NewSongMedia:
+      properties:
+        title:
+          title: Title
+          type: string
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Url
+        object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Id
+        media_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Media Type
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - title
+      title: NewSongMedia
       type: object
     NewSongSheet:
       properties:
@@ -2050,6 +2211,67 @@ components:
       - songs
       title: SongList
       type: object
+    SongMedia:
+      properties:
+        title:
+          title: Title
+          type: string
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Url
+        object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Id
+        media_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Media Type
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+        song_version_id:
+          title: Song Version Id
+          type: string
+      required:
+      - title
+      - id
+      - created_on
+      - creator_id
+      - song_version_id
+      title: SongMedia
+      type: object
+    SongMediaList:
+      properties:
+        song_media:
+          items:
+            $ref: '#/components/schemas/SongMedia'
+          title: Song Media
+          type: array
+      required:
+      - song_media
+      title: SongMediaList
+      type: object
     SongSheet:
       properties:
         type:
@@ -2363,6 +2585,42 @@ components:
           default: null
           title: Tags
       title: UpdateSong
+      type: object
+    UpdateSongMedia:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Title
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Url
+        object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Id
+        media_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Media Type
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+      title: UpdateSongMedia
       type: object
     UpdateSongSheet:
       properties:

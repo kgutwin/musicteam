@@ -1,9 +1,8 @@
 from chalice.app import Blueprint
 from chalicelib import db
-from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
-from chalicelib.storage import s3
+from chalicelib.storage import get_download
 from chalicelib.types import _SearchSongRow
 from chalicelib.types import _SongSheetObject
 from chalicelib.types import BadRequest
@@ -11,6 +10,7 @@ from chalicelib.types import Download
 from chalicelib.types import Forbidden
 from chalicelib.types import ListSongParams
 from chalicelib.types import NewSong
+from chalicelib.types import NewSongMedia
 from chalicelib.types import NewSongSheet
 from chalicelib.types import NewSongVersion
 from chalicelib.types import NoContent
@@ -20,11 +20,14 @@ from chalicelib.types import SearchSongList
 from chalicelib.types import SearchSongParams
 from chalicelib.types import Song
 from chalicelib.types import SongList
+from chalicelib.types import SongMedia
+from chalicelib.types import SongMediaList
 from chalicelib.types import SongSheet
 from chalicelib.types import SongSheetList
 from chalicelib.types import SongVersion
 from chalicelib.types import SongVersionList
 from chalicelib.types import UpdateSong
+from chalicelib.types import UpdateSongMedia
 from chalicelib.types import UpdateSongSheet
 from chalicelib.types import UpdateSongVersion
 
@@ -412,40 +415,128 @@ def get_song_sheet_doc(
         if sheet_obj is None:
             return NotFound()
 
-    content_type = sheet_obj.object_type
+    return get_download(
+        sheet_obj.object_id,
+        sheet_obj.object_type,
+        bp.current_request.method == "HEAD",
+        bp.current_request.headers.get("Range"),
+    )
 
-    if bp.current_request.method == "HEAD":
-        s3_resp = s3.head_object(Bucket=OBJECT_BUCKET_NAME, Key=sheet_obj.object_id)
-        return Download(
-            b"",
-            headers={
-                "Content-Type": content_type,
-                "Accept-Ranges": "bytes",
-                "Content-Length": str(s3_resp["ContentLength"]),
-            },
+
+@bp.route("/songs/{song_id}/versions/{version_id}/media", methods=["GET"])
+def list_song_media(song_id: str, version_id: str) -> Forbidden | SongMediaList:
+    """List media for a given song and version ID"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "    id, song_version_id, title, url, object_id, media_type, tags,"
+            "    created_on, creator_id "
+            "FROM song_media WHERE song_version_id = :version_id "
+            "ORDER BY title",
+            {"version_id": version_id},
+            output=SongMedia,
         )
+        return SongMediaList(song_media=curs.fetchall())
 
-    extra: dict[str, str] = {}
-    if bp.current_request.headers.get("Range"):
-        extra["Range"] = bp.current_request.headers["Range"]
 
-    s3_resp = s3.get_object(Bucket=OBJECT_BUCKET_NAME, Key=sheet_obj.object_id, **extra)
+@bp.route("/songs/{song_id}/versions/{version_id}/media", methods=["POST"])
+def new_song_media(
+    song_id: str, version_id: str, request_body: NewSongMedia
+) -> Forbidden | SongMedia:
+    """Create a new media entry for a song version
 
-    headers: dict[str, str | list[str]] = {
-        "Content-Type": content_type,
-    }
-    body = s3_resp["Body"].read()
-    if content_type == "text/plain":
-        # if we uploaded a file which can't be read as utf-8, then
-        # chalice is going to have problems with it, so replace bad
-        # bytes with the unknown character.
-        body = body.decode(errors="replace").encode()
+    To attach an object to a media entry, first use the `/objects`
+    method to upload your object, then provide the resulting ID as the
+    `object_id` field.
 
-    if bp.current_request.headers.get("Range"):
-        headers["Content-Range"] = s3_resp["ContentRange"]
-        return PartialDownload(body, headers=headers)
-    else:
-        return Download(body, headers=headers)
+    """
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "INSERT INTO song_media ("
+            "    song_version_id, title, url, object_id, media_type, tags,"
+            "    creator_id"
+            ") VALUES ("
+            "    :song_version_id, :title, :url, :object_id, :media_type, :tags,"
+            "    :creator_id"
+            ") "
+            "RETURNING id, song_version_id, title, url, object_id, media_type, tags,"
+            "    created_on, creator_id",
+            request_body.model_dump()
+            | {
+                "song_version_id": version_id,
+                "creator_id": session_user(bp.current_request).id,
+            },
+            output=SongMedia,
+        )
+        song_media = curs.fetchone()
+        assert song_media is not None
+
+    return song_media
+
+
+@bp.route("/songs/{song_id}/versions/{version_id}/media/{media_id}", methods=["GET"])
+def get_song_media(
+    song_id: str, version_id: str, media_id: str
+) -> Forbidden | NotFound | SongMedia:
+    """Retrieve a single song media by ID"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  id, song_version_id, title, url, object_id, media_type, tags,"
+            "  created_on, creator_id "
+            "FROM song_media WHERE id = :media_id AND song_version_id = :version_id",
+            {"media_id": media_id, "version_id": version_id},
+            output=SongMedia,
+        )
+        song_media = curs.fetchone()
+        return song_media if song_media is not None else NotFound()
+
+
+@bp.route("/songs/{song_id}/versions/{version_id}/media/{media_id}", methods=["PUT"])
+def update_song_media(
+    song_id: str, version_id: str, media_id: str, request_body: UpdateSongMedia
+) -> Forbidden | NotFound | NoContent:
+    """Update the fields of a media entry"""
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    if not request_body.any_replacements:
+        return NoContent()
+
+    with db.connect() as conn:
+        result = conn.execute(
+            f"UPDATE song_media SET {request_body.replacement_sql} "
+            f"WHERE id = :media_id AND song_version_id = :version_id",
+            {"media_id": media_id, "version_id": version_id}
+            | request_body.replacement_params,
+        )
+        return NoContent() if result else NotFound()
+
+
+@bp.route("/songs/{song_id}/versions/{version_id}/media/{media_id}", methods=["DELETE"])
+def delete_song_media(
+    song_id: str, version_id: str, media_id: str
+) -> Forbidden | NotFound | NoContent:
+    """Delete a media entry for a song version"""
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        result = conn.execute(
+            "DELETE FROM song_media "
+            "WHERE id = :media_id AND song_version_id = :version_id",
+            {"media_id": media_id, "version_id": version_id},
+        )
+        return NoContent() if result else NotFound()
 
 
 @bp.route("/songs/search", methods=["GET"])
