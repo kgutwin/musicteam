@@ -52,6 +52,9 @@ hr {
   @apply border border-slate-500 rounded-lg px-3 py-0.5 bg-gray-200;
   @apply hover:bg-slate-200 hover:border-slate-400 transition ease-out;
 }
+.btn-gray-sm:disabled {
+  @apply border-slate-400 text-gray-500;
+}
 
 .btn-red {
   @apply border border-red-500 rounded-lg px-4 py-1 bg-red-100;
@@ -69,6 +72,9 @@ hr {
 .btn-blue-sm {
   @apply border border-blue-500 rounded-lg px-3 py-0.5 bg-blue-100;
   @apply hover:bg-blue-200;
+}
+.btn-blue-sm:disabled {
+  @apply border-blue-300 text-gray-500 hover:bg-blue-100;
 }
 
 .btn-icon {
@@ -115,6 +121,12 @@ hr {
 }
 .frm-edit.frm-grid {
   @apply grid grid-cols-2;
+}
+
+.frm-post {
+  & label {
+    @apply font-semibold;
+  }
 }
 
 .inp-text {

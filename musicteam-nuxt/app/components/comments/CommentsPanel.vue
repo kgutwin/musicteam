@@ -26,6 +26,7 @@
         <div class="whitespace-pre-line">{{ comment.comment }}</div>
       </div>
     </div>
+
     <button v-if="!adding" class="btn-gray-sm" @click="adding = true">
       Add Comment
     </button>

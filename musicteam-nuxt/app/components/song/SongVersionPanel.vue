@@ -1,6 +1,10 @@
 <template>
   <div>
-    <SongVersionPanelCommentsMedia :version-id="version.id" class="my-4" />
+    <SongVersionPanelCommentsMedia
+      :song-id="version.song_id"
+      :version-id="version.id"
+      class="my-4"
+    />
 
     <MtTabPanel
       v-model="selected"

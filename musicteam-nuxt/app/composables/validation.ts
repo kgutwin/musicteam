@@ -12,7 +12,7 @@ export function useInvalid(required: Ref[], optional: Ref[] = []) {
             return
           }
         }
-        for (const frm of document.querySelectorAll(".frm-edit")) {
+        for (const frm of document.querySelectorAll(".frm-edit, .frm-post")) {
           if (!(frm as HTMLFormElement).checkValidity()) {
             invalid.value = true
             return

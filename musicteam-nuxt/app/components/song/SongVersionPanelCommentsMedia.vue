@@ -13,13 +13,13 @@
         <Icon name="ri:triangle-fill" class="icon-triangle" :class="{ open }" />
         <label>Media</label>
       </div>
-      <div v-if="open">Coming soon...</div>
+      <SongMediaPanel v-if="open" :song-id="songId" :version-id="versionId" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ versionId: string }>()
+defineProps<{ songId: string; versionId: string }>()
 
 const open = ref(false)
 </script>

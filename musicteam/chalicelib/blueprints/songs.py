@@ -435,7 +435,7 @@ def list_song_media(song_id: str, version_id: str) -> Forbidden | SongMediaList:
             "    id, song_version_id, title, url, object_id, media_type, tags,"
             "    created_on, creator_id "
             "FROM song_media WHERE song_version_id = :version_id "
-            "ORDER BY title",
+            "ORDER BY created_on",
             {"version_id": version_id},
             output=SongMedia,
         )
