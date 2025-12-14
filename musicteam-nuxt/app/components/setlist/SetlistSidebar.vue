@@ -3,6 +3,7 @@
     v-if="active.setlist"
     class="bg-sky-100 p-4 shadow-xl"
     :class="{ 'w-80': panelOpen, 'w-12 relative': !panelOpen }"
+    @dragover="(ev) => ev.preventDefault()"
   >
     <button
       class="float-right mt-2 transition-transform"
@@ -53,6 +54,8 @@
           :model-value="filtered(slist?.sheets)"
           class="min-h-20"
           group="songs"
+          animation="0"
+          :sort="false"
           @change="(ev) => draggableChange(ev, null)"
         >
           <SetlistSidebarSong
@@ -77,6 +80,8 @@
               :model-value="filtered(slist?.sheets, position.id)"
               class="min-h-8"
               group="songs"
+              animation="0"
+              :sort="false"
               @change="(ev) => draggableChange(ev, position.id)"
             >
               <SetlistSidebarSong
