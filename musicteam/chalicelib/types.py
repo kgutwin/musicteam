@@ -223,7 +223,7 @@ class SongSheetList(BaseModel):
     song_sheets: list[SongSheet]
 
 
-class _SongSheetObject(BaseModel):
+class _Object(BaseModel):
     object_id: str
     object_type: str
 

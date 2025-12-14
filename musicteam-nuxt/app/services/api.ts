@@ -2370,6 +2370,28 @@ export class Api<
       }),
 
     /**
+     * @description This method supports range requests. NOTE: in the future, this may return a 302 Temporary Redirect.
+     *
+     * @tags Songs
+     * @name GetSongMediaAttachment
+     * @summary Retrieve the attachment associated with a song media
+     * @request GET:/songs/{song_id}/versions/{version_id}/media/{media_id}/obj
+     * @secure
+     */
+    getSongMediaAttachment: (
+      songId: string,
+      versionId: string,
+      mediaId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/media/${mediaId}/obj`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * No description
      *
      * @tags Songs

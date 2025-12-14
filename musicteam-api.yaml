@@ -1245,6 +1245,45 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/versions/{version_id}/media/{media_id}/obj:
+    get:
+      operationId: songs.get_song_media_attachment
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          $ref: '#/components/responses/Download'
+        '206':
+          $ref: '#/components/responses/PartialDownload'
+      tags:
+      - Songs
+      summary: Retrieve the attachment associated with a song media
+      description: 'This method supports range requests.
+
+
+        NOTE: in the future, this may return a 302 Temporary Redirect.'
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: media_id
+      in: path
+      required: true
+      schema:
+        type: string
   /songs/{song_id}/versions/{version_id}/sheets:
     get:
       operationId: songs.list_song_sheets

@@ -12,6 +12,9 @@
       <div class="div-panel-sub-head" @click="open = !open">
         <Icon name="ri:triangle-fill" class="icon-triangle" :class="{ open }" />
         <label>Media</label>
+        <div v-if="numMedia" class="bg-sky-600 text-white rounded-lg px-2">
+          {{ numMedia }}
+        </div>
       </div>
       <SongMediaPanel v-if="open" :song-id="songId" :version-id="versionId" />
     </div>
@@ -19,9 +22,19 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ songId: string; versionId: string }>()
+import { useSongMedialistStore } from "@/stores/songs"
+
+const props = defineProps<{ songId: string; versionId: string }>()
 
 const open = ref(false)
+
+const mediaStore = useSongMedialistStore()
+
+const numMedia = computed(
+  () =>
+    mediaStore.get({ songId: props.songId, versionId: props.versionId }).data?.value
+      ?.song_media?.length,
+)
 </script>
 
 <style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm">
+  <div class="text-sm mt-1">
     <div
       v-for="entry in media"
       class="pb-2 grid grid-cols-[1em_minmax(150px,1fr)] gap-1 group"
@@ -30,13 +30,26 @@
             name="solar:square-top-down-outline"
           />
         </div>
-        <div v-else>
-          Under construction...
-          <code class="text-xs">
-            {{ entry }}
-          </code>
-          <!-- TODO: API endpoint for fetching media attachment -->
-          <!-- TODO: embed if audiovisual, always show download icon -->
+        <div v-else-if="entry.media_type">
+          <div class="flex flex-row gap-2">
+            <div>{{ entry.title }}</div>
+            <button class="text-lg" @click="download(entry)">
+              <Icon name="solar:download-minimalistic-bold" />
+            </button>
+            <div class="italic">{{ entry.media_type }}</div>
+          </div>
+          <audio
+            v-if="mimeCategory(entry.media_type) === 'audio'"
+            :src="`/api/songs/${songId}/versions/${versionId}/media/${entry.id}/obj`"
+            controls
+            class="w-full"
+          />
+          <video
+            v-else-if="mimeCategory(entry.media_type) === 'video'"
+            :src="`/api/songs/${songId}/versions/${versionId}/media/${entry.id}/obj`"
+            controls
+            class="w-full"
+          />
         </div>
         <div v-if="(entry.tags?.length ?? 0) > 0">
           <span v-for="tag in entry.tags" :key="tag" class="spn-tag">
@@ -97,9 +110,15 @@
 
 <script setup lang="ts">
 import { api } from "@/services"
-import { useSongMedialistStore, useSongMediaRefreshStore } from "@/stores/songs"
+import {
+  useSongStore,
+  useSongMedialistStore,
+  useSongMediaRefreshStore,
+} from "@/stores/songs"
 import { fileToBase64String } from "@/utils"
+import mime from "mime-types"
 
+import type { SongMedia } from "@/services/api"
 import type { ToasterStatus } from "@/types/toast"
 
 const { data: authData } = useAuth()
@@ -108,6 +127,7 @@ const props = defineProps<{ songId: string; versionId: string }>()
 
 const { canEdit } = useRole()
 
+const songStore = useSongStore()
 const mediaStore = useSongMedialistStore()
 const refreshStore = useSongMediaRefreshStore()
 
@@ -116,6 +136,27 @@ const media = computed(
     mediaStore.get({ songId: props.songId, versionId: props.versionId }).data?.value
       ?.song_media ?? [],
 )
+
+async function download(media: SongMedia) {
+  if (!media.media_type) return
+
+  const song = await songStore.get({ songId: props.songId }).get()
+  const ext = mime.extension(media.media_type)
+
+  const link = document.createElement("a")
+
+  link.href = `/api/songs/${props.songId}/versions/${props.versionId}/media/${media.id}/obj`
+  link.download = `${song.title} - ${media.title}.${ext}`
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function mimeCategory(mimeType: string) {
+  const [first] = mimeType.split("/", 1)
+  return first
+}
 
 const adding = ref(false)
 

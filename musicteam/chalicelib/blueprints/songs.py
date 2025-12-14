@@ -3,8 +3,8 @@ from chalicelib import db
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
 from chalicelib.storage import get_download
+from chalicelib.types import _Object
 from chalicelib.types import _SearchSongRow
-from chalicelib.types import _SongSheetObject
 from chalicelib.types import BadRequest
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
@@ -409,7 +409,7 @@ def get_song_sheet_doc(
             "SELECT object_type, object_id "
             "FROM song_sheets WHERE id = :sheet_id AND song_version_id = :version_id",
             {"sheet_id": sheet_id, "version_id": version_id},
-            output=_SongSheetObject,
+            output=_Object,
         )
         sheet_obj = curs.fetchone()
         if sheet_obj is None:
@@ -537,6 +537,44 @@ def delete_song_media(
             {"media_id": media_id, "version_id": version_id},
         )
         return NoContent() if result else NotFound()
+
+
+@bp.route(
+    "/songs/{song_id}/versions/{version_id}/media/{media_id}/obj",
+    methods=["HEAD", "GET"],
+)
+def get_song_media_attachment(
+    song_id: str, version_id: str, media_id: str
+) -> Forbidden | NotFound | Download | PartialDownload:
+    """Retrieve the attachment associated with a song media
+
+    This method supports range requests.
+
+    NOTE: in the future, this may return a 302 Temporary Redirect.
+
+    """
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT media_type AS object_type, object_id "
+            "FROM song_media "
+            "WHERE id = :media_id AND song_version_id = :version_id "
+            "AND object_id IS NOT NULL",
+            {"media_id": media_id, "version_id": version_id},
+            output=_Object,
+        )
+        media_obj = curs.fetchone()
+        if media_obj is None:
+            return NotFound()
+
+    return get_download(
+        media_obj.object_id,
+        media_obj.object_type,
+        bp.current_request.method == "HEAD",
+        bp.current_request.headers.get("Range"),
+    )
 
 
 @bp.route("/songs/search", methods=["GET"])
