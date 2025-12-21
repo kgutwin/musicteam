@@ -667,6 +667,24 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/NewSetlistPosition'
+    put:
+      operationId: setlists.update_setlist_positions
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistPositions'
     parameters:
     - name: setlist_id
       in: path
@@ -2523,6 +2541,18 @@ components:
           default: null
           title: Status
       title: UpdateSetlistPosition
+      type: object
+    UpdateSetlistPositions:
+      properties:
+        new_indexes:
+          anyOf:
+          - additionalProperties:
+              type: integer
+            type: object
+          - type: 'null'
+          default: null
+          title: New Indexes
+      title: UpdateSetlistPositions
       type: object
     UpdateSetlistSheet:
       properties:

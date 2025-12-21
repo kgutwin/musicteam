@@ -4,6 +4,7 @@ import os.path
 import random
 import re
 import time
+from collections.abc import Sequence
 from typing import Any
 from typing import cast
 from typing import Generic
@@ -85,6 +86,41 @@ class Cursor(Generic[T]):
         return list(self)
 
 
+ParameterType = Mapping[str, Any] | BaseModel | None
+
+
+@contextlib.contextmanager
+def handle_errors(sql: str, parameters: Any) -> Iterator[None]:
+    try:
+        yield
+    except aurora_data_api.DatabaseError as ex:
+        # try to handle error types that aurora_data_api lets slip through
+        if ex.__class__ is not aurora_data_api.DatabaseError:
+            raise
+        if hit := re.search(r"SQLState: (\w+)$", str(ex)):
+            error_code = hit.group(1)
+            try:
+                error_class = aurora_data_api.PostgreSQLError.from_code(error_code)
+                raise error_class(str(ex)) from ex
+            except ValueError:
+                pass
+        # oh well, just raise it anyway
+        raise
+    except ClientError as ex:
+        if "ThrottlingException" in str(ex):
+            # send a 429 to the client after a bit of a delay
+            time.sleep(random.random())
+            raise TooManyRequestsError() from ex
+
+        print(sql)
+        print(parameters)
+        raise
+    except Exception:
+        print(sql)
+        print(parameters)
+        raise
+
+
 class Interface:
     def __init__(
         self, conn: aurora_data_api.AuroraDataAPIClient, transaction: bool = False
@@ -96,15 +132,13 @@ class Interface:
             self.conn._transaction_id = ""
 
     @overload
-    def execute(
-        self, sql: str, parameters: Mapping[str, Any] | BaseModel | None = None
-    ) -> int: ...
+    def execute(self, sql: str, parameters: ParameterType = None) -> int: ...
 
     @overload
     def execute(
         self,
         sql: str,
-        parameters: Mapping[str, Any] | BaseModel | None = None,
+        parameters: ParameterType = None,
         *,
         output: type[T],
     ) -> Cursor[T]: ...
@@ -112,7 +146,7 @@ class Interface:
     def execute(
         self,
         sql: str,
-        parameters: Mapping[str, Any] | BaseModel | None = None,
+        parameters: ParameterType = None,
         *,
         output: type[T] | None = None,
     ) -> Cursor[T] | int:
@@ -140,39 +174,49 @@ class Interface:
                         sql,
                     )
 
-        try:
+        with handle_errors(sql, parameters):
             curs.execute(sql, parameters)
-        except aurora_data_api.DatabaseError as ex:
-            # try to handle error types that aurora_data_api lets slip through
-            if ex.__class__ is not aurora_data_api.DatabaseError:
-                raise
-            if hit := re.search(r"SQLState: (\w+)$", str(ex)):
-                error_code = hit.group(1)
-                try:
-                    error_class = aurora_data_api.PostgreSQLError.from_code(error_code)
-                    raise error_class(str(ex)) from ex
-                except ValueError:
-                    pass
-            # oh well, just raise it anyway
-            raise
-        except ClientError as ex:
-            if "ThrottlingException" in str(ex):
-                # send a 429 to the client after a bit of a delay
-                time.sleep(random.random())
-                raise TooManyRequestsError() from ex
-
-            print(sql)
-            print(parameters)
-            raise
-        except Exception:
-            print(sql)
-            print(parameters)
-            raise
 
         if output is not None:
             return Cursor(curs, output)
         else:
             return curs.rowcount
+
+    def executemany(self, sql: str, parameter_seq: Sequence[ParameterType]) -> None:
+        # if in psycopg mode, replace parameter syntax
+        if PSYCOPG_PARAM is not None:
+            sql = re.sub("%", "%%", sql)
+            sql = PSYCOPG_PARAM.sub(r"%(\1)s", sql)
+
+        curs = self.conn.cursor()
+        translated_params = []
+        list_params = set()
+        for parameters in parameter_seq:
+            if parameters is None:
+                continue
+            elif isinstance(parameters, BaseModel):
+                parameters = parameters.model_dump()
+            elif parameters is not None:
+                parameters = dict(parameters)
+
+            if PSYCOPG_PARAM is None:
+                # Data API does not support array parameters, so we need
+                # to convert to JSON
+                for param in parameters:
+                    if type(parameters[param]) is list:
+                        list_params.add(param)
+                        parameters[param] = json.dumps(parameters[param])
+            translated_params.append(parameters)
+
+        for param in list_params:
+            sql = re.sub(
+                rf"([^:]):{param}(\W|$)",
+                rf"\1jsonb_to_text_array(:{param}::jsonb)\2",
+                sql,
+            )
+
+        with handle_errors(sql, translated_params):
+            curs.executemany(sql, translated_params)
 
 
 @contextlib.contextmanager

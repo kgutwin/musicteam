@@ -305,6 +305,10 @@ class UpdateSetlistPosition(_ReplacementModel):
     status: Literal["open", "in-progress", "final"] | None = None
 
 
+class UpdateSetlistPositions(BaseModel):
+    new_indexes: dict[str, int] | None = None
+
+
 class SetlistPosition(NewSetlistPosition):
     id: str
     setlist_id: str

@@ -38,8 +38,6 @@
 import { api } from "@/services"
 import { useSearchStore } from "@/stores/search"
 
-import type { SearchSongList } from "@/services/api"
-
 const ss = useSearchStore()
 
 const searching = ref(false)

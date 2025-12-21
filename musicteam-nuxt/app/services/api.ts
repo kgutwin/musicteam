@@ -674,6 +674,15 @@ export interface UpdateSetlistPosition {
   status?: "open" | "in-progress" | "final" | null;
 }
 
+/** UpdateSetlistPositions */
+export interface UpdateSetlistPositions {
+  /**
+   * New Indexes
+   * @default null
+   */
+  new_indexes?: Record<string, number> | null;
+}
+
 /** UpdateSetlistSheet */
 export interface UpdateSetlistSheet {
   /**
@@ -1835,6 +1844,28 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name UpdateSetlistPositions
+     * @request PUT:/setlists/{setlist_id}/pos
+     * @secure
+     */
+    updateSetlistPositions: (
+      setlistId: string,
+      data: UpdateSetlistPositions,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/setlists/${setlistId}/pos`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
 

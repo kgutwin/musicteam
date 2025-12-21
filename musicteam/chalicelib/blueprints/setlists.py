@@ -30,6 +30,7 @@ from chalicelib.types import SetlistTemplatePosition
 from chalicelib.types import SetlistTemplatePositionList
 from chalicelib.types import UpdateSetlist
 from chalicelib.types import UpdateSetlistPosition
+from chalicelib.types import UpdateSetlistPositions
 from chalicelib.types import UpdateSetlistSheet
 from chalicelib.types import UpdateSetlistTemplate
 from chalicelib.types import UpdateSetlistTemplatePosition
@@ -342,6 +343,28 @@ def new_setlist_position(
         assert setlist_position is not None
 
     return setlist_position
+
+
+@bp.route("/setlists/{setlist_id}/pos", methods=["PUT"])
+def update_setlist_positions(
+    setlist_id: str, request_body: UpdateSetlistPositions
+) -> Forbidden | NoContent:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    if request_body.new_indexes:
+        new_indexes = [
+            {"index": v, "id": k, "setlist_id": setlist_id}
+            for k, v in request_body.new_indexes.items()
+        ]
+        with db.connect() as conn:
+            conn.executemany(
+                "UPDATE setlist_positions SET index = :index "
+                "WHERE id = :position_id AND setlist_id = :setlist_id",
+                new_indexes,
+            )
+
+    return NoContent()
 
 
 @bp.route("/setlists/{setlist_id}/pos/{position_id}", methods=["GET"])
