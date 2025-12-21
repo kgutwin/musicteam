@@ -256,8 +256,11 @@ paths:
       tags:
       - Objects
       summary: Upload a file (object) to the site
-      description: If the `base64` field is True, then the request body will be decoded
-        from Base64 before storage.
+      description: 'Limited to objects smaller than ~5 MB.
+
+
+        If the `base64` field is True, then the request body will be decoded from
+        Base64 before storage.'
       requestBody:
         content:
           text/plain:
@@ -273,6 +276,24 @@ paths:
           - type: 'null'
           default: null
           title: Base64
+  /objects/direct:
+    post:
+      operationId: objects.upload_file_direct
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadDirect'
+      tags:
+      - Objects
+      summary: Upload a file (object) directly to the site's underlying storage
   /setlistTemplates:
     get:
       operationId: setlists.list_setlist_templates
@@ -2797,6 +2818,21 @@ components:
           default: null
           title: Role
       title: UpdateUser
+      type: object
+    UploadDirect:
+      properties:
+        url:
+          title: Url
+          type: string
+        fields:
+          additionalProperties:
+            type: string
+          title: Fields
+          type: object
+      required:
+      - url
+      - fields
+      title: UploadDirect
       type: object
     UploadParams:
       properties:

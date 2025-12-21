@@ -229,7 +229,7 @@ async function copySetlistToClipboard() {
           sheetId: sheet.song_sheet_id,
         })
         .get()
-      const ccli = song.ccli_num ? ` [${song.ccli_num}]` : ""
+      const ccli = song.ccli_num ? ` [#${song.ccli_num}]` : ""
       lines.push(`${pos.label}: ${song.title} (${songsheet.key})${ccli}`)
     }
   }

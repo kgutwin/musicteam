@@ -428,6 +428,11 @@ class UploadParams(BaseModel):
     base64: bool | None = None
 
 
+class UploadDirect(BaseModel):
+    url: str
+    fields: dict[str, str]
+
+
 class ObjectId(BaseModel):
     id: str
 

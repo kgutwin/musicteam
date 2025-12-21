@@ -180,6 +180,28 @@ function cancelObject() {
 async function addFile(event: any) {
   const file = event.target?.files?.[0] as File | undefined
   if (file) {
+    await useToaster(async () => {
+      // first, get the location details for direct upload
+      const direct = await api.objects.uploadFileDirect()
+
+      const formData = new FormData()
+      for (const field in direct.data.fields) {
+        if (direct.data.fields[field]) formData.append(field, direct.data.fields[field])
+      }
+      formData.append("file", file)
+
+      const response = await fetch(direct.data.url, { method: "POST", body: formData })
+
+      mediaUrl.value = undefined
+      mediaObjectType.value = file.type
+      mediaObjectId.value = direct.data.fields.key
+    })
+  }
+}
+
+async function addFileOriginal(event: any) {
+  const file = event.target?.files?.[0] as File | undefined
+  if (file) {
     mediaUrl.value = undefined
     mediaObjectType.value = file.type
     mediaObjectId.value = await useToaster(

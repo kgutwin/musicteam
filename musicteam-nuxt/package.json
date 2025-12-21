@@ -41,6 +41,7 @@
     "@tailvue/nuxt": "^1.0.0",
     "@types/mime-types": "^3.0.1",
     "@types/randomcolor": "^0.5.9",
+    "baseline-browser-mapping": "^2.9.11",
     "eslint": "^9.37.0",
     "eslint-plugin-prettier": "^5.5.4",
     "patch-package": "^8.0.1",

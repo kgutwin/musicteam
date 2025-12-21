@@ -884,6 +884,14 @@ export interface UpdateUser {
     | null;
 }
 
+/** UploadDirect */
+export interface UploadDirect {
+  /** Url */
+  url: string;
+  /** Fields */
+  fields: Record<string, string>;
+}
+
 /** UploadParams */
 export interface UploadParams {
   /**
@@ -1438,7 +1446,7 @@ export class Api<
   };
   objects = {
     /**
-     * @description If the `base64` field is True, then the request body will be decoded from Base64 before storage.
+     * @description Limited to objects smaller than ~5 MB. If the `base64` field is True, then the request body will be decoded from Base64 before storage.
      *
      * @tags Objects
      * @name UploadFile
@@ -1464,6 +1472,24 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Text,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Objects
+     * @name UploadFileDirect
+     * @summary Upload a file (object) directly to the site's underlying storage
+     * @request POST:/objects/direct
+     * @secure
+     */
+    uploadFileDirect: (params: RequestParams = {}) =>
+      this.request<UploadDirect, ServerError>({
+        path: `/objects/direct`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),
