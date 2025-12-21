@@ -12,6 +12,7 @@
     <MtTable
       :columns="columns"
       :data="setlists.data?.setlists"
+      :error="setlists.isError"
       :row-click="async (row) => await navigateTo(`/setlists/${row.id}`)"
     >
       <template #service-date="{ row }">

@@ -36,7 +36,10 @@
     <tbody v-else>
       <tr>
         <td :colspan="columns.length">
-          <div class="w-full text-center italic p-2">
+          <div v-if="error" class="w-full text-center italic p-2">
+            Sorry - there was an error while loading, please refresh the page.
+          </div>
+          <div v-else class="w-full text-center italic p-2">
             Loading
             <Icon name="svg-spinners:3-dots-fade" class="ml-4" />
           </div>
@@ -54,6 +57,7 @@ import type { TableColumn } from "@/types/mt"
 const props = defineProps<{
   columns: TableColumn[]
   data?: T[]
+  error?: boolean
   rowClick?: (row: T) => any
   selected?: (row: T) => boolean
 }>()

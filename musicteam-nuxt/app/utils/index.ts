@@ -51,3 +51,7 @@ export function chordRatio(line: string): number {
   const chordCount = (line.match(/[A-Z0-9/#b ]/g) || []).length
   return chordCount / line.length
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

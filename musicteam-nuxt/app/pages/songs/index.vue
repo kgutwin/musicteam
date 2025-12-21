@@ -102,6 +102,7 @@
     <MtTable
       :columns="columns"
       :data="sorted(filtered(songlist.data?.songs))"
+      :error="songlist.isError"
       :row-click="async (row) => await navigateTo(`/songs/${row.id}`)"
     >
       <template #uploaded="{ row }">

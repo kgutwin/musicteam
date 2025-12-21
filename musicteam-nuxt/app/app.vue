@@ -12,6 +12,13 @@
   </div>
 </template>
 
+<script setup lang="ts">
+import { usePingStore } from "@/stores/ping"
+
+const pingStore = usePingStore()
+pingStore.ping()
+</script>
+
 <style>
 .page-grid {
   @apply min-h-screen grid grid-cols-2 grid-rows-[auto_minmax(15rem,1fr)_auto];

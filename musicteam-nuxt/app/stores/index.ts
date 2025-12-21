@@ -1,5 +1,6 @@
 import type { HttpResponse, UserList, ServerError } from "@/services/api"
 import { useToaster } from "@/composables/toast"
+import { usePingStore } from "./ping"
 
 /**
  * Status states:
@@ -14,6 +15,7 @@ export interface StoreState<T> {
   status: Ref<Status>
   currentData: Ref<T | undefined>
   error: Ref<ServerError | undefined>
+  isError: Ref<boolean>
 
   get: () => Promise<T>
   refresh: () => void
@@ -26,6 +28,7 @@ export interface StoreState<T> {
 
 export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>) {
   return (): StoreState<T> => {
+    const pingStore = usePingStore()
     const status = ref<Status>("idle")
 
     /**
@@ -38,6 +41,8 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
 
     /** If the `status` is "error", this holds the error details. */
     const error = ref<ServerError | undefined>()
+
+    const isError = computed(() => status.value === "error")
 
     /**
      * Retrieve the store data, via an async Promise.
@@ -52,6 +57,7 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
       try {
         return useToaster(async () => {
           status.value = "pending"
+          await pingStore.wake() // make sure API is awake before invoking fetcher
           const response = await fetcher()
           currentData.value = response.data
           status.value = "ok"
@@ -93,7 +99,7 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
       return currentData.value
     })
 
-    return { status, currentData, error, get, refresh, expire, data }
+    return { status, currentData, error, isError, get, refresh, expire, data }
   }
 }
 

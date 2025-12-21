@@ -3,7 +3,7 @@
     <Head><Title>Team - MusicTeam</Title></Head>
 
     <h1>Team Members</h1>
-    <MtTable :columns="columns" :data="users.data?.users">
+    <MtTable :columns="columns" :data="users.data?.users" :error="users.isError">
       <template #picture="{ row }">
         <img
           v-if="row.picture"
