@@ -2427,7 +2427,7 @@ export class Api<
       }),
 
     /**
-     * @description This method supports range requests. NOTE: in the future, this may return a 302 Temporary Redirect.
+     * @description This method supports range requests. For large responses, this method returns a 302 Found temporary redirect.
      *
      * @tags Songs
      * @name GetSongMediaAttachment
@@ -2566,7 +2566,7 @@ export class Api<
       }),
 
     /**
-     * @description This method supports range requests. NOTE: in the future, this may return a 302 Temporary Redirect.
+     * @description This method supports range requests. For large responses, this method returns a 302 Found temporary redirect.
      *
      * @tags Songs
      * @name GetSongSheetDoc

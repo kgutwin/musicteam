@@ -7,6 +7,7 @@ import boto3
 from chalicelib.config import IS_CHALICE_LOCAL
 from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.types import Download
+from chalicelib.types import Found
 from chalicelib.types import PartialDownload
 
 if OBJECT_BUCKET_NAME == "local" and IS_CHALICE_LOCAL and sys.argv[-1] == "local":
@@ -56,9 +57,10 @@ def get_download(
     content_type: str,
     head: bool = False,
     range_req: str | None = None,
-) -> Download | PartialDownload:
+) -> Download | PartialDownload | Found:
+    s3_resp = s3.head_object(Bucket=OBJECT_BUCKET_NAME, Key=object_id)
+
     if head:
-        s3_resp = s3.head_object(Bucket=OBJECT_BUCKET_NAME, Key=object_id)
         return Download(
             b"",
             headers={
@@ -67,6 +69,12 @@ def get_download(
                 "Content-Length": str(s3_resp["ContentLength"]),
             },
         )
+
+    if s3_resp["ContentLength"] > 3_500_000:
+        response = s3.generate_presigned_url(
+            "get_object", Params={"Bucket": OBJECT_BUCKET_NAME, "Key": object_id}
+        )
+        return Found(response)
 
     extra: dict[str, str] = {}
     if range_req:

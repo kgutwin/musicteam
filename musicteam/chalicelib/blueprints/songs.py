@@ -8,6 +8,7 @@ from chalicelib.types import _SearchSongRow
 from chalicelib.types import BadRequest
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
+from chalicelib.types import Found
 from chalicelib.types import ListSongParams
 from chalicelib.types import NewSong
 from chalicelib.types import NewSongMedia
@@ -393,13 +394,12 @@ def delete_song_sheet(
 )
 def get_song_sheet_doc(
     song_id: str, version_id: str, sheet_id: str
-) -> Forbidden | NotFound | Download | PartialDownload:
+) -> Forbidden | NotFound | Download | PartialDownload | Found:
     """Retrieve the document associated with a song sheet
 
     This method supports range requests.
 
-    NOTE: in the future, this may return a 302 Temporary Redirect.
-
+    For large responses, this method returns a 302 Found temporary redirect.
     """
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
@@ -545,13 +545,12 @@ def delete_song_media(
 )
 def get_song_media_attachment(
     song_id: str, version_id: str, media_id: str
-) -> Forbidden | NotFound | Download | PartialDownload:
+) -> Forbidden | NotFound | Download | PartialDownload | Found:
     """Retrieve the attachment associated with a song media
 
     This method supports range requests.
 
-    NOTE: in the future, this may return a 302 Temporary Redirect.
-
+    For large responses, this method returns a 302 Found temporary redirect.
     """
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()

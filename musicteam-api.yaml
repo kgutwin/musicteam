@@ -1300,13 +1300,15 @@ paths:
           $ref: '#/components/responses/Download'
         '206':
           $ref: '#/components/responses/PartialDownload'
+        '302':
+          $ref: '#/components/responses/Found'
       tags:
       - Songs
       summary: Retrieve the attachment associated with a song media
       description: 'This method supports range requests.
 
 
-        NOTE: in the future, this may return a 302 Temporary Redirect.'
+        For large responses, this method returns a 302 Found temporary redirect.'
     parameters:
     - name: song_id
       in: path
@@ -1470,13 +1472,15 @@ paths:
           $ref: '#/components/responses/Download'
         '206':
           $ref: '#/components/responses/PartialDownload'
+        '302':
+          $ref: '#/components/responses/Found'
       tags:
       - Songs
       summary: Retrieve the document associated with a song sheet
       description: 'This method supports range requests.
 
 
-        NOTE: in the future, this may return a 302 Temporary Redirect.'
+        For large responses, this method returns a 302 Found temporary redirect.'
     parameters:
     - name: song_id
       in: path
