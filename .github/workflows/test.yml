@@ -1,0 +1,92 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  precommit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: musicteam-nuxt/package-lock.json
+
+      - name: npm install
+        run: "cd musicteam-nuxt && npm install"
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            .pre-commit-config.yaml
+            requirements-dev.txt
+            musicteam/requirements.txt
+
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v3
+        with:
+          key: "pre-commit|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}"
+          path: ~/.cache/pre-commit
+
+      - name: Run pre-commit
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          python -m pip install -r requirements-dev.txt -r musicteam/requirements.txt
+          pre-commit run --all-files --show-diff-on-failure
+
+  pytest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            requirements-dev.txt
+            musicteam/requirements.txt
+
+      - name: Install requirements
+        run: |
+          python -m pip install -r requirements-dev.txt -r musicteam/requirements.txt
+
+      - name: Run pytest
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          cd musicteam
+          pytest -vv
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: musicteam
+
+      - name: Save container as artifact
+        uses: ishworkh/container-image-artifact-upload@v2.0.0
+        with:
+          image: musicteam
+          retention_days: 7

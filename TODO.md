@@ -2,8 +2,6 @@
 
 ## Frontend
 
-- Comments - on set lists
-- Media links - on set lists too!
 - Complete mobile layout
 - Should be able to annotate an existing PDF and save as a new version or new sheet
 - Copy existing setlist?
