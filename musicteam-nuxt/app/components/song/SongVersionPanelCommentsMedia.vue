@@ -1,32 +1,29 @@
 <template>
-  <div class="div-panel grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div>
-      <div class="div-panel-sub-head" @click="open = !open">
-        <Icon name="ri:triangle-fill" class="icon-triangle" :class="{ open }" />
-        <label>Comments</label>
-        <CommentsIcons :resource-id="versionId" class="h-6" />
+  <MtCollapsingPanel :cols="['comments', 'media']">
+    <template #comments-head>
+      <label>Comments</label>
+      <CommentsIcons :resource-id="versionId" class="h-6" />
+    </template>
+    <template #comments>
+      <CommentsPanel class="mt-1" :resource-id="versionId" />
+    </template>
+
+    <template #media-head>
+      <label>Media</label>
+      <div v-if="numMedia" class="bg-sky-600 text-white rounded-lg px-2">
+        {{ numMedia }}
       </div>
-      <CommentsPanel v-if="open" class="mt-1" :resource-id="versionId" />
-    </div>
-    <div class="sm:border-l border-black sm:pl-4">
-      <div class="div-panel-sub-head" @click="open = !open">
-        <Icon name="ri:triangle-fill" class="icon-triangle" :class="{ open }" />
-        <label>Media</label>
-        <div v-if="numMedia" class="bg-sky-600 text-white rounded-lg px-2">
-          {{ numMedia }}
-        </div>
-      </div>
-      <SongMediaPanel v-if="open" :song-id="songId" :version-id="versionId" />
-    </div>
-  </div>
+    </template>
+    <template #media>
+      <SongMediaPanel :song-id="songId" :version-id="versionId" />
+    </template>
+  </MtCollapsingPanel>
 </template>
 
 <script setup lang="ts">
 import { useSongMedialistStore } from "@/stores/songs"
 
 const props = defineProps<{ songId: string; versionId: string }>()
-
-const open = ref(false)
 
 const mediaStore = useSongMedialistStore()
 
@@ -36,26 +33,3 @@ const numMedia = computed(
       ?.song_media?.length,
 )
 </script>
-
-<style>
-.div-panel-sub-head {
-  @apply flex flex-row items-center gap-1 cursor-pointer;
-
-  & .icon-triangle {
-    @apply self-center text-sm transition;
-  }
-  & .icon-triangle.open {
-    @apply rotate-180 visible;
-  }
-  & .icon-triangle:not(.open) {
-    @apply rotate-90 invisible;
-  }
-
-  & label {
-    @apply block font-bold cursor-pointer grow;
-  }
-}
-.div-panel-sub-head:hover .icon-triangle {
-  @apply visible;
-}
-</style>

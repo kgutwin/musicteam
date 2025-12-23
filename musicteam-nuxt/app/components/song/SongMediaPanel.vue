@@ -13,50 +13,7 @@
           />
         </button>
       </div>
-      <div class="grow">
-        <div
-          v-if="entry.url"
-          :href="entry.url"
-          class="flex flex-row sm:flex-col lg:flex-row"
-        >
-          <div class="basis-1/2 mr-2">{{ entry.title }}</div>
-          <div class="truncate">
-            <a :href="entry.url" class="a-hov text-gray-600" target="_blank">
-              {{ entry.url }}
-            </a>
-          </div>
-          <Icon
-            class="shrink-0 sm:hidden lg:inline"
-            name="solar:square-top-down-outline"
-          />
-        </div>
-        <div v-else-if="entry.media_type">
-          <div class="flex flex-row gap-2">
-            <div>{{ entry.title }}</div>
-            <button class="text-lg" @click="download(entry)">
-              <Icon name="solar:download-minimalistic-bold" />
-            </button>
-            <div class="italic">{{ entry.media_type }}</div>
-          </div>
-          <audio
-            v-if="mimeCategory(entry.media_type) === 'audio'"
-            :src="`/api/songs/${songId}/versions/${versionId}/media/${entry.id}/obj`"
-            controls
-            class="w-full"
-          />
-          <video
-            v-else-if="mimeCategory(entry.media_type) === 'video'"
-            :src="`/api/songs/${songId}/versions/${versionId}/media/${entry.id}/obj`"
-            controls
-            class="w-full"
-          />
-        </div>
-        <div v-if="(entry.tags?.length ?? 0) > 0">
-          <span v-for="tag in entry.tags" :key="tag" class="spn-tag">
-            {{ tag }}
-          </span>
-        </div>
-      </div>
+      <MediaEntry :media="entry" :song-id="songId" :version-id="versionId" />
     </div>
 
     <button v-if="canEdit && !adding" class="btn-gray-sm" @click="adding = true">
@@ -116,18 +73,15 @@ import {
   useSongMediaRefreshStore,
 } from "@/stores/songs"
 import { fileToBase64String } from "@/utils"
-import mime from "mime-types"
 
 import type { SongMedia } from "@/services/api"
 import type { ToasterStatus } from "@/types/toast"
 
-const { data: authData } = useAuth()
-
 const props = defineProps<{ songId: string; versionId: string }>()
 
+const { data: authData } = useAuth()
 const { canEdit } = useRole()
 
-const songStore = useSongStore()
 const mediaStore = useSongMedialistStore()
 const refreshStore = useSongMediaRefreshStore()
 
@@ -136,27 +90,6 @@ const media = computed(
     mediaStore.get({ songId: props.songId, versionId: props.versionId }).data?.value
       ?.song_media ?? [],
 )
-
-async function download(media: SongMedia) {
-  if (!media.media_type) return
-
-  const song = await songStore.get({ songId: props.songId }).get()
-  const ext = mime.extension(media.media_type)
-
-  const link = document.createElement("a")
-
-  link.href = `/api/songs/${props.songId}/versions/${props.versionId}/media/${media.id}/obj`
-  link.download = `${song.title} - ${media.title}.${ext}`
-
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
-function mimeCategory(mimeType: string) {
-  const [first] = mimeType.split("/", 1)
-  return first
-}
 
 const adding = ref(false)
 

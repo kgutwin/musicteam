@@ -52,6 +52,8 @@
       </div>
     </div>
 
+    <SetlistPanelCommentsMedia :setlist-id="id as string" class="my-4" />
+
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
         <button
@@ -127,6 +129,8 @@ import { api } from "@/services"
 import {
   useActiveSetlistStore,
   useSetlistStore,
+  useSetlistPositionlistStore,
+  useSetlistSheetlistStore,
   useSetlistRefreshStore,
 } from "@/stores/setlists"
 import { useSongStore, useSongSheetStore } from "@/stores/songs"
