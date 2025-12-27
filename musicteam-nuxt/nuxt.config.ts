@@ -30,8 +30,20 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    optimizeDeps: {
+      include: [
+        "@vue/devtools-core",
+        "@vue/devtools-kit",
+        "vue-draggable-next",
+        "randomcolor",
+        "tailvue",
+        "mime-types",
+      ],
+    },
+  },
+
   // for debugging
-  // vite: { build: { minify: false } },
   sourcemap: true,
 
   nitro: {
