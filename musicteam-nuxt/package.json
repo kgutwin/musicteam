@@ -11,7 +11,10 @@
     "postinstall": "patch-package && nuxt prepare",
     "lint": "prettier --write --list-different . && eslint --ext .ts,.js,.vue . --fix",
     "lint:tsc": "nuxt prepare && vue-tsc -b --noEmit",
-    "lint:prettier": "prettier --check ."
+    "lint:prettier": "prettier --check .",
+    "cy": "cypress open",
+    "cy:run": "cypress run",
+    "cy:tsc": "tsc -p cypress --noEmit"
   },
   "dependencies": {
     "@nuxt/icon": "^2.1.0",
@@ -42,6 +45,7 @@
     "@types/mime-types": "^3.0.1",
     "@types/randomcolor": "^0.5.9",
     "baseline-browser-mapping": "^2.9.11",
+    "cypress": "^15.8.1",
     "eslint": "^9.37.0",
     "eslint-plugin-prettier": "^5.5.4",
     "patch-package": "^8.0.1",

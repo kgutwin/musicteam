@@ -81,3 +81,11 @@ repos:
         pass_filenames: false
         files: "musicteam-nuxt/app"
         types: [file]
+
+      - id: typecheck-cy
+        name: cypress typecheck
+        language: system
+        entry: bash -c 'cd musicteam-nuxt; npm run cy:tsc'
+        pass_filenames: false
+        files: 'musicteam-nuxt/cypress/(.*)\.ts'
+        types: [file]
