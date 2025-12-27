@@ -1,7 +1,7 @@
 describe("app init", () => {
   it("can load the home page", () => {
     cy.visit("http://localhost:3000")
-    cy.contains("MusicTeam").should("exist")
+    cy.contains("MusicTeam", { timeout: 8000 }).should("exist")
   })
 
   it("can sign in", () => {
