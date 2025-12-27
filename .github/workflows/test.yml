@@ -91,15 +91,9 @@ jobs:
           working-directory: musicteam-nuxt
           start: docker run --rm -p 3000:3000 musicteam
           wait-on: http://localhost:3000/api/
-
-      - name: Store screenshots and video
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: cypress-screens
-          path: |
-            musicteam-nuxt/cypress/videos
-            musicteam-nuxt/cypress/screenshots
+          record: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Save container as artifact
         uses: ishworkh/container-image-artifact-upload@v2.0.0
