@@ -26,10 +26,11 @@ mypy app.py --strict
 
 # Jump through some hoops to get pymupdf, since chalice is being unhelpful for
 # just this one package
+PYMUPDF_VERSION=$(grep PyMuPDF ../requirements-dev.txt)
 mkdir -p vendor
 TMPD=$(mktemp -d)
 pip download --only-binary=:all: --no-deps --platform manylinux_2_28_x86_64 \
-    --implementation cp --abi cp313 --dest $TMPD pymupdf
+    --implementation cp --abi cp313 --dest $TMPD $PYMUPDF_VERSION
 pushd vendor
 rm -rf fitz pymupdf*
 unzip $TMPD/pymupdf*.whl
