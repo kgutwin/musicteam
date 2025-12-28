@@ -40,6 +40,16 @@ hr {
   @apply hover:underline hover:opacity-60;
 }
 
+.bg-gray-stripes {
+  background: repeating-linear-gradient(
+    45deg,
+    #dddddd,
+    #dddddd 10px,
+    #f8f8f8 10px,
+    #f8f8f8 20px
+  );
+}
+
 .btn-gray {
   @apply border border-slate-500 rounded-lg px-4 py-1 bg-gray-200;
   /* @apply bg-gradient-to-tr hover:from-blue-200 hover:to-sky-200; */

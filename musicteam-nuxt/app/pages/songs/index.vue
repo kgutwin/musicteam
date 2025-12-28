@@ -17,10 +17,22 @@
           class="inp-text w-32 md:w-48"
         />
       </div>
-      <MtDropdown button-class="btn-gray">
+      <MtDropdown :button-class="`btn-gray ` + (hasFilters ? `bg-gray-stripes` : ``)">
         <template #dropdown-button>
-          <Icon name="ri:filter-2-line" class="show-lg" />
-          <span class="hide-lg">Filter</span>
+          <div class="flex flex-row gap-1 items-center">
+            <Icon name="ri:filter-2-line" class="show-lg" />
+            <span class="hide-lg">Filter</span>
+          </div>
+        </template>
+
+        <template v-if="hasFilters">
+          <button @click="clearAllFilters">
+            <div class="flex flex-row gap-1 items-center">
+              <Icon name="ri:close-large-fill" />
+              Clear All Filters
+            </div>
+          </button>
+          <hr />
         </template>
 
         <div class="italic">Tag:</div>
@@ -181,6 +193,22 @@ const authors = computed<Entry[]>(() => {
     (e) => e.entry.match(authorRe) || prefs.filters.authors[e.entry],
   )
 })
+
+const hasFilters = computed(() => {
+  if (Object.entries(prefs.filters.tags).some(([k, v]) => v)) return true
+  if (Object.entries(prefs.filters.authors).some(([k, v]) => v)) return true
+  return false
+})
+
+function clearAllFilters() {
+  for (const k in prefs.filters.tags) {
+    prefs.filters.tags[k] = false
+  }
+  for (const k in prefs.filters.authors) {
+    prefs.filters.authors[k] = false
+  }
+  prefs.filters.title = ""
+}
 
 function filtered(songs: Song[] | undefined): Song[] | undefined {
   if (songs === undefined) return undefined
