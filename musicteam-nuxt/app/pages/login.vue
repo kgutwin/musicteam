@@ -6,7 +6,11 @@
     <div class="text-center my-6" :class="signingIn ? '' : 'invisible'">
       <Icon name="svg-spinners:3-dots-fade" size="32" />
     </div>
-    <div v-if="!signingIn">
+    <div v-if="!pingStore.isAwake" class="text-center">
+      Hang tight, the app is waking up
+      <Icon name="svg-spinners:3-dots-fade" />
+    </div>
+    <div v-else-if="!signingIn">
       <a
         href="/api/auth/google"
         class="btn-gray block text-center !p-2"
@@ -20,10 +24,13 @@
 </template>
 
 <script setup lang="ts">
+import { usePingStore } from "@/stores/ping"
+
 definePageMeta({ auth: { unauthenticatedOnly: true, navigateAuthenticatedTo: "/" } })
 
 const { signIn } = useAuth()
 const route = useRoute()
+const pingStore = usePingStore()
 
 const signingIn = ref<boolean>(!!route?.query?.complete)
 const callbackUrl = ref<string | null>(sessionStorage.getItem("callbackUrl"))

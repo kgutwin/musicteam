@@ -6,12 +6,15 @@ export const usePingStore = defineStore("api-ping", () => {
   const lastPing = ref<number>()
   const isPinging = ref(false)
 
+  const isAwakeNow = () => (lastPing.value ?? 0) > Date.now() - timeout
+  const isAwake = computed(() => (isPinging.value, isAwakeNow()))
+
   async function ping(): Promise<boolean> {
     while (isPinging.value) {
       await sleep(250)
     }
 
-    if ((lastPing.value ?? 0) > Date.now() - timeout) return true
+    if (isAwakeNow()) return true
 
     try {
       isPinging.value = true
@@ -32,5 +35,5 @@ export const usePingStore = defineStore("api-ping", () => {
     }
   }
 
-  return { lastPing, ping, wake }
+  return { lastPing, isPinging, ping, wake, isAwake, isAwakeNow }
 })
