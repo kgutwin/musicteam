@@ -50,7 +50,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "patch-package": "^8.0.1",
     "prettier": "^3.6.2",
-    "swagger-typescript-api": "^13.2.15",
+    "swagger-typescript-api": "^13.2.16",
     "typescript": "^5.9.3",
     "vite-plugin-version-mark": "^0.2.2",
     "vue-tsc": "^3.1.1"
