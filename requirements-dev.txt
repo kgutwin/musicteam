@@ -4,7 +4,7 @@ mypy==1.18.2
 pytest==8.4.2
 syrupy==5.0.0
 py-pglite==0.5.3
-psycopg==3.2.10
+psycopg==3.3.2
 types-requests-oauthlib==2.0.0.20250809
 apispec==6.8.4
 apispec-pydantic-plugin==0.7.0
