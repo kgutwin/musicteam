@@ -9,9 +9,7 @@ updates:
     open-pull-requests-limit: 5
 
   - package-ecosystem: pip
-    directories:
-      - "/"
-      - "/musicteam"
+    directory: "/"
     schedule:
       interval: weekly
     commit-message:
