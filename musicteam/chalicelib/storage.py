@@ -10,7 +10,7 @@ from chalicelib.types import Download
 from chalicelib.types import Found
 from chalicelib.types import PartialDownload
 
-if OBJECT_BUCKET_NAME == "local" and IS_CHALICE_LOCAL and sys.argv[-1] == "local":
+if OBJECT_BUCKET_NAME == "local" and IS_CHALICE_LOCAL and "local" in sys.argv:
     import os
     import atexit
     import shutil

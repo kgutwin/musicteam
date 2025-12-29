@@ -288,7 +288,9 @@ def get_setlist_packet_pdf(
         if obj.object_type == "application/pdf":
             sheet = pdf.read(obj.object_id)
         elif obj.object_type == "text/plain":
-            sheet = pdf.text_to_pdf(storage.get(obj.object_id).read().decode())
+            sheet = pdf.text_to_pdf(
+                storage.get(obj.object_id).read().decode(errors="replace")
+            )
         else:
             raise NotImplementedError(f"file type not supported: {obj.object_type}")
 
