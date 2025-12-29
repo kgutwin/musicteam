@@ -30,6 +30,7 @@
       <label>
         <span>Label</span>
         <MtSelectOther
+          v-if="inputLabel"
           v-model="inputLabel"
           :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
         />
@@ -100,6 +101,8 @@ import {
   useSongRefreshStore,
 } from "@/stores/songs"
 import { fileToBase64String } from "@/utils"
+
+import type { UpdateSongSheet } from "@/services/api"
 
 const songStore = useSongStore()
 const versionStore = useSongVersionStore()
@@ -179,23 +182,25 @@ async function save() {
       })
     }
 
+    const update: UpdateSongSheet = {
+      type: inputSheetType.value,
+      key: inputKey.value,
+      auto_verse_order: inputAutoVerseOrder.value === "true",
+    }
+
     if (saveSheetObject.value) {
       const data = await saveSheetObject.value()
       const encodedFile = await fileToBase64String(data)
       const response = await api.objects.uploadFile(encodedFile, { base64: true })
-
-      await api.songs.updateSongSheet(
-        id as string,
-        versionId as string,
-        sheetId as string,
-        {
-          type: inputSheetType.value,
-          key: inputKey.value,
-          auto_verse_order: inputAutoVerseOrder.value === "true",
-          object_id: response.data.id,
-        },
-      )
+      update["object_id"] = response.data.id
     }
+
+    await api.songs.updateSongSheet(
+      id as string,
+      versionId as string,
+      sheetId as string,
+      update,
+    )
 
     await refreshStore.refresh({ songId: id as string })
   })
