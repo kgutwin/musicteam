@@ -442,8 +442,9 @@ def list_setlist_sheets(setlist_id: str) -> Forbidden | SetlistSheetList:
             "INNER JOIN song_sheets ON song_sheets.id = setlist_sheets.song_sheet_id "
             "INNER JOIN song_versions ON"
             "  song_versions.id = song_sheets.song_version_id "
+            "INNER JOIN songs ON songs.id = song_versions.song_id "
             "WHERE setlist_sheets.setlist_id = :setlist_id "
-            "ORDER BY setlist_sheets.type",
+            "ORDER BY songs.title, song_sheets.key",
             {"setlist_id": setlist_id},
             output=SetlistSheet,
         )
