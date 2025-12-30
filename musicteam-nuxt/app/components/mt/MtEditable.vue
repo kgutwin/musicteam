@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-block group/edit">
+  <div class="inline-block group/edit" :data-cy="`editable-${prop.toString()}`">
     <div class="flex flex-row items-baseline">
       <template v-if="!editing">
         <slot>
@@ -13,6 +13,7 @@
         <button
           v-if="model && canEdit"
           class="invisible group-hover/edit:visible text-base ml-2"
+          data-cy="editing"
           @click="editing = true"
         >
           <Icon name="solar:pen-linear" />
@@ -32,7 +33,7 @@
             @keydown.enter="save"
           />
         </slot>
-        <button type="button" class="ml-2" @click="save">
+        <button type="button" class="ml-2" data-cy="save" @click="save">
           <Icon name="ri:check-line" />
         </button>
         <button type="button" @click="editing = false">

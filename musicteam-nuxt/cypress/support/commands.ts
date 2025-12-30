@@ -7,6 +7,14 @@ declare global {
       login(dest?: string): Chainable<void>
       prep(fixture: string): Chainable<void>
       wipe(): Chainable<void>
+      dataCy(label: string, extra?: string): Chainable<JQuery<HTMLElement>>
+      edit(
+        label: string,
+        withEditable: (el: Chainable<JQuery<HTMLElement>>) => void,
+      ): Chainable<JQuery<HTMLElement>>
+      exists(text: string): Chainable<JQuery<HTMLElement>>
+      exists(text: string[]): Chainable<void>
+      formLabel(label: string): Chainable<JQuery<HTMLElement>>
     }
   }
 }
@@ -106,4 +114,30 @@ Cypress.Commands.add("wipe", () => {
     .each((song: HasId) =>
       cy.request({ method: "DELETE", url: `/api/songs/${song.id}` }),
     )
+})
+
+Cypress.Commands.add("dataCy", (label, extra) => {
+  const tag = extra ? ` ${extra}` : ""
+  return cy.get(`[data-cy="${label}"]${tag}`)
+})
+
+Cypress.Commands.add("edit", (prop, withEditable) => {
+  cy.dataCy(`editable-${prop}`).within(() => {
+    cy.dataCy("editing").click({ force: true })
+    withEditable(cy.get(':has(+ [data-cy="save"])'))
+    cy.dataCy("save").click()
+  })
+  return cy.dataCy(`editable-${prop}`)
+})
+
+Cypress.Commands.add("exists", (text) => {
+  if (Array.isArray(text)) {
+    text.forEach((v) => cy.contains(v).should("exist"))
+  } else {
+    return cy.contains(text).should("exist")
+  }
+})
+
+Cypress.Commands.add("formLabel", (label) => {
+  return cy.get("form label span").contains(label).next()
 })

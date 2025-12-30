@@ -18,11 +18,11 @@
       >
         <Icon name="solar:download-minimalistic-bold" />
       </button>
-      <button v-if="canEdit" class="btn-gray" @click="edit">
+      <button v-if="canEdit" class="btn-gray" data-cy="edit-sheet" @click="edit">
         <Icon name="ri:edit-2-line" class="show-lg" />
         <span class="hide-lg">Edit...</span>
       </button>
-      <button v-if="canEdit" class="btn-gray" @click="addSheet">
+      <button v-if="canEdit" class="btn-gray" data-cy="add-sheet" @click="addSheet">
         <Icon name="ri:add-large-line" class="show-lg" />
         <span class="hide-lg">Add Sheet...</span>
       </button>

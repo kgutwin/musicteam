@@ -19,10 +19,12 @@
         </h2>
       </div>
       <div>
-        <button class="btn-gray" @click="save">Save</button>
+        <button class="btn-gray" data-cy="save" @click="save">Save</button>
       </div>
       <div>
-        <button class="btn-gray" @click="$router.back()">Cancel</button>
+        <button class="btn-gray" data-cy="cancel" @click="$router.back()">
+          Cancel
+        </button>
       </div>
     </div>
 
@@ -182,25 +184,27 @@ async function save() {
       })
     }
 
-    const update: UpdateSongSheet = {
-      type: inputSheetType.value,
-      key: inputKey.value,
-      auto_verse_order: inputAutoVerseOrder.value === "true",
-    }
+    if (sheetId !== "lyrics") {
+      const update: UpdateSongSheet = {
+        type: inputSheetType.value,
+        key: inputKey.value,
+        auto_verse_order: inputAutoVerseOrder.value === "true",
+      }
 
-    if (saveSheetObject.value) {
-      const data = await saveSheetObject.value()
-      const encodedFile = await fileToBase64String(data)
-      const response = await api.objects.uploadFile(encodedFile, { base64: true })
-      update["object_id"] = response.data.id
-    }
+      if (saveSheetObject.value) {
+        const data = await saveSheetObject.value()
+        const encodedFile = await fileToBase64String(data)
+        const response = await api.objects.uploadFile(encodedFile, { base64: true })
+        update["object_id"] = response.data.id
+      }
 
-    await api.songs.updateSongSheet(
-      id as string,
-      versionId as string,
-      sheetId as string,
-      update,
-    )
+      await api.songs.updateSongSheet(
+        id as string,
+        versionId as string,
+        sheetId as string,
+        update,
+      )
+    }
 
     await refreshStore.refresh({ songId: id as string })
   })
