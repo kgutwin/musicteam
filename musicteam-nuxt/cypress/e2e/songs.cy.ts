@@ -113,5 +113,74 @@ describe("songs", () => {
       cy.get(".btn-tab").contains("Hymn (D)").click()
       cy.exists("New song sheet")
     })
+
+    it("can edit a PDF chord sheet", () => {
+      cy.get(".btn-tab").contains("Lead (C)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Edit Current Version").click()
+
+      cy.formLabel("Music Sheet Type").select("Vocal")
+      cy.formLabel("Musical Key").type("{selectall}{del}D")
+      cy.formLabel("include verse order").select("Sheet already has verse order")
+
+      cy.pdfjsViewerElement().within(() => {
+        cy.get("#editorFreeTextButton").click()
+        cy.get(".annotationEditorLayer").click().type("blah")
+        cy.get("#editorFreeTextButton").click()
+      })
+
+      cy.dataCy("save").click()
+
+      cy.exists(["CCLI Number", "Vocal (D)"])
+
+      // Electron browser doesn't have PDF viewer; to confirm our annotation was
+      // saved, we open the edit screen again
+
+      cy.get(".btn-tab").contains("Vocal (D)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Edit Current Version").click()
+
+      cy.pdfjsViewerElement().within(() => {
+        cy.exists("blah")
+      })
+    })
+  })
+
+  context("deleting songs", () => {
+    beforeEach(() => {
+      cy.prep("songMultiVersion")
+      cy.get("@prep.song").then((id) => {
+        cy.visit(`/songs/${id}`)
+        cy.contains("Test Two").should("exist")
+      })
+    })
+
+    it("can delete a song sheet", () => {
+      cy.contains("From Cypress").click()
+
+      cy.get(".btn-tab").contains("Chord (C)").click()
+      cy.get("button").contains("Delete").click()
+      cy.get("button").contains("Delete Sheet").click()
+
+      cy.contains("Chord (C)").should("not.exist")
+      cy.exists("Lead (C)")
+    })
+
+    it("can delete a song version", () => {
+      cy.contains("From Cypress").click()
+
+      cy.get("button").contains("Delete").click()
+      cy.get("button").contains("Delete Version").click()
+
+      cy.contains("From Cypress").should("not.exist")
+      cy.exists("Alternate Version")
+    })
+
+    it("can delete an entire song", () => {
+      cy.get("button").contains("Delete").click()
+      cy.get("button").contains("Delete Song").click()
+
+      cy.contains("Test Two").should("not.exist")
+    })
   })
 })

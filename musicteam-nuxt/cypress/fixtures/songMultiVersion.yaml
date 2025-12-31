@@ -1,0 +1,58 @@
+objects:
+  - type: song
+    data:
+      title: Test Two
+      authors: ["foo", "bar"]
+      ccli_num: 123456
+
+  - type: songVersion
+    links:
+      song: song
+    data:
+      label: From Cypress
+      verse_order: "V1 C1 V2 C1"
+      lyrics: |
+        Test Two
+
+        This has some basic lyrics.
+
+  - type: object
+    ref: sheetObj
+    file: song-sheet.txt
+
+  - type: songSheet
+    links:
+      song: song
+      songVersion: songVersion
+      sheetObj: sheetObj
+    data:
+      type: Chord
+      key: C
+      object_id: "!Ref sheetObj"
+      object_type: text/plain
+      auto_verse_order: true
+
+  - type: object
+    ref: pdfSheetObj
+    file: song-sheet.pdf
+
+  - type: songSheet
+    links:
+      song: song
+      songVersion: songVersion
+      sheetObj: pdfSheetObj
+    data:
+      type: Lead
+      key: C
+      object_id: "!Ref sheetObj"
+      object_type: application/pdf
+      auto_verse_order: true
+
+  - type: songVersion
+    ref: altVersion
+    links:
+      song: song
+    data:
+      label: Alternate Version
+      verse_order: "V1 C1 C2 V2"
+      lyrics: Alternate lyrics

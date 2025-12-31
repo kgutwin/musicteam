@@ -15,6 +15,7 @@ declare global {
       exists(text: string): Chainable<JQuery<HTMLElement>>
       exists(text: string[]): Chainable<void>
       formLabel(label: string): Chainable<JQuery<HTMLElement>>
+      pdfjsViewerElement(): Chainable<JQuery<HTMLElement>>
     }
   }
 }
@@ -140,4 +141,19 @@ Cypress.Commands.add("exists", (text) => {
 
 Cypress.Commands.add("formLabel", (label) => {
   return cy.get("form label span").contains(label).next()
+})
+
+Cypress.Commands.add("pdfjsViewerElement", () => {
+  return cy
+    .get("pdfjs-viewer-element")
+    .its("0.shadowRoot")
+    .should("not.be.empty")
+    .then(($el) =>
+      cy
+        .wrap($el)
+        .find("iframe")
+        .its("0.contentDocument.body")
+        .should("not.be.empty")
+        .then<JQuery<HTMLElement>>(cy.wrap),
+    )
 })
