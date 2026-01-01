@@ -16,7 +16,7 @@
     <div v-else-if="media.media_type">
       <div class="flex flex-row gap-2">
         <div>{{ media.title }}</div>
-        <button class="text-lg" @click="download(media)">
+        <button class="text-lg" data-cy="download-media" @click="download(media)">
           <Icon name="solar:download-minimalistic-bold" />
         </button>
         <div class="italic">{{ media.media_type }}</div>
@@ -62,7 +62,10 @@ async function download(media: SongMedia) {
   if (!props.songId) return
 
   const song = await songStore.get({ songId: props.songId }).get()
-  const ext = mime.extension(media.media_type)
+  let ext = mime.extension(media.media_type)
+  if (ext === "mpga") {
+    ext = "mp3" // assume mp3 is the most common
+  }
 
   const link = document.createElement("a")
 

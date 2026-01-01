@@ -5,28 +5,44 @@
       class="pb-2 grid grid-cols-[1em_minmax(150px,1fr)] gap-1 group"
     >
       <div>
-        <button v-if="entry.creator_id === authData?.id" class="mt-1">
+        <button
+          v-if="entry.creator_id === authData?.id"
+          class="mt-1"
+          data-cy="delete-media"
+          @click="deleteMedia(entry.id)"
+        >
           <Icon
             name="ri:delete-bin-6-line"
             class="text-gray-500 hover:text-red-500 invisible group-hover:visible"
-            @click="deleteMedia(entry.id)"
           />
         </button>
       </div>
       <MediaEntry :media="entry" :song-id="songId" :version-id="versionId" />
     </div>
 
-    <button v-if="canEdit && !adding" class="btn-gray-sm" @click="adding = true">
+    <button
+      v-if="canEdit && !adding"
+      class="btn-gray-sm"
+      data-cy="add-media"
+      @click="adding = true"
+    >
       Add Media Attachment
     </button>
     <form
       v-else-if="adding"
       @submit.prevent="postMedia"
       class="frm-post grid grid-cols-[3rem_minmax(100px,1fr)] gap-2"
+      data-cy="post-media"
     >
       <div class="col-span-2"><hr class="my-1" /></div>
       <label>Title <span class="spn-req">*</span></label>
-      <input v-model="mediaTitle" type="text" class="inp-text" required />
+      <input
+        v-model="mediaTitle"
+        type="text"
+        class="inp-text"
+        data-cy="title"
+        required
+      />
 
       <div class="col-span-2 w-full flex flex-row gap-2">
         <label class="flex-none block w-12">
@@ -36,6 +52,7 @@
           v-if="!mediaObjectType"
           v-model="mediaUrl"
           class="grow inp-text"
+          data-cy="url"
           type="url"
           placeholder="https://youtube.com"
           pattern="https://.*"
@@ -46,19 +63,25 @@
           ref="input-file"
           class="w-24"
           :class="{ grow: !!mediaObjectType }"
+          data-cy="file"
           type="file"
           @change="addFile"
         />
-        <button v-if="mediaObjectType" type="button" @click="cancelObject">
+        <button
+          v-if="mediaObjectType"
+          type="button"
+          data-cy="cancel-file"
+          @click="cancelObject"
+        >
           <Icon name="ri:close-large-fill" />
         </button>
       </div>
 
       <label>Tags</label>
-      <MtArrayInput v-model="mediaTags" />
+      <MtArrayInput v-model="mediaTags" data-cy="tags" />
 
       <div class="col-span-2 flex flex-row gap-2">
-        <button class="btn-blue-sm" :disabled="invalid">Add</button>
+        <button class="btn-blue-sm" data-cy="add" :disabled="invalid">Add</button>
         <button type="button" class="btn-gray-sm" @click="cancelMedia">Cancel</button>
       </div>
     </form>

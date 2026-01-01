@@ -153,11 +153,10 @@ describe("songs", () => {
         cy.visit(`/songs/${id}`)
         cy.contains("Test Two").should("exist")
       })
+      cy.contains("From Cypress").click()
     })
 
     it("can delete a song sheet", () => {
-      cy.contains("From Cypress").click()
-
       cy.get(".btn-tab").contains("Chord (C)").click()
       cy.get("button").contains("Delete").click()
       cy.get("button").contains("Delete Sheet").click()
@@ -167,8 +166,6 @@ describe("songs", () => {
     })
 
     it("can delete a song version", () => {
-      cy.contains("From Cypress").click()
-
       cy.get("button").contains("Delete").click()
       cy.get("button").contains("Delete Version").click()
 
@@ -181,6 +178,117 @@ describe("songs", () => {
       cy.get("button").contains("Delete Song").click()
 
       cy.contains("Test Two").should("not.exist")
+    })
+  })
+
+  // TODO: add song, version, sheet
+
+  context("comment ops", () => {
+    beforeEach(() => {
+      cy.prep("songMultiVersion")
+      cy.get("@prep.song").then((id) => {
+        cy.visit(`/songs/${id}`)
+        cy.contains("Test Two").should("exist")
+      })
+      cy.contains("From Cypress").click()
+    })
+
+    it("can add and delete a comment", () => {
+      cy.contains("Comments").click()
+      cy.dataCy("add-comment").click()
+      cy.dataCy("post-comment").within(() => {
+        cy.get("textarea").type("Test Cypress comment")
+        cy.get("button").contains("Post").click()
+      })
+
+      cy.exists("Test Cypress comment")
+      cy.contains("Alternate Version").click()
+      cy.contains("Test Cypress comment").should("not.exist")
+
+      cy.reload()
+      cy.contains("From Cypress").click()
+      cy.contains("Comments").click()
+      cy.exists("Test Cypress comment")
+
+      cy.dataCy("delete-comment").click({ force: true })
+      cy.contains("Test Cypress comment").should("not.exist")
+
+      cy.reload()
+      cy.contains("From Cypress").click()
+      cy.contains("Comments").click()
+      cy.contains("Test Cypress comment").should("not.exist")
+    })
+  })
+
+  context("media ops", () => {
+    beforeEach(() => {
+      cy.prep("songMultiVersion")
+      cy.get("@prep.song").then((id) => {
+        cy.visit(`/songs/${id}`)
+        cy.contains("Test Two").should("exist")
+      })
+      cy.contains("From Cypress").click()
+    })
+
+    it("can add and delete a media attachment", () => {
+      cy.contains("Media").click()
+
+      cy.dataCy("add-media").click()
+      cy.dataCy("post-media").within(() => {
+        cy.dataCy("title").type("Test URL")
+        cy.dataCy("url").type("https://www.example.com")
+        cy.dataCy("tags").find(".inp-array-newtag").type("media-tag,media-gg")
+        cy.dataCy("add").click()
+      })
+
+      cy.dataCy("add-media").click()
+      cy.dataCy("post-media").within(() => {
+        cy.dataCy("title").type("Test Attach")
+        cy.dataCy("file").selectFile("cypress/fixtures/test.mp3")
+        cy.dataCy("cancel-file").should("exist")
+        cy.dataCy("add").click()
+      })
+
+      cy.exists([
+        "Test URL",
+        "https://www.example.com",
+        "media-tag",
+        "media-gg",
+        "Test Attach",
+        "audio/mpeg",
+      ])
+
+      cy.contains("Alternate Version").click()
+      cy.contains("Test URL").should("not.exist")
+
+      cy.reload()
+      cy.contains("From Cypress").click()
+      cy.contains("Media").click()
+      cy.exists([
+        "Test URL",
+        "https://www.example.com",
+        "media-tag",
+        "media-gg",
+        "Test Attach",
+        "audio/mpeg",
+      ])
+
+      // kgutwin 2026-01-01  this isn't working in electron for some reason
+      // cy.dataCy("download-media").click()
+      // const downloadsFolder = Cypress.config("downloadsFolder")
+      // cy.readFile(`${downloadsFolder}/Test Two - Test Attach.mp3`)
+
+      cy.dataCy("delete-media").first().click({ force: true })
+      cy.dataCy("delete-media").click({ force: true })
+
+      cy.contains("Test URL").should("not.exist")
+      cy.contains("Test Attach").should("not.exist")
+
+      cy.reload()
+      cy.contains("From Cypress").click()
+      cy.contains("Media").click()
+      cy.contains("Test URL").should("not.exist")
+      cy.contains("Test Attach").should("not.exist")
     })
   })
 })

@@ -8,6 +8,7 @@
         <UserIcon :user-id="comment.creator_id" />
         <button
           v-if="comment.creator_id === authData?.id"
+          data-cy="delete-comment"
           @click="deleteComment(comment.id)"
         >
           <Icon
@@ -27,10 +28,15 @@
       </div>
     </div>
 
-    <button v-if="!adding" class="btn-gray-sm" @click="adding = true">
+    <button
+      v-if="!adding"
+      class="btn-gray-sm"
+      data-cy="add-comment"
+      @click="adding = true"
+    >
       Add Comment
     </button>
-    <form v-else @submit.prevent="postComment">
+    <form v-else @submit.prevent="postComment" data-cy="post-comment">
       <textarea v-model="commentText" class="text-sm w-full p-1" />
       <button class="btn-blue-sm">Post</button>
       <button type="button" class="btn-gray-sm" @click="cancelPost">Cancel</button>
