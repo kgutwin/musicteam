@@ -41,7 +41,7 @@ describe("songs", () => {
       }).should("contain.text", "My Song Two")
 
       cy.edit("authors", ($el) => {
-        $el.find(".inp-array-newtag").type("{del}Joe{enter}")
+        $el.find(".inp-array-newtag").type("{del}Joe,")
       })
         .should("contain.text", "Joe")
         .should("not.contain.text", "bar")
@@ -67,7 +67,7 @@ describe("songs", () => {
       }).should("contain.text", "From Test")
 
       cy.edit("verse_order", ($el) => {
-        $el.find(".inp-array-newtag").type("{del}{del}V3 C1 C2 V4{enter}")
+        $el.find(".inp-array-newtag").type("{del}{del}V3 C1 C2 V4 ")
       }).should("contain.text", "V1 C1 V3 C1 C2 V4")
 
       cy.reload()
@@ -181,7 +181,63 @@ describe("songs", () => {
     })
   })
 
-  // TODO: add song, version, sheet
+  context("adding songs", () => {
+    it("can add a song", () => {
+      cy.visit("/songs/new")
+
+      cy.formLabel("Title").type("Cypress Song")
+      cy.formLabel("Authors").within(() => {
+        cy.get(".inp-array-newtag").type("Joe Smith,Jane Test")
+      })
+      cy.formLabel("CCLI Number").type("121212")
+      cy.formLabel("Tags").within(() => {
+        cy.get(".inp-array-newtag").type("cypress ")
+      })
+
+      cy.formLabel("Version Label").select("Updated")
+      cy.formLabel("Verse Order").within(() => {
+        cy.get(".inp-array-newtag").type("V1 C1 V2 C1 V3 C2 ")
+      })
+      cy.get("textarea").type("Cypress Song\n\nVerse 1\nTest one two three\n")
+
+      cy.formLabel("Music Sheet Type").select("Chord")
+      cy.formLabel("Musical Key").type("D")
+      cy.formLabel("Select File")
+        .find("input")
+        .selectFile("cypress/fixtures/song-sheet.pdf")
+
+      cy.get("button").contains("Add another sheet").click()
+
+      cy.get("form")
+        .last()
+        .within(() => {
+          cy.get("label span").contains("Music Sheet Type").next().select("Lead")
+          cy.get("label span").contains("Musical Key").next().type("D")
+          cy.get("label span")
+            .contains("Select File")
+            .next()
+            .find("input")
+            .selectFile("cypress/fixtures/song-sheet.txt")
+        })
+
+      cy.get("button").contains("Save").click()
+
+      cy.exists([
+        "Cypress Song",
+        "Joe Smith",
+        "Jane Test",
+        "121212",
+        "Updated",
+        "V1 C1 V2 C1 V3 C2",
+        "Chord (D)",
+        "Lead (D)",
+        "Test one two three",
+      ])
+
+      cy.contains("Lead (D)").click()
+      cy.exists("This is a basic text-formatted song sheet.")
+    })
+  })
 
   context("comment ops", () => {
     beforeEach(() => {
