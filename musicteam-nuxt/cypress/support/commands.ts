@@ -37,7 +37,13 @@ interface HasId {
   id: string
 }
 
-type FixtureType = "song" | "songVersion" | "songSheet" | "object"
+type FixtureType =
+  | "song"
+  | "songVersion"
+  | "songSheet"
+  | "object"
+  | "setlist"
+  | "setlistPosition"
 
 type LinkRecord = { [Property in FixtureType]?: string }
 
@@ -46,6 +52,8 @@ const fixtureUrls: Record<FixtureType, (p: LinkRecord) => string> = {
   songVersion: ($) => `/songs/${$.song}/versions`,
   songSheet: ($) => `/songs/${$.song}/versions/${$.songVersion}/sheets`,
   object: ($) => `/objects?base64=true`,
+  setlist: ($) => `/setlists`,
+  setlistPosition: ($) => `/setlists/${$.setlist}/pos`,
 }
 
 interface FixtureObject {
@@ -108,6 +116,13 @@ Cypress.Commands.add("prep", (fixture) => {
 })
 
 Cypress.Commands.add("wipe", () => {
+  cy.request({ url: "/api/setlists" })
+    .then((response) =>
+      response.body.setlists.filter((setlist) => setlist.tags.includes("cypress")),
+    )
+    .each((setlist: HasId) =>
+      cy.request({ method: "DELETE", url: `/api/setlists/${setlist.id}` }),
+    )
   cy.request({ url: "/api/songs" })
     .then((response) =>
       response.body.songs.filter((song) => song.tags.includes("cypress")),

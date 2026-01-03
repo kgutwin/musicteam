@@ -14,6 +14,7 @@
       @click="show = !show"
       :title="title"
       :disabled="disabled"
+      data-cy="drop"
     >
       <slot name="dropdown-button">
         <Icon name="ri:arrow-down-s-line" />

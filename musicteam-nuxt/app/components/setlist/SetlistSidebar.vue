@@ -3,11 +3,13 @@
     v-if="active.setlist"
     class="bg-sky-100 p-4 shadow-xl"
     :class="{ 'w-80': panelOpen, 'w-12 relative': !panelOpen }"
+    data-cy="sidebar"
     @dragover="(ev) => ev.preventDefault()"
   >
     <button
       class="float-right mt-2 transition-transform"
       :class="{ 'rotate-90': !panelOpen }"
+      data-cy="toggle-panel"
       @click="panelOpen = !panelOpen"
     >
       <Icon name="ri:menu-line" size="20" />
@@ -16,7 +18,11 @@
     <div v-if="panelOpen">
       <h1>Active Set List:</h1>
       <h2>
-        <NuxtLink :to="`/setlists/${active.setlist.id}`" class="hover:underline">
+        <NuxtLink
+          :to="`/setlists/${active.setlist.id}`"
+          class="hover:underline"
+          data-cy="to-setlist"
+        >
           {{ active.setlist.service_date }} - {{ active.setlist.leader_name }}
         </NuxtLink>
       </h2>
@@ -53,6 +59,7 @@
         <draggable
           :model-value="filtered(slist?.sheets)"
           class="min-h-20"
+          data-cy="sidebar-candidates"
           group="songs"
           animation="0"
           :sort="false"
@@ -68,7 +75,11 @@
       </div>
 
       <div class="mt-4">
-        <div v-for="position in plist?.positions ?? []" :key="position.id">
+        <div
+          v-for="position in plist?.positions ?? []"
+          :key="position.id"
+          data-cy="sidebar-positions"
+        >
           <ul class="flex flex-row list-disc ml-4">
             <li :class="{ 'font-bold': position.is_music }">
               {{ position.label }}

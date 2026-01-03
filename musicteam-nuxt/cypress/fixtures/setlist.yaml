@@ -1,0 +1,35 @@
+objects:
+  - type: setlist
+    data:
+      leader_name: Cypress
+      service_date: 2026-01-04
+      title: Test Title
+      participants: ["foo", "bar"]
+
+  - type: setlistPosition
+    ref: posA
+    links:
+      setlist: setlist
+    data:
+      index: 1
+      label: First
+      is_music: true
+      presenter: someone
+
+  - type: setlistPosition
+    ref: posB
+    links:
+      setlist: setlist
+    data:
+      index: 2
+      label: Next
+      is_music: false
+
+  - type: setlistPosition
+    ref: posC
+    links:
+      setlist: setlist
+    data:
+      index: 3
+      label: Last
+      is_music: true

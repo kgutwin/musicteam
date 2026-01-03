@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 flex flex-row gap-2 rounded-lg bg-white">
+  <div class="p-2 flex flex-row gap-2 rounded-lg bg-white" data-cy="sidebar-song">
     <div>
       <button @click="rotateType" :title="sheet.type.slice(2)">
         <Icon :name="typeIcon[sheet.type]" />
