@@ -44,6 +44,7 @@ type FixtureType =
   | "object"
   | "setlist"
   | "setlistPosition"
+  | "setlistSheet"
 
 type LinkRecord = { [Property in FixtureType]?: string }
 
@@ -54,6 +55,7 @@ const fixtureUrls: Record<FixtureType, (p: LinkRecord) => string> = {
   object: ($) => `/objects?base64=true`,
   setlist: ($) => `/setlists`,
   setlistPosition: ($) => `/setlists/${$.setlist}/pos`,
+  setlistSheet: ($) => `/setlists/${$.setlist}/sheets`,
 }
 
 interface FixtureObject {

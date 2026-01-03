@@ -1,3 +1,18 @@
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      sidebarSong(
+        inner: string,
+        within: (el: JQuery<HTMLElement>) => void,
+      ): Chainable<JQuery<HTMLElement>>
+    }
+  }
+}
+
+Cypress.Commands.add("sidebarSong", (inner, within) => {
+  return cy.contains(inner).parents('[data-cy="sidebar-song"]').within(within)
+})
+
 describe("setlists", () => {
   beforeEach(() => {
     cy.login()
@@ -48,7 +63,7 @@ describe("setlists", () => {
       cy.exists("Test One (C)")
     })
 
-    it.only("can add songs to setlist positions", () => {
+    it("can add songs to setlist positions", () => {
       cy.get("@prep.setlist").then((id) => {
         cy.visit(`/setlists/${id}`)
         cy.exists("Test Title")
@@ -69,19 +84,15 @@ describe("setlists", () => {
       cy.contains("Add as Candidate").click()
 
       cy.dataCy("sidebar-candidates").within(() => {
-        cy.exists("Test One (C)")
-          .parents('[data-cy="sidebar-song"]')
-          .within(() => {
-            cy.dataCy("drop").click()
-            cy.contains("First").click()
-          })
+        cy.sidebarSong("Test One (C)", () => {
+          cy.dataCy("drop").click()
+          cy.contains("First").click()
+        })
 
-        cy.exists("Test Two (C)")
-          .parents('[data-cy="sidebar-song"]')
-          .within(() => {
-            cy.dataCy("drop").click()
-            cy.contains("Last").click()
-          })
+        cy.sidebarSong("Test Two (C)", () => {
+          cy.dataCy("drop").click()
+          cy.contains("Last").click()
+        })
       })
 
       cy.dataCy("sidebar-positions")
@@ -103,13 +114,70 @@ describe("setlists", () => {
       cy.contains("First").parents("tr").contains("Test One (C)")
       cy.contains("Last").parents("tr").contains("Test Two (C)")
     })
-    // TODO:
-    // - toggle song state
-    // - move songs around
-    // - check lyrics packet
-    // - comments
-    // - media
-    // - edit set list details
-    // - edit set list positions
   })
+
+  context("sheet operations", () => {
+    beforeEach(() => {
+      cy.prep("setlistWithCandidates")
+    })
+
+    it("can change song candidate state", () => {
+      cy.get("@prep.setlist").then((id) => {
+        cy.visit(`/setlists/${id}`)
+        cy.exists("Test Title")
+      })
+
+      cy.sidebarSong("Song One", () => {
+        cy.dataCy("state").should("have.prop", "title", "candidate")
+
+        cy.dataCy("drop").click()
+        cy.contains("Primary").should("not.exist")
+        cy.contains("Secondary").should("not.exist")
+        cy.contains("Extra").should("not.exist")
+
+        cy.contains("Candidate (high)").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate-high")
+
+        cy.dataCy("drop").click()
+        cy.contains("Candidate (low)").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate-low")
+      })
+
+      cy.sidebarSong("Song Two", () => {
+        cy.dataCy("state").should("have.prop", "title", "candidate")
+        cy.dataCy("state").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate-high")
+        cy.dataCy("state").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate-low")
+        cy.dataCy("state").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate")
+        cy.dataCy("state").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate-high")
+      })
+
+      cy.reload()
+
+      cy.sidebarSong("Song One", () => {
+        cy.dataCy("state").should("have.prop", "title", "candidate-low")
+      })
+      cy.sidebarSong("Song Two", () => {
+        cy.dataCy("state").should("have.prop", "title", "candidate-high")
+      })
+    })
+
+    it("can change song state", () => {
+      cy.get("@prep.setlist").then((id) => {
+        cy.visit(`/setlists/${id}`)
+        cy.exists("Test Title")
+      })
+    })
+
+    it("can swap song positions")
+    it("can get lyrics packet")
+  })
+  // TODO:
+  // - comments
+  // - media
+  // - edit set list details
+  // - edit set list positions
 })

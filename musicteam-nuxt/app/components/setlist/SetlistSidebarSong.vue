@@ -1,7 +1,7 @@
 <template>
   <div class="p-2 flex flex-row gap-2 rounded-lg bg-white" data-cy="sidebar-song">
     <div>
-      <button @click="rotateType" :title="sheet.type.slice(2)">
+      <button @click="rotateType" :title="sheet.type.slice(2)" data-cy="state">
         <Icon :name="typeIcon[sheet.type]" />
       </button>
     </div>

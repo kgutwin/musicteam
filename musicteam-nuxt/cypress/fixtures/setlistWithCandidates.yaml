@@ -1,0 +1,123 @@
+objects:
+  - type: setlist
+    data:
+      leader_name: Cypress
+      service_date: 2026-01-04
+      title: Test Title
+      participants: ["foo", "bar"]
+
+  - type: setlistPosition
+    ref: posA
+    links:
+      setlist: setlist
+    data:
+      index: 1
+      label: First
+      is_music: true
+      presenter: someone
+
+  - type: setlistPosition
+    ref: posB
+    links:
+      setlist: setlist
+    data:
+      index: 2
+      label: Next
+      is_music: false
+
+  - type: setlistPosition
+    ref: posC
+    links:
+      setlist: setlist
+    data:
+      index: 3
+      label: Last
+      is_music: true
+
+  - type: song
+    ref: songA
+    data:
+      title: Song One
+      authors: ["foo", "bar"]
+      ccli_num: 123456
+
+  - type: songVersion
+    ref: songVersionA
+    links:
+      song: songA
+    data:
+      label: From Cypress
+      verse_order: "V1 C1 V2 C1"
+      lyrics: |
+        Song One
+
+        This has some basic lyrics.
+
+  - type: object
+    ref: pdfSheetObj
+    file: song-sheet.pdf
+
+  - type: songSheet
+    ref: songSheetA
+    links:
+      song: songA
+      songVersion: songVersionA
+      sheetObj: pdfSheetObj
+    data:
+      type: Lead
+      key: C
+      object_id: "!Ref sheetObj"
+      object_type: application/pdf
+      auto_verse_order: true
+
+  - type: song
+    ref: songB
+    data:
+      title: Song Two
+      authors: ["foo", "bar"]
+      ccli_num: 123456
+
+  - type: songVersion
+    ref: songVersionB
+    links:
+      song: songB
+    data:
+      label: From Cypress
+      verse_order: "V1 C1 V2 C1"
+      lyrics: |
+        Song Two
+
+        These are lyrics from the second song.
+
+  - type: object
+    ref: sheetObjB
+    file: song-sheet-two.txt
+
+  - type: songSheet
+    ref: songSheetB
+    links:
+      song: songB
+      songVersion: songVersionB
+      sheetObj: sheetObjB
+    data:
+      type: Chord
+      key: D
+      object_id: "!Ref sheetObj"
+      object_type: text/plain
+      auto_verse_order: true
+
+  - type: setlistSheet
+    links:
+      setlist: setlist
+      songSheet: songSheetA
+    data:
+      type: "5:candidate"
+      song_sheet_id: "!Ref songSheet"
+
+  - type: setlistSheet
+    links:
+      setlist: setlist
+      songSheet: songSheetB
+    data:
+      type: "5:candidate"
+      song_sheet_id: "!Ref songSheet"
