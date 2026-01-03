@@ -38,7 +38,7 @@
     <div
       class="inp-array-newtag"
       :contenteditable="disabled ? 'false' : 'plaintext-only'"
-      @keydown.enter="addTag"
+      @keydown.enter="(ev) => sepKey(ev)"
       @keydown.space="(ev) => sepKey(ev, allowSpace)"
       @keydown.,="(ev) => sepKey(ev, allowComma)"
       @keydown.delete="delTag"
@@ -51,6 +51,9 @@
 </template>
 
 <script setup lang="ts">
+// vue imports are needed for Cypress component testing
+import { nextTick } from "vue"
+
 const props = defineProps<{
   allowSpace?: boolean
   allowComma?: boolean

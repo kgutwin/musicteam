@@ -70,6 +70,24 @@ jobs:
           cd musicteam
           pytest -vv
 
+  cy-component-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Cypress Component test
+        uses: cypress-io/github-action@v6
+        with:
+          component: true
+          working-directory: musicteam-nuxt
+          record: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
   build-and-e2e-test:
     runs-on: ubuntu-latest
 

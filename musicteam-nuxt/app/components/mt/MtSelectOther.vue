@@ -3,10 +3,17 @@
     <option v-for="opt in options" :key="opt">{{ opt }}</option>
     <option>Other...</option>
   </select>
-  <input v-if="selectedOther" v-model="other" class="inp-text" :disabled="disabled" />
+  <input
+    v-if="selectedOther || isOther"
+    v-model="model"
+    class="inp-text"
+    :disabled="disabled"
+  />
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watchEffect } from "vue"
+
 const props = defineProps<{
   options: string[]
   disabled?: boolean
@@ -14,21 +21,22 @@ const props = defineProps<{
 
 const model = defineModel<string | undefined>()
 
-const selectedOther = ref(model.value && !props.options.includes(model.value))
-const other = ref<string | undefined>(selectedOther.value ? model.value : undefined)
+const selectedOther = ref(false)
 
+const isOther = computed(() => model.value && !props.options.includes(model.value))
 const choice = computed({
   get() {
     if (props.options.includes(model.value as string)) return model.value
-    return selectedOther.value ? "Other..." : undefined
+    return model.value ? "Other..." : undefined
   },
   set(newV) {
-    selectedOther.value = newV === "Other..."
-    model.value = newV === "Other..." ? other.value : newV
+    if (newV === "Other...") {
+      selectedOther.value = true
+      model.value = undefined
+    } else {
+      selectedOther.value = false
+      model.value = newV
+    }
   },
-})
-
-watchEffect(() => {
-  if (selectedOther.value) model.value = other.value
 })
 </script>
