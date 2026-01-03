@@ -39,6 +39,7 @@ export default defineNuxtConfig({
         "randomcolor",
         "tailvue",
         "mime-types",
+        "pdfjs-viewer-element",
       ],
     },
   },

@@ -335,6 +335,7 @@ describe("songs", () => {
       // cy.readFile(`${downloadsFolder}/Test Two - Test Attach.mp3`)
 
       cy.dataCy("delete-media").first().click({ force: true })
+      cy.contains("Test URL").should("not.exist")
       cy.dataCy("delete-media").click({ force: true })
 
       cy.contains("Test URL").should("not.exist")
