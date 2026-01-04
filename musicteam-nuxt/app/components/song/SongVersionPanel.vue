@@ -11,11 +11,7 @@
       :loading="sheets?.song_sheets === undefined"
       :options="sheetTabs"
     >
-      <button
-        class="self-end mr-4 btn-icon"
-        title="Download"
-        @click="download(selectedSheet)"
-      >
+      <button class="mr-4 btn-icon" title="Download" @click="download(selectedSheet)">
         <Icon name="solar:download-minimalistic-bold" />
       </button>
       <button v-if="canEdit" class="btn-gray" data-cy="edit-sheet" @click="edit">

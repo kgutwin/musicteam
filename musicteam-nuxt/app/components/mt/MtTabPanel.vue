@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="div-panel div-tab-panel my-4">
+  <div class="div-panel div-tab-panel my-4">
+    <div class="div-tab-panel-tabs">
       <MtText v-if="loading" loading="w-20 mx-4" />
       <button
         v-else
@@ -12,7 +12,8 @@
       >
         {{ opt.title }}
       </button>
-      <div class="sm:grow" />
+    </div>
+    <div class="div-tab-panel-buttons">
       <slot></slot>
     </div>
   </div>
@@ -31,7 +32,13 @@ const selected = defineModel<string>()
 
 <style>
 .div-tab-panel {
-  @apply flex flex-row gap-4 items-baseline flex-wrap sm:flex-nowrap;
+  @apply flex flex-col md:flex-row gap-4;
+}
+.div-tab-panel-buttons {
+  @apply flex flex-row gap-4 items-start flex-wrap sm:flex-nowrap;
+}
+.div-tab-panel-tabs {
+  @apply grow flex flex-row flex-wrap gap-4;
 }
 .btn-tab {
   @apply font-semibold rounded-lg px-4 py-1 border-2 border-transparent;

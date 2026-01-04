@@ -57,7 +57,7 @@
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
         <button
-          class="self-end btn-icon"
+          class="btn-icon"
           title="Copy to Clipboard"
           @click="copySetlistToClipboard"
         >
@@ -84,7 +84,7 @@
         </MtDropdown>
         <button
           v-if="selectedTab === 'pdf' || selectedTab === 'lyrics'"
-          class="self-center mr-4"
+          class="self-center"
           title="Download"
           @click="downloadPacket(selectedTab)"
         >
@@ -92,7 +92,7 @@
         </button>
         <button
           v-if="selectedTab === 'pdf'"
-          class="self-center mr-4"
+          class="self-center"
           :class="{ 'text-blue-500': twoPageAlign }"
           title="Two-page Align"
           @click="twoPageAlign = !twoPageAlign"
