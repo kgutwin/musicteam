@@ -85,6 +85,7 @@ jobs:
           component: true
           working-directory: musicteam-nuxt
           record: true
+          tag: component
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
@@ -110,6 +111,7 @@ jobs:
           start: docker run --rm -p 3000:3000 -p 9000:9000 musicteam
           wait-on: http://localhost:3000/api/
           record: true
+          tag: e2e
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
