@@ -63,7 +63,12 @@
         >
           <Icon name="solar:copy-outline" />
         </button>
-        <button v-if="canLead" class="btn-gray" @click="editOrder = !editOrder">
+        <button
+          v-if="canLead"
+          class="btn-gray"
+          data-cy="edit-order"
+          @click="editOrder = !editOrder"
+        >
           {{ editOrder ? "Done" : "Edit" }}
         </button>
         <button v-if="canLead" class="btn-gray" @click="makeActive">Make Active</button>

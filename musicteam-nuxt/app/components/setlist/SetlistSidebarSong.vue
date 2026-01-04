@@ -1,14 +1,17 @@
 <template>
-  <div class="p-2 flex flex-row gap-2 rounded-lg bg-white" data-cy="sidebar-song">
+  <div class="sidebar-song" data-cy="sidebar-song">
     <div>
       <button @click="rotateType" :title="sheet.type.slice(2)" data-cy="state">
         <Icon :name="typeIcon[sheet.type]" />
       </button>
     </div>
     <div class="grow" :class="{ 'cursor-grab': draggable }">
+      <div v-if="songSheet" class="sidebar-song-sheet">
+        <span>{{ songSheet.type }}</span>
+        <span class="pl-2">{{ songSheet.key }}</span>
+      </div>
       <NuxtLink :to="`/songs/${song?.id}?sheet=${sheet.song_sheet_id}`">
         <MtText is="span" loading="w-48" :text="song?.title" />
-        <template v-if="songSheet"> ({{ songSheet.key }})</template>
       </NuxtLink>
     </div>
     <MtDropdown>
@@ -163,4 +166,13 @@ async function remove() {
 }
 </script>
 
-<style></style>
+<style>
+.sidebar-song {
+  @apply p-2 flex flex-row gap-2 rounded-lg bg-white;
+}
+.sidebar-song-sheet {
+  @apply float-right;
+  @apply flex flex-row gap-2 divide-x divide-white px-3;
+  @apply rounded-full bg-gray-200 mt-0.5 text-sm;
+}
+</style>

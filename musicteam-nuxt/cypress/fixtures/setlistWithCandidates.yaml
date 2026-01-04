@@ -70,6 +70,15 @@ objects:
       object_type: application/pdf
       auto_verse_order: true
 
+  - type: songMedia
+    ref: songMediaA
+    links:
+      song: songA
+      songVersion: songVersionA
+    data:
+      title: Test Link
+      url: https://example.com
+
   - type: song
     ref: songB
     data:
@@ -105,6 +114,21 @@ objects:
       object_id: "!Ref sheetObj"
       object_type: text/plain
       auto_verse_order: true
+
+  - type: object
+    ref: songMediaBObj
+    file: test.mp3
+
+  - type: songMedia
+    ref: songMediaB
+    links:
+      song: songB
+      songVersion: songVersionB
+      attachObj: songMediaBObj
+    data:
+      title: Test Attach
+      object_id: "!Ref attachObj"
+      media_type: audio/mpeg
 
   - type: setlistSheet
     links:

@@ -10,6 +10,7 @@
         />
       </template>
     </div>
+    <div v-if="sheets.length === 0" class="italic">No media from set list songs</div>
   </div>
 </template>
 

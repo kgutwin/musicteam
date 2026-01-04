@@ -41,6 +41,7 @@ type FixtureType =
   | "song"
   | "songVersion"
   | "songSheet"
+  | "songMedia"
   | "object"
   | "setlist"
   | "setlistPosition"
@@ -52,6 +53,7 @@ const fixtureUrls: Record<FixtureType, (p: LinkRecord) => string> = {
   song: ($) => `/songs`,
   songVersion: ($) => `/songs/${$.song}/versions`,
   songSheet: ($) => `/songs/${$.song}/versions/${$.songVersion}/sheets`,
+  songMedia: ($) => `/songs/${$.song}/versions/${$.songVersion}/media`,
   object: ($) => `/objects?base64=true`,
   setlist: ($) => `/setlists`,
   setlistPosition: ($) => `/setlists/${$.setlist}/pos`,

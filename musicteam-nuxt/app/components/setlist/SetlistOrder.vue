@@ -23,6 +23,7 @@
         <input
           type="checkbox"
           v-model="row.is_music"
+          data-cy="is-music"
           @change="savePosition(row, 'is_music')"
         />
       </template>
@@ -38,10 +39,14 @@
       </template>
       <template #controls="{ row }">
         <div class="flex flex-row gap-1">
-          <button @click="addPosition(row)">
+          <button @click="addPosition(row)" data-cy="add-position">
             <Icon name="ri:add-large-line" size="20" />
           </button>
-          <button class="hover:text-red-500" @click="deletePosition(row)">
+          <button
+            class="hover:text-red-500"
+            data-cy="delete-position"
+            @click="deletePosition(row)"
+          >
             <Icon name="ri:delete-bin-6-line" size="20" />
           </button>
           <button class="drag-handle"><Icon name="ri:draggable" size="20" /></button>
