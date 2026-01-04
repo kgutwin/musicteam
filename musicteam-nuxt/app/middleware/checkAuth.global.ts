@@ -5,8 +5,8 @@ export default defineNuxtRouteMiddleware((to) => {
   )
     return
 
-  const { canView } = useRole()
-  if (!canView) {
+  const { role, canView } = useRole()
+  if (role && !canView) {
     return navigateTo("/pending")
   }
 })
