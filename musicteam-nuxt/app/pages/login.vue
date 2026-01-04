@@ -9,6 +9,7 @@
     <div v-if="!pingStore.isAwake" class="text-center">
       Hang tight, the app is waking up
       <Icon name="svg-spinners:3-dots-fade" />
+      ({{ pingStore.pings }})
     </div>
     <div v-else-if="!signingIn">
       <a
