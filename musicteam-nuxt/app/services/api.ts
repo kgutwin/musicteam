@@ -285,6 +285,11 @@ export interface Song {
   created_on: string;
   /** Creator Id */
   creator_id: string;
+  /**
+   * Last Modified
+   * @format date-time
+   */
+  last_modified: string;
 }
 
 /** SearchSongHit */
@@ -518,6 +523,32 @@ export interface SongMedia {
 export interface SongMediaList {
   /** Song Media */
   song_media: SongMedia[];
+}
+
+/** SongRevision */
+export interface SongRevision {
+  /** Title */
+  title: string;
+  /** Authors */
+  authors: string[];
+  /** CCLI Number */
+  ccli_num: number | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Rev Id */
+  rev_id: string;
+  /**
+   * Rev Created On
+   * @format date-time
+   */
+  rev_created_on: string;
+  /** Rev Changed By */
+  rev_changed_by: string | null;
+  /** Id */
+  id: string;
 }
 
 /** SongSheet */

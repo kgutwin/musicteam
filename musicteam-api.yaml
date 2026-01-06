@@ -1980,6 +1980,10 @@ components:
         creator_id:
           title: Creator Id
           type: string
+        last_modified:
+          format: date-time
+          title: Last Modified
+          type: string
       required:
       - title
       - authors
@@ -1987,6 +1991,7 @@ components:
       - id
       - created_on
       - creator_id
+      - last_modified
       title: Song
       type: object
     SearchSongHit:
@@ -2353,6 +2358,52 @@ components:
       required:
       - song_media
       title: SongMediaList
+      type: object
+    SongRevision:
+      properties:
+        title:
+          title: Title
+          type: string
+        authors:
+          items:
+            type: string
+          title: Authors
+          type: array
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        rev_id:
+          title: Rev Id
+          type: string
+        rev_created_on:
+          format: date-time
+          title: Rev Created On
+          type: string
+        rev_changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rev Changed By
+        id:
+          title: Id
+          type: string
+      required:
+      - title
+      - authors
+      - ccli_num
+      - rev_id
+      - rev_created_on
+      - rev_changed_by
+      - id
+      title: SongRevision
       type: object
     SongSheet:
       properties:

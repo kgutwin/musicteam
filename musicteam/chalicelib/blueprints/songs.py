@@ -58,7 +58,9 @@ def list_songs(query_params: ListSongParams) -> Forbidden | SongList:
 
         where = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
         curs = conn.execute(
-            f"SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
+            f"SELECT"
+            f"  id, title, authors, ccli_num, tags, created_on, creator_id,"
+            f"  last_modified "
             f"FROM songs {where} "
             f"ORDER BY title",
             params,
@@ -83,7 +85,8 @@ def new_song(request_body: NewSong) -> Forbidden | Song:
         curs = conn.execute(
             "INSERT INTO songs (title, authors, ccli_num, tags, creator_id) "
             "VALUES (:title, :authors, :ccli_num, :tags, :creator_id) "
-            "RETURNING id, title, authors, ccli_num, tags, created_on, creator_id",
+            "RETURNING id, title, authors, ccli_num, tags, created_on, creator_id,"
+            "          last_modified",
             request_body.model_dump()
             | {"creator_id": session_user(bp.current_request).id},
             output=Song,
@@ -102,7 +105,9 @@ def get_song(song_id: str) -> Forbidden | NotFound | Song:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
+            "SELECT"
+            "  id, title, authors, ccli_num, tags, created_on, creator_id,"
+            "  last_modified "
             "FROM songs WHERE id = :id",
             {"id": song_id},
             output=Song,
@@ -123,6 +128,7 @@ def update_song(
         return NoContent()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE songs SET {request_body.replacement_sql} WHERE id = :id",
             {"id": song_id} | request_body.replacement_params,

@@ -24,7 +24,7 @@ from pydantic import BaseModel
 
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 4
+DB_VERSION = 5
 
 DatabaseResumingException = boto3.client(
     "rds-data"
@@ -51,7 +51,7 @@ try:
     PGLITE_AVAILABLE = True
     PGLITE_MANAGER: PGliteManager | None = None
 
-    PSYCOPG_PARAM = re.compile(r"(?<=[^:]):(\w+)")
+    PSYCOPG_PARAM = re.compile(r"(?<=[^:]):([a-z]\w+)")
 
 except ImportError:
     PGLITE_AVAILABLE = False
@@ -218,6 +218,15 @@ class Interface:
         with handle_errors(sql, translated_params):
             curs.executemany(sql, translated_params)
 
+    def set_session_id(self, sessid: str) -> None:
+        # We need to do special validation on the session ID since
+        # we're not allowed to use parameters for it
+        ALLOWED_CHARS = "u:0123456789-abcdef"
+        if any(c not in ALLOWED_CHARS for c in sessid):
+            raise ValueError(f"invalid session ID: {sessid}")
+
+        self.execute(f"SET LOCAL my.id TO '{sessid}'")
+
 
 @contextlib.contextmanager
 def connect(transaction: bool = False) -> Iterator[Interface]:
@@ -297,7 +306,7 @@ def upgrade_db() -> bool:
             )
             with open(schema_fn) as fp:
                 # todo: more intelligent statement splitting
-                for statement in fp.read().split(";"):
+                for statement in fp.read().split(";\n\n"):
                     print(statement)
                     conn.execute(statement)
 

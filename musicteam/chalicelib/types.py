@@ -35,6 +35,13 @@ class _CoreModel(BaseModel):
     creator_id: str
 
 
+class _CoreRevisionModel(BaseModel):
+    rev_id: str
+    rev_created_on: datetime
+    rev_changed_by: str | None
+    id: str
+
+
 # API Models
 
 
@@ -128,7 +135,7 @@ class UpdateSong(_ReplacementModel):
 
 
 class Song(_CoreModel, NewSong):
-    pass
+    last_modified: datetime
 
 
 class SongList(BaseModel):
@@ -169,10 +176,15 @@ class _SearchSongRow(Song):
                 tags=self.tags,
                 created_on=self.created_on,
                 creator_id=self.creator_id,
+                last_modified=self.last_modified,
             ),
             highlighted=self.highlighted,
             rank=self.rank,
         )
+
+
+class SongRevision(_CoreRevisionModel, NewSong):
+    pass
 
 
 class NewSongVersion(BaseModel):

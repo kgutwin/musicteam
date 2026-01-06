@@ -15,7 +15,7 @@ def to_test_bytes(doc, compress=False):
         opts["garbage"] = 3
         opts["deflate"] = True
         opts["use_objstms"] = 1
-    return re.sub(rb"/ID\[<[0-9A-F]+><[0-9A-F]+>\]", STATIC_ID, doc.tobytes(**opts))
+    return re.sub(rb"/ID\[[^]]+\]", STATIC_ID, doc.tobytes(**opts))
 
 
 class PDFSnapshotExtension(SingleFileSnapshotExtension):
