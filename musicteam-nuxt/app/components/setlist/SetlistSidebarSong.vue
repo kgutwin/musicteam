@@ -173,6 +173,6 @@ async function remove() {
 .sidebar-song-sheet {
   @apply float-right;
   @apply flex flex-row gap-2 divide-x divide-white px-3;
-  @apply rounded-full bg-gray-200 mt-0.5 text-sm;
+  @apply rounded-full bg-gray-200 mt-0.5 ml-1 text-sm;
 }
 </style>
