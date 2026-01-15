@@ -33,7 +33,7 @@ export const usePingStore = defineStore("api-ping", () => {
 
   /** Ping until success */
   async function wake(): Promise<void> {
-    while (!ping()) {
+    while (!(await ping())) {
       await sleep(1000)
     }
   }
