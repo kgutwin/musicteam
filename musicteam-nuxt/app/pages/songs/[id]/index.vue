@@ -174,7 +174,10 @@ const refreshStore = useSongRefreshStore()
 
 const { canEdit } = useRole()
 
-const { id } = useRoute().params
+const {
+  query,
+  params: { id },
+} = useRoute()
 
 const song = songStore.get({ songId: id as string }).data
 const versions = versionsStore.get({ songId: id as string }).data
@@ -186,7 +189,7 @@ const user = computed(() => {
   return undefined
 })
 
-const selectedVersion = ref<string>()
+const selectedVersion = ref<string>(query.version as string)
 const selectedSheet = ref<SongSheet>()
 
 const version = computed(() => {

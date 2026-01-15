@@ -10,7 +10,9 @@
         <span>{{ songSheet.type }}</span>
         <span class="pl-2">{{ songSheet.key }}</span>
       </div>
-      <NuxtLink :to="`/songs/${song?.id}?sheet=${sheet.song_sheet_id}`">
+      <NuxtLink
+        :to="`/songs/${song?.id}?version=${sheet.song_version_id}&sheet=${sheet.song_sheet_id}`"
+      >
         <MtText is="span" loading="w-48" :text="song?.title" />
       </NuxtLink>
     </div>
