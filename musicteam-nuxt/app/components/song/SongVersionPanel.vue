@@ -175,15 +175,19 @@ function edit() {
     title: "What would you like to do?",
     body:
       "If you have a new set of lyrics, a new verse order, or a new song sheet, " +
-      "it's probably best to click Add a New Version. If you are correcting a " +
+      "it's probably best to click Copy to a New Version. If you are correcting a " +
       "mistake, click Edit Current Version.",
     primary: {
-      label: "Add a New Version",
+      label: "Copy to a New Version",
       theme: "blue",
       action: async () =>
         await navigateTo({
           path: "/songs/new",
-          query: { song: props.version.song_id },
+          query: {
+            song: props.version.song_id,
+            version: props.version.id,
+            copy: "true",
+          },
         }),
     },
     secondary: {
