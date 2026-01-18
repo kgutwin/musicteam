@@ -1,4 +1,5 @@
 <template>
+  <PingBar v-if="pingStore.isPinging" />
   <div class="page-grid page-grid-sidebar-open">
     <NavBar class="col-span-2" />
 
