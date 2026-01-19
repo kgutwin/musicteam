@@ -551,6 +551,12 @@ export interface SongRevision {
   id: string;
 }
 
+/** SongRevisionList */
+export interface SongRevisionList {
+  /** Song Revisions */
+  song_revisions: SongRevision[];
+}
+
 /** SongSheet */
 export interface SongSheet {
   /** Type */
@@ -2228,6 +2234,24 @@ export class Api<
         path: `/songs/${songId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name ListSongRevisions
+     * @summary List song revisions for a given song ID
+     * @request GET:/songs/{song_id}/revisions
+     * @secure
+     */
+    listSongRevisions: (songId: string, params: RequestParams = {}) =>
+      this.request<SongRevisionList, ServerError>({
+        path: `/songs/${songId}/revisions`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 

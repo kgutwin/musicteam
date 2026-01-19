@@ -23,6 +23,8 @@ from chalicelib.types import Song
 from chalicelib.types import SongList
 from chalicelib.types import SongMedia
 from chalicelib.types import SongMediaList
+from chalicelib.types import SongRevision
+from chalicelib.types import SongRevisionList
 from chalicelib.types import SongSheet
 from chalicelib.types import SongSheetList
 from chalicelib.types import SongVersion
@@ -153,6 +155,24 @@ def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
             return BadRequest(
                 "Unable to delete songs that have been added to a set list"
             )
+
+
+@bp.route("/songs/{song_id}/revisions", methods=["GET"])
+def list_song_revisions(song_id: str) -> Forbidden | SongRevisionList:
+    """List song revisions for a given song ID"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT rev_id, rev_created_on, rev_changed_by, id, title, authors,"
+            "    ccli_num, tags "
+            "FROM rev_songs WHERE id = :song_id "
+            "ORDER BY rev_created_on DESC",
+            {"song_id": song_id},
+            output=SongRevision,
+        )
+        return SongRevisionList(song_revisions=curs.fetchall())
 
 
 @bp.route("/songs/{song_id}/versions", methods=["GET"])

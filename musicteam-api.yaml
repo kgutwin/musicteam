@@ -1039,6 +1039,30 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/revisions:
+    get:
+      operationId: songs.list_song_revisions
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongRevisionList'
+      tags:
+      - Songs
+      summary: List song revisions for a given song ID
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
   /songs/{song_id}/versions:
     get:
       operationId: songs.list_song_versions
@@ -2404,6 +2428,17 @@ components:
       - rev_changed_by
       - id
       title: SongRevision
+      type: object
+    SongRevisionList:
+      properties:
+        song_revisions:
+          items:
+            $ref: '#/components/schemas/SongRevision'
+          title: Song Revisions
+          type: array
+      required:
+      - song_revisions
+      title: SongRevisionList
       type: object
     SongSheet:
       properties:

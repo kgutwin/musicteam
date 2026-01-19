@@ -187,6 +187,10 @@ class SongRevision(_CoreRevisionModel, NewSong):
     pass
 
 
+class SongRevisionList(BaseModel):
+    song_revisions: list[SongRevision]
+
+
 class NewSongVersion(BaseModel):
     label: str
     verse_order: str | None = None
