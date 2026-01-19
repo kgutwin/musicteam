@@ -25,6 +25,9 @@ from chalicelib.types import SongMedia
 from chalicelib.types import SongMediaList
 from chalicelib.types import SongRevision
 from chalicelib.types import SongRevisionList
+from chalicelib.types import SongRevisionSong
+from chalicelib.types import SongRevisionSongSheet
+from chalicelib.types import SongRevisionSongVersion
 from chalicelib.types import SongSheet
 from chalicelib.types import SongSheetList
 from chalicelib.types import SongVersion
@@ -165,15 +168,40 @@ def list_song_revisions(song_id: str) -> Forbidden | SongRevisionList:
         return Forbidden()
 
     with db.connect() as conn:
-        curs = conn.execute(
-            "SELECT rev_id, rev_created_on, rev_changed_by, id, title, authors,"
-            "    ccli_num, tags "
+        rev_songs = conn.execute(
+            "SELECT rev_id, 'song' AS rev_type, rev_created_on, rev_changed_by,"
+            "    id, title, authors, ccli_num, tags "
             "FROM rev_songs WHERE id = :song_id "
             "ORDER BY rev_created_on DESC",
             {"song_id": song_id},
-            output=SongRevision,
+            output=SongRevisionSong,
+        ).fetchall()
+
+        rev_song_versions = conn.execute(
+            "SELECT rev_id, 'song_version' AS rev_type, rev_created_on, rev_changed_by,"
+            "    id, song_id, label, verse_order, lyrics, tags "
+            "FROM rev_song_versions WHERE song_id = :song_id "
+            "ORDER BY rev_created_on DESC",
+            {"song_id": song_id},
+            output=SongRevisionSongVersion,
+        ).fetchall()
+
+        rev_song_sheets = conn.execute(
+            "SELECT rev_id, 'song_sheet' AS rev_type, rev_created_on, rev_changed_by,"
+            "    id, song_version_id, type, key, tags, object_id, object_type "
+            "FROM rev_song_sheets WHERE song_id = :song_id "
+            "ORDER BY rev_created_on DESC",
+            {"song_id": song_id},
+            output=SongRevisionSongSheet,
+        ).fetchall()
+
+        all_revs: list[SongRevision] = rev_songs + rev_song_versions + rev_song_sheets
+
+        return SongRevisionList(
+            song_revisions=sorted(
+                all_revs, reverse=True, key=lambda r: r.rev_created_on
+            )
         )
-        return SongRevisionList(song_revisions=curs.fetchall())
 
 
 @bp.route("/songs/{song_id}/versions", methods=["GET"])

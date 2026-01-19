@@ -2383,7 +2383,7 @@ components:
       - song_media
       title: SongMediaList
       type: object
-    SongRevision:
+    SongRevisionSong:
       properties:
         title:
           title: Title
@@ -2419,6 +2419,10 @@ components:
         id:
           title: Id
           type: string
+        rev_type:
+          const: song
+          title: Rev Type
+          type: string
       required:
       - title
       - authors
@@ -2427,13 +2431,141 @@ components:
       - rev_created_on
       - rev_changed_by
       - id
-      title: SongRevision
+      - rev_type
+      title: SongRevisionSong
+      type: object
+    SongRevisionSongSheet:
+      properties:
+        type:
+          title: Type
+          type: string
+        key:
+          title: Key
+          type: string
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        object_id:
+          title: Object Id
+          type: string
+        object_type:
+          title: Object Type
+          type: string
+        auto_verse_order:
+          default: true
+          title: Auto Verse Order
+          type: boolean
+        rev_id:
+          title: Rev Id
+          type: string
+        rev_created_on:
+          format: date-time
+          title: Rev Created On
+          type: string
+        rev_changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rev Changed By
+        id:
+          title: Id
+          type: string
+        rev_type:
+          const: song_sheet
+          title: Rev Type
+          type: string
+        song_id:
+          title: Song Id
+          type: string
+        song_version_id:
+          title: Song Version Id
+          type: string
+      required:
+      - type
+      - key
+      - object_id
+      - object_type
+      - rev_id
+      - rev_created_on
+      - rev_changed_by
+      - id
+      - rev_type
+      - song_id
+      - song_version_id
+      title: SongRevisionSongSheet
+      type: object
+    SongRevisionSongVersion:
+      properties:
+        label:
+          title: Label
+          type: string
+        verse_order:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Verse Order
+        lyrics:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lyrics
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        rev_id:
+          title: Rev Id
+          type: string
+        rev_created_on:
+          format: date-time
+          title: Rev Created On
+          type: string
+        rev_changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rev Changed By
+        id:
+          title: Id
+          type: string
+        rev_type:
+          const: song_version
+          title: Rev Type
+          type: string
+        song_id:
+          title: Song Id
+          type: string
+      required:
+      - label
+      - rev_id
+      - rev_created_on
+      - rev_changed_by
+      - id
+      - rev_type
+      - song_id
+      title: SongRevisionSongVersion
       type: object
     SongRevisionList:
       properties:
         song_revisions:
           items:
-            $ref: '#/components/schemas/SongRevision'
+            discriminator:
+              mapping:
+                song: '#/components/schemas/SongRevisionSong'
+                song_sheet: '#/components/schemas/SongRevisionSongSheet'
+                song_version: '#/components/schemas/SongRevisionSongVersion'
+              propertyName: rev_type
+            oneOf:
+            - $ref: '#/components/schemas/SongRevisionSong'
+            - $ref: '#/components/schemas/SongRevisionSongVersion'
+            - $ref: '#/components/schemas/SongRevisionSongSheet'
           title: Song Revisions
           type: array
       required:

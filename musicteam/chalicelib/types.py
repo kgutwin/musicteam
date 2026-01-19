@@ -2,6 +2,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Annotated
 from typing import Any
 from typing import Literal
 from typing import Self
@@ -183,14 +184,6 @@ class _SearchSongRow(Song):
         )
 
 
-class SongRevision(_CoreRevisionModel, NewSong):
-    pass
-
-
-class SongRevisionList(BaseModel):
-    song_revisions: list[SongRevision]
-
-
 class NewSongVersion(BaseModel):
     label: str
     verse_order: str | None = None
@@ -237,6 +230,31 @@ class SongSheet(_CoreModel, NewSongSheet):
 
 class SongSheetList(BaseModel):
     song_sheets: list[SongSheet]
+
+
+class SongRevisionSong(_CoreRevisionModel, NewSong):
+    rev_type: Literal["song"]
+
+
+class SongRevisionSongVersion(_CoreRevisionModel, NewSongVersion):
+    rev_type: Literal["song_version"]
+    song_id: str
+
+
+class SongRevisionSongSheet(_CoreRevisionModel, NewSongSheet):
+    rev_type: Literal["song_sheet"]
+    song_id: str
+    song_version_id: str
+
+
+SongRevision = Annotated[
+    SongRevisionSong | SongRevisionSongVersion | SongRevisionSongSheet,
+    Field(discriminator="rev_type"),
+]
+
+
+class SongRevisionList(BaseModel):
+    song_revisions: list[SongRevision]
 
 
 class _Object(BaseModel):
