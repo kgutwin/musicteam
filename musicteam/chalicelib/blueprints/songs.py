@@ -148,6 +148,7 @@ def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
         return Forbidden()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute("DELETE FROM songs WHERE id = :id", {"id": song_id})
             return NoContent() if result else NotFound()

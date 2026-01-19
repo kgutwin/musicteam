@@ -16,7 +16,7 @@ def test_songs_new(client):
     assert response.json_body["title"] == "test song"
 
 
-def test_songs_update(client, db):
+def test_songs_update_delete(client, db):
     response = client.http.post(
         "/songs",
         json={
@@ -39,3 +39,16 @@ def test_songs_update(client, db):
     assert revs[0]["title"] == "test song"
     assert revs[0]["id"] == song_id
     assert revs[0]["rev_changed_by"] == "u:41c95da1-7eaf-4d0f-8669-6df165204d6c"
+
+    response = client.http.delete(f"/songs/{song_id}")
+    assert response.status_code == 204
+
+    response = client.http.get(f"/songs/{song_id}")
+    assert response.status_code == 404
+
+    response = client.http.get(f"/songs/{song_id}/revisions")
+    assert response.status_code == 200
+    revs = response.json_body["song_revisions"]
+
+    assert len(revs) == 2
+    assert revs[0]["title"] == "new song"

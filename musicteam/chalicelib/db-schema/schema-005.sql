@@ -16,10 +16,12 @@ CREATE TABLE rev_songs (
 CREATE FUNCTION revision_track_songs() RETURNS TRIGGER AS $$
     BEGIN
         INSERT INTO rev_songs (
-            rev_created_on, rev_changed_by,
+            rev_created_on,
+            rev_changed_by,
             id, title, authors, ccli_num, tags
         ) VALUES (
-            NEW.last_modified, current_setting('my.id', TRUE),
+            coalesce(NEW.last_modified, OLD.last_modified),
+            current_setting('my.id', TRUE),
             OLD.id, OLD.title, OLD.authors, OLD.ccli_num, OLD.tags
         );
         NEW.last_modified = localtimestamp(4);
