@@ -254,6 +254,11 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
 
     global PGLITE_MANAGER
     if PGLITE_MANAGER is None:
+        # NOTE: the version installed by py-pglite is really old
+        # (0.3.0) and there is at least one important bug that causes
+        # the backend to crash. It's probably worth either
+        # monkeypatching py-pglite to install a newer version or else
+        # just rolling the entire thing ourselves.
         if os.path.exists(os.path.join(INSTANCE_DIR, "pglite_manager.js")):
             os.unlink(os.path.join(INSTANCE_DIR, "pglite_manager.js"))
         config = PGliteConfig(

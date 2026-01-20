@@ -188,7 +188,7 @@ def list_song_revisions(song_id: str) -> Forbidden | SongRevisionList:
 
         rev_song_sheets = conn.execute(
             "SELECT rev_id, 'song_sheet' AS rev_type, rev_created_on, rev_changed_by,"
-            "    id, song_version_id, type, key, tags, object_id, object_type "
+            "    id, song_id, song_version_id, type, key, tags, object_id, object_type "
             "FROM rev_song_sheets WHERE song_id = :song_id "
             "ORDER BY rev_created_on DESC",
             {"song_id": song_id},
@@ -281,6 +281,7 @@ def update_song_version(
         return NoContent()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE song_versions SET {request_body.replacement_sql} "
             f"WHERE id = :version_id AND song_id = :song_id",
@@ -303,6 +304,7 @@ def delete_song_version(
         return Forbidden()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute(
                 "DELETE FROM song_versions "
@@ -406,6 +408,7 @@ def update_song_sheet(
         return NoContent()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE song_sheets SET {request_body.replacement_sql} "
             f"WHERE id = :sheet_id AND song_version_id = :version_id",
@@ -430,6 +433,7 @@ def delete_song_sheet(
         return Forbidden()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute(
                 "DELETE FROM song_sheets "
