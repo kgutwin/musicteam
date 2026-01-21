@@ -3,8 +3,8 @@ black==25.12.0
 mypy==1.18.2
 pytest==9.0.2
 syrupy==5.0.0
-py-pglite==0.5.3
 psycopg==3.3.2
+types-psutil==7.2.1.20260116
 types-requests-oauthlib==2.0.0.20250809
 apispec==6.9.0
 apispec-pydantic-plugin==0.8.2

@@ -38,15 +38,8 @@ try:
     if AURORA_CLUSTER_ARN is not None and AURORA_SECRET_ARN is not None:
         raise ImportError()
 
-    from py_pglite import PGliteManager, PGliteConfig  # type: ignore[import-untyped]
+    from chalicelib.pglite import PGliteManager
     import psycopg
-
-    import py_pglite.extensions  # type: ignore[import-untyped]
-
-    py_pglite.extensions.SUPPORTED_EXTENSIONS["uuid_ossp"] = {
-        "module": "@electric-sql/pglite/contrib/uuid_ossp",
-        "name": "uuid_ossp",
-    }
 
     PGLITE_AVAILABLE = True
     PGLITE_MANAGER: PGliteManager | None = None
@@ -254,31 +247,7 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
 
     global PGLITE_MANAGER
     if PGLITE_MANAGER is None:
-        # NOTE: the version installed by py-pglite is really old
-        # (0.3.0) and there is at least one important bug that causes
-        # the backend to crash. It's probably worth either
-        # monkeypatching py-pglite to install a newer version or else
-        # just rolling the entire thing ourselves.
-        if os.path.exists(os.path.join(INSTANCE_DIR, "pglite_manager.js")):
-            os.unlink(os.path.join(INSTANCE_DIR, "pglite_manager.js"))
-        config = PGliteConfig(
-            work_dir=INSTANCE_DIR,
-            extensions=[
-                "uuid_ossp",
-            ],
-        )
-        PGLITE_MANAGER = PGliteManager(config)
-
-        # monkeypatch pglite to save database to disk
-        _orig_content = PGLITE_MANAGER._generate_unix_js_content
-
-        def generate_content(ext_requires_str: str, ext_obj_str: str) -> str:
-            content = cast(str, _orig_content(ext_requires_str, ext_obj_str))
-            content = content.replace("new PGlite(", 'new PGlite("./datadir", ')
-            return content
-
-        PGLITE_MANAGER._generate_unix_js_content = generate_content
-
+        PGLITE_MANAGER = PGliteManager(INSTANCE_DIR)
         PGLITE_MANAGER.start()
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
