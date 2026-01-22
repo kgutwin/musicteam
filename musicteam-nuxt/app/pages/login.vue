@@ -36,6 +36,8 @@ const pingStore = usePingStore()
 const signingIn = ref<boolean>(!!route?.query?.complete)
 const callbackUrl = ref<string | null>(sessionStorage.getItem("callbackUrl"))
 
+pingStore.wake()
+
 if (route?.query?.redirect) {
   callbackUrl.value = route.query.redirect as string
   sessionStorage.setItem("callbackUrl", callbackUrl.value!)

@@ -33,11 +33,13 @@ const numMedia = computed(() => {
   let rv: Record<string, number> = {}
   const sheets = sheetlistStore.get({ setlistId: props.setlistId }).data
   for (const sheet of sheets.value?.sheets ?? []) {
-    rv[sheet.song_version_id] =
-      songMediaStore.get({
-        songId: sheet.song_id,
-        versionId: sheet.song_version_id,
-      }).data?.value?.song_media?.length ?? 0
+    if (sheet.setlist_position_id) {
+      rv[sheet.song_version_id] =
+        songMediaStore.get({
+          songId: sheet.song_id,
+          versionId: sheet.song_version_id,
+        }).data?.value?.song_media?.length ?? 0
+    }
   }
   return Object.values(rv).reduce((acc, v) => acc + v, 0)
 })

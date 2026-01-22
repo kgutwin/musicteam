@@ -1,12 +1,12 @@
 <template>
   <div>
     <Head>
-      <Title v-if="existingSongVersionId">Add Song Sheet - MusicTeam</Title>
+      <Title v-if="addingSheet">Add Song Sheet - MusicTeam</Title>
       <Title v-else-if="existingSongId">Add Song Version - MusicTeam</Title>
       <Title v-else>New Song - MusicTeam</Title>
     </Head>
 
-    <h1 v-if="existingSongVersionId">Add Song Sheet</h1>
+    <h1 v-if="addingSheet">Add Song Sheet</h1>
     <h1 v-else-if="existingSongId">Add Song Version</h1>
     <h1 v-else>New Song</h1>
 
@@ -46,13 +46,13 @@
       </label>
     </form>
 
-    <form class="frm-edit" :disabled="!!existingSongVersionId">
+    <form class="frm-edit" :disabled="addingSheet">
       <label v-if="!existingSongId" class="flex !flex-row-reverse text-sm items-center">
         <span>Not available</span>
         <input
           type="checkbox"
           v-model="inputVersionUnavailable"
-          :disabled="!!existingSongVersionId"
+          :disabled="addingSheet"
         />
       </label>
 
@@ -62,13 +62,13 @@
           <MtSelectOther
             v-model="inputLabel"
             :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
-            :disabled="!!existingSongVersionId"
+            :disabled="addingSheet"
           />
         </label>
 
         <label>
           <span>Verse Order <span class="spn-req">*</span></span>
-          <MtArrayInput v-model="inputVerseOrder" :disabled="!!existingSongVersionId" />
+          <MtArrayInput v-model="inputVerseOrder" :disabled="addingSheet" />
         </label>
 
         <label>
@@ -86,14 +86,19 @@
             </span>
             <span class="grow"></span>
             <span v-if="lyricsHaveChords">
-              <button @click="removeChords" type="button" class="btn-gray">
+              <button
+                @click="removeChords"
+                type="button"
+                class="btn-gray"
+                :disabled="addingSheet"
+              >
                 Remove Chords
               </button>
             </span>
           </div>
           <textarea
             v-model="inputLyrics"
-            :disabled="!!existingSongVersionId"
+            :disabled="addingSheet"
             class="txt-lg"
             rows="12"
             required
@@ -154,7 +159,13 @@ import type { ToasterStatus } from "@/types/toast"
 const { mustHave } = useRole()
 mustHave("leader", "/songs")
 
-const { song: existingSongId, version: existingSongVersionId } = useRoute().query
+const {
+  song: existingSongId,
+  version: existingSongVersionId,
+  copy: copyVersion,
+} = useRoute().query
+
+const addingSheet = !!(existingSongId && existingSongVersionId && !copyVersion)
 
 const inputTitle = ref<string>()
 const inputAuthors = ref<string[]>([])
@@ -266,7 +277,7 @@ async function save() {
       }
 
       let versionId: string
-      if (existingSongVersionId) {
+      if (existingSongVersionId && !copyVersion) {
         versionId = existingSongVersionId as string
       } else {
         const label = inputLabel.value

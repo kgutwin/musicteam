@@ -5,7 +5,7 @@
       class="pb-2 mb-2 border-b border-black flex flex-row gap-2 group"
     >
       <div class="flex flex-col gap-1">
-        <UserIcon :user-id="comment.creator_id" />
+        <UserIcon :user-id="comment.creator_id" class="w-6 flex-none" />
         <button
           v-if="comment.creator_id === authData?.id"
           data-cy="delete-comment"
