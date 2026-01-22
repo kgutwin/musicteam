@@ -98,7 +98,13 @@ CREATE FUNCTION revision_track_song_sheets() RETURNS TRIGGER AS $$
             coalesce(NEW.last_modified, OLD.last_modified),
             current_setting('my.id', TRUE),
             OLD.id,
-            (SELECT song_id FROM song_versions WHERE id = OLD.song_version_id),
+            coalesce(
+                (SELECT song_id FROM song_versions WHERE id = OLD.song_version_id),
+                (
+                    SELECT DISTINCT song_id FROM rev_song_versions
+                    WHERE id = OLD.song_version_id
+                )
+            ),
             OLD.song_version_id, OLD.type, OLD.key, OLD.tags, OLD.object_id,
             OLD.object_type
         );
