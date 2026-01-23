@@ -84,28 +84,27 @@ class PGliteManager:
             with open(package_json, "w") as f:
                 json.dump(package_content, f, indent=2)
 
-        # Create pglite_manager.js if it doesn't exist
+        # Create pglite_manager.js
         manager_js = work_dir / "pglite_manager.js"
-        if not manager_js.exists():
-            # Generate JavaScript for extensions
-            ext_requires = []
-            ext_configs = []
-            for ext_name, ext_info in self.EXTENSIONS.items():
-                ext_requires.append(
-                    f"const {{ {ext_info['name']} }} = require('{ext_info['module']}');"
-                )
-                ext_configs.append(f"    {ext_name}: {ext_info['name']}")
 
-            ext_requires_str = "\n".join(ext_requires)
-            ext_configs_str = ",\n".join(ext_configs)
-            extensions_obj_str = f"{{\n{ext_configs_str}\n}}" if ext_configs else "{}"
-
-            # Generate JavaScript content based on socket mode
-            js_content = self._generate_unix_js_content(
-                ext_requires_str, extensions_obj_str
+        ext_requires = []
+        ext_configs = []
+        for ext_name, ext_info in self.EXTENSIONS.items():
+            ext_requires.append(
+                f"const {{ {ext_info['name']} }} = require('{ext_info['module']}');"
             )
-            with open(manager_js, "w") as f:
-                f.write(js_content)
+            ext_configs.append(f"    {ext_name}: {ext_info['name']}")
+
+        ext_requires_str = "\n".join(ext_requires)
+        ext_configs_str = ",\n".join(ext_configs)
+        extensions_obj_str = f"{{\n{ext_configs_str}\n}}" if ext_configs else "{}"
+
+        # Generate JavaScript content based on socket mode
+        js_content = self._generate_unix_js_content(
+            ext_requires_str, extensions_obj_str
+        )
+        with open(manager_js, "w") as f:
+            f.write(js_content)
 
         return work_dir
 

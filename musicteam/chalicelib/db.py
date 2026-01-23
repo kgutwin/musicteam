@@ -3,6 +3,7 @@ import json
 import os.path
 import random
 import re
+import threading
 import time
 from collections.abc import Sequence
 from typing import Any
@@ -43,6 +44,7 @@ try:
 
     PGLITE_AVAILABLE = True
     PGLITE_MANAGER: PGliteManager | None = None
+    PGLITE_MANAGER_LOCK = threading.Lock()
 
     PSYCOPG_PARAM = re.compile(r"(?<=[^:]):([a-z]\w+)")
 
@@ -144,7 +146,7 @@ class Interface:
         output: type[T] | None = None,
     ) -> Cursor[T] | int:
         # if in psycopg mode, replace parameter syntax
-        if PSYCOPG_PARAM is not None:
+        if parameters and PSYCOPG_PARAM is not None:
             sql = re.sub("%", "%%", sql)
             sql = PSYCOPG_PARAM.sub(r"%(\1)s", sql)
 
@@ -246,9 +248,10 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
     )
 
     global PGLITE_MANAGER
-    if PGLITE_MANAGER is None:
-        PGLITE_MANAGER = PGliteManager(INSTANCE_DIR)
-        PGLITE_MANAGER.start()
+    with PGLITE_MANAGER_LOCK:
+        if PGLITE_MANAGER is None:
+            PGLITE_MANAGER = PGliteManager(INSTANCE_DIR)
+            PGLITE_MANAGER.start()
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
     with cast(aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)) as conn:
