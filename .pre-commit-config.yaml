@@ -24,16 +24,16 @@ repos:
           - "google-auth"
           - "pyjwt"
           - "chalice"
-          - "py-pglite"
           - "psycopg"
+          - "types-psutil"
           - "types-requests-oauthlib"
           - "apispec"
           - "apispec-pydantic-plugin"
           - "boto3-stubs"
           - "pymupdf-stubs==1.26.1-post1"
 
-  - repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.16.0
+  - repo: https://github.com/wimglenn/reorder-python-imports-black
+    rev: v3.14.0
     hooks:
       - id: reorder-python-imports
 

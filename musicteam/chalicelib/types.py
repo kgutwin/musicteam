@@ -2,6 +2,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from typing import Annotated
 from typing import Any
 from typing import Literal
 from typing import Self
@@ -33,6 +34,13 @@ class _CoreModel(BaseModel):
     id: str
     created_on: datetime
     creator_id: str
+
+
+class _CoreRevisionModel(BaseModel):
+    rev_id: str
+    rev_created_on: datetime
+    rev_changed_by: str | None
+    id: str
 
 
 # API Models
@@ -128,7 +136,7 @@ class UpdateSong(_ReplacementModel):
 
 
 class Song(_CoreModel, NewSong):
-    pass
+    last_modified: datetime
 
 
 class SongList(BaseModel):
@@ -169,6 +177,7 @@ class _SearchSongRow(Song):
                 tags=self.tags,
                 created_on=self.created_on,
                 creator_id=self.creator_id,
+                last_modified=self.last_modified,
             ),
             highlighted=self.highlighted,
             rank=self.rank,
@@ -221,6 +230,31 @@ class SongSheet(_CoreModel, NewSongSheet):
 
 class SongSheetList(BaseModel):
     song_sheets: list[SongSheet]
+
+
+class SongRevisionSong(_CoreRevisionModel, NewSong):
+    rev_type: Literal["song"]
+
+
+class SongRevisionSongVersion(_CoreRevisionModel, NewSongVersion):
+    rev_type: Literal["song_version"]
+    song_id: str
+
+
+class SongRevisionSongSheet(_CoreRevisionModel, NewSongSheet):
+    rev_type: Literal["song_sheet"]
+    song_id: str
+    song_version_id: str
+
+
+SongRevision = Annotated[
+    SongRevisionSong | SongRevisionSongVersion | SongRevisionSongSheet,
+    Field(discriminator="rev_type"),
+]
+
+
+class SongRevisionList(BaseModel):
+    song_revisions: list[SongRevision]
 
 
 class _Object(BaseModel):

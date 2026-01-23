@@ -24,7 +24,7 @@ from pydantic import BaseModel
 
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 4
+DB_VERSION = 5
 
 DatabaseResumingException = boto3.client(
     "rds-data"
@@ -38,20 +38,13 @@ try:
     if AURORA_CLUSTER_ARN is not None and AURORA_SECRET_ARN is not None:
         raise ImportError()
 
-    from py_pglite import PGliteManager, PGliteConfig  # type: ignore[import-untyped]
+    from chalicelib.pglite import PGliteManager
     import psycopg
-
-    import py_pglite.extensions  # type: ignore[import-untyped]
-
-    py_pglite.extensions.SUPPORTED_EXTENSIONS["uuid_ossp"] = {
-        "module": "@electric-sql/pglite/contrib/uuid_ossp",
-        "name": "uuid_ossp",
-    }
 
     PGLITE_AVAILABLE = True
     PGLITE_MANAGER: PGliteManager | None = None
 
-    PSYCOPG_PARAM = re.compile(r"(?<=[^:]):(\w+)")
+    PSYCOPG_PARAM = re.compile(r"(?<=[^:]):([a-z]\w+)")
 
 except ImportError:
     PGLITE_AVAILABLE = False
@@ -218,6 +211,15 @@ class Interface:
         with handle_errors(sql, translated_params):
             curs.executemany(sql, translated_params)
 
+    def set_session_id(self, sessid: str) -> None:
+        # We need to do special validation on the session ID since
+        # we're not allowed to use parameters for it
+        ALLOWED_CHARS = "u:0123456789-abcdef"
+        if any(c not in ALLOWED_CHARS for c in sessid):
+            raise ValueError(f"invalid session ID: {sessid}")
+
+        self.execute(f"SET LOCAL my.id TO '{sessid}'")
+
 
 @contextlib.contextmanager
 def connect(transaction: bool = False) -> Iterator[Interface]:
@@ -245,26 +247,7 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
 
     global PGLITE_MANAGER
     if PGLITE_MANAGER is None:
-        if os.path.exists(os.path.join(INSTANCE_DIR, "pglite_manager.js")):
-            os.unlink(os.path.join(INSTANCE_DIR, "pglite_manager.js"))
-        config = PGliteConfig(
-            work_dir=INSTANCE_DIR,
-            extensions=[
-                "uuid_ossp",
-            ],
-        )
-        PGLITE_MANAGER = PGliteManager(config)
-
-        # monkeypatch pglite to save database to disk
-        _orig_content = PGLITE_MANAGER._generate_unix_js_content
-
-        def generate_content(ext_requires_str: str, ext_obj_str: str) -> str:
-            content = cast(str, _orig_content(ext_requires_str, ext_obj_str))
-            content = content.replace("new PGlite(", 'new PGlite("./datadir", ')
-            return content
-
-        PGLITE_MANAGER._generate_unix_js_content = generate_content
-
+        PGLITE_MANAGER = PGliteManager(INSTANCE_DIR)
         PGLITE_MANAGER.start()
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
@@ -297,7 +280,7 @@ def upgrade_db() -> bool:
             )
             with open(schema_fn) as fp:
                 # todo: more intelligent statement splitting
-                for statement in fp.read().split(";"):
+                for statement in fp.read().split(";\n\n"):
                     print(statement)
                     conn.execute(statement)
 

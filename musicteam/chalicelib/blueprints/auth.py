@@ -87,7 +87,7 @@ def auth_callback() -> Forbidden | Found:
 
         payload = google.oauth2.id_token.verify_oauth2_token(  # type: ignore[no-untyped-call]
             token["id_token"],
-            google.auth.transport.requests.Request(),  # type: ignore[no-untyped-call]
+            google.auth.transport.requests.Request(),
             OAUTH_CLIENT_ID,
         )
 

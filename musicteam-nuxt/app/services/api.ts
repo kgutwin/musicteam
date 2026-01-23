@@ -285,6 +285,11 @@ export interface Song {
   created_on: string;
   /** Creator Id */
   creator_id: string;
+  /**
+   * Last Modified
+   * @format date-time
+   */
+  last_modified: string;
 }
 
 /** SearchSongHit */
@@ -518,6 +523,125 @@ export interface SongMedia {
 export interface SongMediaList {
   /** Song Media */
   song_media: SongMedia[];
+}
+
+/** SongRevisionSong */
+export interface SongRevisionSong {
+  /** Title */
+  title: string;
+  /** Authors */
+  authors: string[];
+  /** CCLI Number */
+  ccli_num: number | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Rev Id */
+  rev_id: string;
+  /**
+   * Rev Created On
+   * @format date-time
+   */
+  rev_created_on: string;
+  /** Rev Changed By */
+  rev_changed_by: string | null;
+  /** Id */
+  id: string;
+  /** Rev Type */
+  rev_type: "song";
+}
+
+/** SongRevisionSongSheet */
+export interface SongRevisionSongSheet {
+  /** Type */
+  type: string;
+  /** Key */
+  key: string;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Object Id */
+  object_id: string;
+  /** Object Type */
+  object_type: string;
+  /**
+   * Auto Verse Order
+   * @default true
+   */
+  auto_verse_order?: boolean;
+  /** Rev Id */
+  rev_id: string;
+  /**
+   * Rev Created On
+   * @format date-time
+   */
+  rev_created_on: string;
+  /** Rev Changed By */
+  rev_changed_by: string | null;
+  /** Id */
+  id: string;
+  /** Rev Type */
+  rev_type: "song_sheet";
+  /** Song Id */
+  song_id: string;
+  /** Song Version Id */
+  song_version_id: string;
+}
+
+/** SongRevisionSongVersion */
+export interface SongRevisionSongVersion {
+  /** Label */
+  label: string;
+  /**
+   * Verse Order
+   * @default null
+   */
+  verse_order?: string | null;
+  /**
+   * Lyrics
+   * @default null
+   */
+  lyrics?: string | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Rev Id */
+  rev_id: string;
+  /**
+   * Rev Created On
+   * @format date-time
+   */
+  rev_created_on: string;
+  /** Rev Changed By */
+  rev_changed_by: string | null;
+  /** Id */
+  id: string;
+  /** Rev Type */
+  rev_type: "song_version";
+  /** Song Id */
+  song_id: string;
+}
+
+/** SongRevisionList */
+export interface SongRevisionList {
+  /** Song Revisions */
+  song_revisions: (
+    | ({
+        rev_type: "song";
+      } & SongRevisionSong)
+    | ({
+        rev_type: "song_sheet";
+      } & SongRevisionSongSheet)
+    | ({
+        rev_type: "song_version";
+      } & SongRevisionSongVersion)
+  )[];
 }
 
 /** SongSheet */
@@ -2197,6 +2321,24 @@ export class Api<
         path: `/songs/${songId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name ListSongRevisions
+     * @summary List song revisions for a given song ID
+     * @request GET:/songs/{song_id}/revisions
+     * @secure
+     */
+    listSongRevisions: (songId: string, params: RequestParams = {}) =>
+      this.request<SongRevisionList, ServerError>({
+        path: `/songs/${songId}/revisions`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 

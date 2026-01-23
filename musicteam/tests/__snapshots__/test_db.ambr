@@ -45,6 +45,84 @@
   $$;
   
   
+  --
+  -- Name: revision_track_song_sheets(); Type: FUNCTION; Schema: public; Owner: -
+  --
+  
+  CREATE FUNCTION public.revision_track_song_sheets() RETURNS trigger
+      LANGUAGE plpgsql
+      AS $$
+      BEGIN
+          INSERT INTO rev_song_sheets(
+              rev_created_on,
+              rev_changed_by,
+              id, song_id, song_version_id, type, key, tags, object_id, object_type
+          ) VALUES (
+              coalesce(NEW.last_modified, OLD.last_modified),
+              current_setting('my.id', TRUE),
+              OLD.id,
+              coalesce(
+                  (SELECT song_id FROM song_versions WHERE id = OLD.song_version_id),
+                  (
+                      SELECT DISTINCT song_id FROM rev_song_versions
+                      WHERE id = OLD.song_version_id
+                  )
+              ),
+              OLD.song_version_id, OLD.type, OLD.key, OLD.tags, OLD.object_id,
+              OLD.object_type
+          );
+          NEW.last_modified = localtimestamp(4);
+          RETURN NEW;
+      END;
+  $$;
+  
+  
+  --
+  -- Name: revision_track_song_versions(); Type: FUNCTION; Schema: public; Owner: -
+  --
+  
+  CREATE FUNCTION public.revision_track_song_versions() RETURNS trigger
+      LANGUAGE plpgsql
+      AS $$
+      BEGIN
+          INSERT INTO rev_song_versions (
+              rev_created_on,
+              rev_changed_by,
+              id, song_id, label, verse_order, lyrics, tags
+          ) VALUES (
+              coalesce(NEW.last_modified, OLD.last_modified),
+              current_setting('my.id', TRUE),
+              OLD.id, OLD.song_id, OLD.label, OLD.verse_order, OLD.lyrics, OLD.tags
+          );
+          NEW.last_modified = localtimestamp(4);
+          RETURN NEW;
+      END;
+  $$;
+  
+  
+  --
+  -- Name: revision_track_songs(); Type: FUNCTION; Schema: public; Owner: -
+  --
+  
+  CREATE FUNCTION public.revision_track_songs() RETURNS trigger
+      LANGUAGE plpgsql
+      AS $$
+      BEGIN
+          INSERT INTO rev_songs (
+              rev_created_on,
+              rev_changed_by,
+              id, title, authors, ccli_num, tags
+          ) VALUES (
+              coalesce(NEW.last_modified, OLD.last_modified),
+              current_setting('my.id', TRUE),
+              OLD.id, OLD.title, OLD.authors, OLD.ccli_num, OLD.tags
+          );
+          NEW.last_modified = localtimestamp(4);
+          RETURN NEW;
+      END;
+  $$;
+  
+  
   SET default_tablespace = '';
   
   SET default_table_access_method = heap;
@@ -70,7 +148,8 @@
       ccli_num integer,
       tags text[],
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
-      creator_id text NOT NULL
+      creator_id text NOT NULL,
+      last_modified timestamp without time zone DEFAULT LOCALTIMESTAMP(4)
   );
   
   
@@ -148,7 +227,8 @@
       object_type text NOT NULL,
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
       creator_id text NOT NULL,
-      auto_verse_order boolean
+      auto_verse_order boolean,
+      last_modified timestamp without time zone DEFAULT LOCALTIMESTAMP(4)
   );
   
   
@@ -165,7 +245,8 @@
       tags text[],
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
       creator_id text NOT NULL,
-      lyrics_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english'::regconfig, COALESCE(lyrics, ''::text))) STORED
+      lyrics_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english'::regconfig, COALESCE(lyrics, ''::text))) STORED,
+      last_modified timestamp without time zone DEFAULT LOCALTIMESTAMP(4)
   );
   
   
@@ -210,6 +291,58 @@
       comment text NOT NULL,
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
       creator_id text NOT NULL
+  );
+  
+  
+  --
+  -- Name: rev_song_sheets; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.rev_song_sheets (
+      rev_id text DEFAULT ('rss:'::text || public.uuid_generate_v4()) NOT NULL,
+      rev_created_on timestamp without time zone,
+      rev_changed_by text,
+      id text NOT NULL,
+      song_id text NOT NULL,
+      song_version_id text NOT NULL,
+      type text NOT NULL,
+      key text NOT NULL,
+      tags text[],
+      object_id text NOT NULL,
+      object_type text NOT NULL
+  );
+  
+  
+  --
+  -- Name: rev_song_versions; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.rev_song_versions (
+      rev_id text DEFAULT ('rsv:'::text || public.uuid_generate_v4()) NOT NULL,
+      rev_created_on timestamp without time zone,
+      rev_changed_by text,
+      id text NOT NULL,
+      song_id text NOT NULL,
+      label text NOT NULL,
+      verse_order text,
+      lyrics text,
+      tags text[]
+  );
+  
+  
+  --
+  -- Name: rev_songs; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.rev_songs (
+      rev_id text DEFAULT ('rs:'::text || public.uuid_generate_v4()) NOT NULL,
+      rev_created_on timestamp without time zone,
+      rev_changed_by text,
+      id text NOT NULL,
+      title text NOT NULL,
+      authors text[],
+      ccli_num integer,
+      tags text[]
   );
   
   
@@ -276,11 +409,29 @@
   -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
   --
   
-  INSERT INTO public._version VALUES ('db_version', 4);
+  INSERT INTO public._version VALUES ('db_version', 5);
   
   
   --
   -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: rev_song_sheets; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: rev_song_versions; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: rev_songs; Type: TABLE DATA; Schema: public; Owner: -
   --
   
   
@@ -359,6 +510,30 @@
   
   ALTER TABLE ONLY public.comments
       ADD CONSTRAINT comments_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: rev_song_sheets rev_song_sheets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.rev_song_sheets
+      ADD CONSTRAINT rev_song_sheets_pkey PRIMARY KEY (rev_id);
+  
+  
+  --
+  -- Name: rev_song_versions rev_song_versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.rev_song_versions
+      ADD CONSTRAINT rev_song_versions_pkey PRIMARY KEY (rev_id);
+  
+  
+  --
+  -- Name: rev_songs rev_songs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.rev_songs
+      ADD CONSTRAINT rev_songs_pkey PRIMARY KEY (rev_id);
   
   
   --
@@ -457,11 +632,56 @@
   
   
   --
+  -- Name: song_sheets revision_track_song_sheets; Type: TRIGGER; Schema: public; Owner: -
+  --
+  
+  CREATE TRIGGER revision_track_song_sheets BEFORE DELETE OR UPDATE ON public.song_sheets FOR EACH ROW EXECUTE FUNCTION public.revision_track_song_sheets();
+  
+  
+  --
+  -- Name: song_versions revision_track_song_versions; Type: TRIGGER; Schema: public; Owner: -
+  --
+  
+  CREATE TRIGGER revision_track_song_versions BEFORE DELETE OR UPDATE ON public.song_versions FOR EACH ROW EXECUTE FUNCTION public.revision_track_song_versions();
+  
+  
+  --
+  -- Name: songs revision_track_songs; Type: TRIGGER; Schema: public; Owner: -
+  --
+  
+  CREATE TRIGGER revision_track_songs BEFORE DELETE OR UPDATE ON public.songs FOR EACH ROW EXECUTE FUNCTION public.revision_track_songs();
+  
+  
+  --
   -- Name: comments comments_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
   --
   
   ALTER TABLE ONLY public.comments
       ADD CONSTRAINT comments_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: rev_song_sheets rev_song_sheets_rev_changed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.rev_song_sheets
+      ADD CONSTRAINT rev_song_sheets_rev_changed_by_fkey FOREIGN KEY (rev_changed_by) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: rev_song_versions rev_song_versions_rev_changed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.rev_song_versions
+      ADD CONSTRAINT rev_song_versions_rev_changed_by_fkey FOREIGN KEY (rev_changed_by) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: rev_songs rev_songs_rev_changed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.rev_songs
+      ADD CONSTRAINT rev_songs_rev_changed_by_fkey FOREIGN KEY (rev_changed_by) REFERENCES public.users(id);
   
   
   --

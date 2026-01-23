@@ -9,3 +9,6 @@ testpaths = [
     "chalicelib",
     "tests",
 ]
+filterwarnings = [
+    "ignore:builtin type [Ss]wig:DeprecationWarning",
+]

@@ -23,6 +23,11 @@ from chalicelib.types import Song
 from chalicelib.types import SongList
 from chalicelib.types import SongMedia
 from chalicelib.types import SongMediaList
+from chalicelib.types import SongRevision
+from chalicelib.types import SongRevisionList
+from chalicelib.types import SongRevisionSong
+from chalicelib.types import SongRevisionSongSheet
+from chalicelib.types import SongRevisionSongVersion
 from chalicelib.types import SongSheet
 from chalicelib.types import SongSheetList
 from chalicelib.types import SongVersion
@@ -58,7 +63,9 @@ def list_songs(query_params: ListSongParams) -> Forbidden | SongList:
 
         where = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
         curs = conn.execute(
-            f"SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
+            f"SELECT"
+            f"  id, title, authors, ccli_num, tags, created_on, creator_id,"
+            f"  last_modified "
             f"FROM songs {where} "
             f"ORDER BY title",
             params,
@@ -83,7 +90,8 @@ def new_song(request_body: NewSong) -> Forbidden | Song:
         curs = conn.execute(
             "INSERT INTO songs (title, authors, ccli_num, tags, creator_id) "
             "VALUES (:title, :authors, :ccli_num, :tags, :creator_id) "
-            "RETURNING id, title, authors, ccli_num, tags, created_on, creator_id",
+            "RETURNING id, title, authors, ccli_num, tags, created_on, creator_id,"
+            "          last_modified",
             request_body.model_dump()
             | {"creator_id": session_user(bp.current_request).id},
             output=Song,
@@ -102,7 +110,9 @@ def get_song(song_id: str) -> Forbidden | NotFound | Song:
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT id, title, authors, ccli_num, tags, created_on, creator_id "
+            "SELECT"
+            "  id, title, authors, ccli_num, tags, created_on, creator_id,"
+            "  last_modified "
             "FROM songs WHERE id = :id",
             {"id": song_id},
             output=Song,
@@ -123,6 +133,7 @@ def update_song(
         return NoContent()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE songs SET {request_body.replacement_sql} WHERE id = :id",
             {"id": song_id} | request_body.replacement_params,
@@ -140,6 +151,7 @@ def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
         return Forbidden()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute("DELETE FROM songs WHERE id = :id", {"id": song_id})
             return NoContent() if result else NotFound()
@@ -147,6 +159,49 @@ def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
             return BadRequest(
                 "Unable to delete songs that have been added to a set list"
             )
+
+
+@bp.route("/songs/{song_id}/revisions", methods=["GET"])
+def list_song_revisions(song_id: str) -> Forbidden | SongRevisionList:
+    """List song revisions for a given song ID"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        rev_songs = conn.execute(
+            "SELECT rev_id, 'song' AS rev_type, rev_created_on, rev_changed_by,"
+            "    id, title, authors, ccli_num, tags "
+            "FROM rev_songs WHERE id = :song_id "
+            "ORDER BY rev_created_on DESC",
+            {"song_id": song_id},
+            output=SongRevisionSong,
+        ).fetchall()
+
+        rev_song_versions = conn.execute(
+            "SELECT rev_id, 'song_version' AS rev_type, rev_created_on, rev_changed_by,"
+            "    id, song_id, label, verse_order, lyrics, tags "
+            "FROM rev_song_versions WHERE song_id = :song_id "
+            "ORDER BY rev_created_on DESC",
+            {"song_id": song_id},
+            output=SongRevisionSongVersion,
+        ).fetchall()
+
+        rev_song_sheets = conn.execute(
+            "SELECT rev_id, 'song_sheet' AS rev_type, rev_created_on, rev_changed_by,"
+            "    id, song_id, song_version_id, type, key, tags, object_id, object_type "
+            "FROM rev_song_sheets WHERE song_id = :song_id "
+            "ORDER BY rev_created_on DESC",
+            {"song_id": song_id},
+            output=SongRevisionSongSheet,
+        ).fetchall()
+
+        all_revs: list[SongRevision] = rev_songs + rev_song_versions + rev_song_sheets
+
+        return SongRevisionList(
+            song_revisions=sorted(
+                all_revs, reverse=True, key=lambda r: r.rev_created_on
+            )
+        )
 
 
 @bp.route("/songs/{song_id}/versions", methods=["GET"])
@@ -226,6 +281,7 @@ def update_song_version(
         return NoContent()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE song_versions SET {request_body.replacement_sql} "
             f"WHERE id = :version_id AND song_id = :song_id",
@@ -248,6 +304,7 @@ def delete_song_version(
         return Forbidden()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute(
                 "DELETE FROM song_versions "
@@ -351,6 +408,7 @@ def update_song_sheet(
         return NoContent()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE song_sheets SET {request_body.replacement_sql} "
             f"WHERE id = :sheet_id AND song_version_id = :version_id",
@@ -375,6 +433,7 @@ def delete_song_sheet(
         return Forbidden()
 
     with db.connect() as conn:
+        conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute(
                 "DELETE FROM song_sheets "

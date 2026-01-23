@@ -1039,6 +1039,30 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/revisions:
+    get:
+      operationId: songs.list_song_revisions
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongRevisionList'
+      tags:
+      - Songs
+      summary: List song revisions for a given song ID
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
   /songs/{song_id}/versions:
     get:
       operationId: songs.list_song_versions
@@ -1980,6 +2004,10 @@ components:
         creator_id:
           title: Creator Id
           type: string
+        last_modified:
+          format: date-time
+          title: Last Modified
+          type: string
       required:
       - title
       - authors
@@ -1987,6 +2015,7 @@ components:
       - id
       - created_on
       - creator_id
+      - last_modified
       title: Song
       type: object
     SearchSongHit:
@@ -2353,6 +2382,195 @@ components:
       required:
       - song_media
       title: SongMediaList
+      type: object
+    SongRevisionSong:
+      properties:
+        title:
+          title: Title
+          type: string
+        authors:
+          items:
+            type: string
+          title: Authors
+          type: array
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        rev_id:
+          title: Rev Id
+          type: string
+        rev_created_on:
+          format: date-time
+          title: Rev Created On
+          type: string
+        rev_changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rev Changed By
+        id:
+          title: Id
+          type: string
+        rev_type:
+          const: song
+          title: Rev Type
+          type: string
+      required:
+      - title
+      - authors
+      - ccli_num
+      - rev_id
+      - rev_created_on
+      - rev_changed_by
+      - id
+      - rev_type
+      title: SongRevisionSong
+      type: object
+    SongRevisionSongSheet:
+      properties:
+        type:
+          title: Type
+          type: string
+        key:
+          title: Key
+          type: string
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        object_id:
+          title: Object Id
+          type: string
+        object_type:
+          title: Object Type
+          type: string
+        auto_verse_order:
+          default: true
+          title: Auto Verse Order
+          type: boolean
+        rev_id:
+          title: Rev Id
+          type: string
+        rev_created_on:
+          format: date-time
+          title: Rev Created On
+          type: string
+        rev_changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rev Changed By
+        id:
+          title: Id
+          type: string
+        rev_type:
+          const: song_sheet
+          title: Rev Type
+          type: string
+        song_id:
+          title: Song Id
+          type: string
+        song_version_id:
+          title: Song Version Id
+          type: string
+      required:
+      - type
+      - key
+      - object_id
+      - object_type
+      - rev_id
+      - rev_created_on
+      - rev_changed_by
+      - id
+      - rev_type
+      - song_id
+      - song_version_id
+      title: SongRevisionSongSheet
+      type: object
+    SongRevisionSongVersion:
+      properties:
+        label:
+          title: Label
+          type: string
+        verse_order:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Verse Order
+        lyrics:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Lyrics
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        rev_id:
+          title: Rev Id
+          type: string
+        rev_created_on:
+          format: date-time
+          title: Rev Created On
+          type: string
+        rev_changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rev Changed By
+        id:
+          title: Id
+          type: string
+        rev_type:
+          const: song_version
+          title: Rev Type
+          type: string
+        song_id:
+          title: Song Id
+          type: string
+      required:
+      - label
+      - rev_id
+      - rev_created_on
+      - rev_changed_by
+      - id
+      - rev_type
+      - song_id
+      title: SongRevisionSongVersion
+      type: object
+    SongRevisionList:
+      properties:
+        song_revisions:
+          items:
+            discriminator:
+              mapping:
+                song: '#/components/schemas/SongRevisionSong'
+                song_sheet: '#/components/schemas/SongRevisionSongSheet'
+                song_version: '#/components/schemas/SongRevisionSongVersion'
+              propertyName: rev_type
+            oneOf:
+            - $ref: '#/components/schemas/SongRevisionSong'
+            - $ref: '#/components/schemas/SongRevisionSongVersion'
+            - $ref: '#/components/schemas/SongRevisionSongSheet'
+          title: Song Revisions
+          type: array
+      required:
+      - song_revisions
+      title: SongRevisionList
       type: object
     SongSheet:
       properties:
