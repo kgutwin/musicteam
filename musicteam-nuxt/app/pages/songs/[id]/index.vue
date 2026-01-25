@@ -143,7 +143,8 @@
             <span class="hide-lg">Add Version...</span>
           </button>
         </div>
-        <ul class="list-disc ml-4 mt-1">
+
+        <ul class="mt-1">
           <li v-if="versions?.song_versions === undefined">
             <MtText loading="w-32" />
           </li>

@@ -1,9 +1,12 @@
 from chalice.app import Blueprint
 from chalicelib import db
 from chalicelib.middleware import session_role
+from chalicelib.types import _SparkLineHistoryRow
 from chalicelib.types import Forbidden
 from chalicelib.types import NotFound
 from chalicelib.types import SongHistory
+from chalicelib.types import SparkLineHistory
+from chalicelib.types import SparkLineHistoryPoint
 
 bp = Blueprint(__name__)
 
@@ -35,3 +38,32 @@ def get_song_history(song_id: str) -> Forbidden | NotFound | SongHistory:
             output=SongHistory,
         ).fetchone()
         return row if row is not None else NotFound()
+
+
+@bp.route("/history/sparkline", methods=["GET"])
+def get_history_sparkline() -> Forbidden | SparkLineHistory:
+    """Get history data suitable for spark line render"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  date_trunc('month', setlist_service_date) AS month_year,"
+            "  song_id,"
+            "  count(setlist_id) AS appearances "
+            "FROM song_history "
+            "WHERE date_trunc('month', setlist_service_date) > date_trunc('month', current_date - (365 * 2)) "
+            "GROUP BY song_id, month_year",
+            output=_SparkLineHistoryRow,
+        )
+
+        rv = SparkLineHistory(songs={})
+        for row in curs.fetchall():
+            rv.songs.setdefault(row.song_id, []).append(
+                SparkLineHistoryPoint(mo_yr=row.month_year, count=row.appearances)
+            )
+        for song in rv.songs:
+            rv.songs[song].sort()
+
+        return rv

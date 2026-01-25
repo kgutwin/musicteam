@@ -7,9 +7,21 @@
       <Icon name="svg-spinners:3-dots-fade" size="32" />
     </div>
     <div v-if="!pingStore.isAwake" class="text-center">
-      Hang tight, the app is waking up
-      <Icon name="svg-spinners:3-dots-fade" />
-      ({{ pingStore.pings }})
+      <div>
+        Hang tight, the app is waking up
+        <Icon name="svg-spinners:3-dots-fade" />
+      </div>
+      <div v-if="pingStore.pings > 1">
+        Sometimes it takes a bit longer, if it's been a few days since it was last
+        used...
+      </div>
+      <div v-if="pingStore.pings > 2">
+        It should be just a few more seconds now... thanks for your patience!
+      </div>
+      <div v-if="pingStore.pings > 3">
+        Looks like you've waited for {{ pingStore.pings }} pings and it's still not
+        awake yet. There might be a problem, but you can try reloading the page.
+      </div>
     </div>
     <div v-else-if="!signingIn">
       <a

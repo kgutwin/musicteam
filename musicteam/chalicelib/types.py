@@ -489,6 +489,24 @@ class SongHistory(BaseModel):
     num_played_past_year: int
 
 
+class SparkLineHistoryPoint(BaseModel):
+    mo_yr: date
+    count: int
+
+    def __lt__(self, other: "SparkLineHistoryPoint") -> bool:
+        return self.mo_yr < other.mo_yr
+
+
+class SparkLineHistory(BaseModel):
+    songs: dict[str, list[SparkLineHistoryPoint]]
+
+
+class _SparkLineHistoryRow(BaseModel):
+    month_year: date
+    song_id: str
+    appearances: int
+
+
 # Chalice response types
 class KnownResponse(Response):
     _code = 200

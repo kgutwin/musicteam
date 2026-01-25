@@ -111,6 +111,7 @@
         </NuxtLink>
       </div>
     </div>
+
     <MtTable
       :columns="columns"
       :data="sorted(filtered(songlist.data?.songs))"
@@ -136,6 +137,9 @@
       <template #ccli="{ row }">
         {{ row.ccli_num }}
       </template>
+      <template #sparkline="{ row }">
+        <MtSparkline v-if="sparklines.data" :data="sparklines.data.songs[row.id]" />
+      </template>
       <template #versions="{ row }">
         <span
           v-for="version in versionlist.get({ songId: row.id }).data.value
@@ -157,6 +161,7 @@ import type { Song, Entry } from "@/services/api"
 import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
 import { useAuthorlistStore, useTaglistStore } from "@/stores/info"
 import { useSonglistPrefsStore } from "@/stores/prefs"
+import { useHistorySparklineStore } from "@/stores/history"
 import { trimArray } from "@/utils"
 
 const songlist = useSonglistStore()
@@ -165,6 +170,7 @@ const authorlist = useAuthorlistStore()
 const taglist = useTaglistStore()
 
 const prefs = useSonglistPrefsStore()
+const sparklines = useHistorySparklineStore()
 
 const { canEdit } = useRole()
 
@@ -174,6 +180,7 @@ const allColumns = ref([
   { name: "authors", title: "Authors", active: true },
   { name: "tags", title: "Tags", active: window.innerWidth > 400 },
   { name: "ccli", title: "CCLI Number", active: false },
+  { name: "sparkline", title: "History (2 yr)", active: false },
   { name: "versions", title: "Versions", active: false },
 ])
 

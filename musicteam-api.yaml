@@ -229,6 +229,24 @@ paths:
       required: true
       schema:
         type: string
+  /history/sparkline:
+    get:
+      operationId: history.get_history_sparkline
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SparkLineHistory'
+      tags:
+      - History
+      summary: Get history data suitable for spark line render
   /info/authors:
     get:
       operationId: info.list_authors
@@ -2750,6 +2768,33 @@ components:
       required:
       - song_versions
       title: SongVersionList
+      type: object
+    SparkLineHistoryPoint:
+      properties:
+        mo_yr:
+          format: date
+          title: Mo Yr
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - mo_yr
+      - count
+      title: SparkLineHistoryPoint
+      type: object
+    SparkLineHistory:
+      properties:
+        songs:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/SparkLineHistoryPoint'
+            type: array
+          title: Songs
+          type: object
+      required:
+      - songs
+      title: SparkLineHistory
       type: object
     UpdateComment:
       properties:

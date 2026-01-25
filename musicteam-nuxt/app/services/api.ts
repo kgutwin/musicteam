@@ -737,6 +737,23 @@ export interface SongVersionList {
   song_versions: SongVersion[];
 }
 
+/** SparkLineHistoryPoint */
+export interface SparkLineHistoryPoint {
+  /**
+   * Mo Yr
+   * @format date
+   */
+  mo_yr: string;
+  /** Count */
+  count: number;
+}
+
+/** SparkLineHistory */
+export interface SparkLineHistory {
+  /** Songs */
+  songs: Record<string, SparkLineHistoryPoint[]>;
+}
+
 /** UpdateComment */
 export interface UpdateComment {
   /**
@@ -1560,6 +1577,24 @@ export class Api<
     getSongHistory: (songId: string, params: RequestParams = {}) =>
       this.request<SongHistory, ServerError>({
         path: `/history/song/${songId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags History
+     * @name GetHistorySparkline
+     * @summary Get history data suitable for spark line render
+     * @request GET:/history/sparkline
+     * @secure
+     */
+    getHistorySparkline: (params: RequestParams = {}) =>
+      this.request<SparkLineHistory, ServerError>({
+        path: `/history/sparkline`,
         method: "GET",
         secure: true,
         format: "json",
