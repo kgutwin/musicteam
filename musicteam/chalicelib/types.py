@@ -480,6 +480,15 @@ class EntryList(BaseModel):
     entries: list[Entry]
 
 
+class SongHistory(BaseModel):
+    recent_played: date | None
+    recent_played_setlist_id: str | None
+    first_played: date | None
+    first_played_setlist_id: str | None
+    num_played: int
+    num_played_past_year: int
+
+
 # Chalice response types
 class KnownResponse(Response):
     _code = 200

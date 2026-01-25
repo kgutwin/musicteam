@@ -476,6 +476,22 @@ export interface SetlistTemplatePositionList {
   positions: SetlistTemplatePosition[];
 }
 
+/** SongHistory */
+export interface SongHistory {
+  /** Recent Played */
+  recent_played: string | null;
+  /** Recent Played Setlist Id */
+  recent_played_setlist_id: string | null;
+  /** First Played */
+  first_played: string | null;
+  /** First Played Setlist Id */
+  first_played_setlist_id: string | null;
+  /** Num Played */
+  num_played: number;
+  /** Num Played Past Year */
+  num_played_past_year: number;
+}
+
 /** SongList */
 export interface SongList {
   /** Songs */
@@ -1528,6 +1544,25 @@ export class Api<
         path: `/comments/${resourceId}/${commentId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+  };
+  history = {
+    /**
+     * No description
+     *
+     * @tags History
+     * @name GetSongHistory
+     * @summary Get song history data
+     * @request GET:/history/song/{song_id}
+     * @secure
+     */
+    getSongHistory: (songId: string, params: RequestParams = {}) =>
+      this.request<SongHistory, ServerError>({
+        path: `/history/song/${songId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };

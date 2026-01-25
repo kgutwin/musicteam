@@ -203,6 +203,32 @@ paths:
       required: true
       schema:
         type: string
+  /history/song/{song_id}:
+    get:
+      operationId: history.get_song_history
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongHistory'
+      tags:
+      - History
+      summary: Get song history data
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
   /info/authors:
     get:
       operationId: info.list_authors
@@ -2310,6 +2336,45 @@ components:
       required:
       - positions
       title: SetlistTemplatePositionList
+      type: object
+    SongHistory:
+      properties:
+        recent_played:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Recent Played
+        recent_played_setlist_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recent Played Setlist Id
+        first_played:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: First Played
+        first_played_setlist_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Played Setlist Id
+        num_played:
+          title: Num Played
+          type: integer
+        num_played_past_year:
+          title: Num Played Past Year
+          type: integer
+      required:
+      - recent_played
+      - recent_played_setlist_id
+      - first_played
+      - first_played_setlist_id
+      - num_played
+      - num_played_past_year
+      title: SongHistory
       type: object
     SongList:
       properties:

@@ -86,15 +86,52 @@
 
         <hr />
 
-        <div class="text-sm">
-          Uploaded on {{ localdate(song?.created_on) }}
-          <template v-if="user?.name">by {{ user?.name }}</template>
+        <div class="text-sm flex flex-row gap-2 mr-2">
+          <div class="grow">
+            Uploaded on {{ localdate(song?.created_on) }}
+            <template v-if="user?.name">by {{ user?.name }}</template>
 
-          <template v-if="song && version && version.creator_id !== song.creator_id">
-            - Version {{ version.label }} created on
-            {{ localdate(version.created_on) }} by
-            {{ userStore.get({ userId: version.creator_id })?.data?.value?.name }}
-          </template>
+            <div v-if="song && version && version.creator_id !== song.creator_id">
+              Version {{ version.label }} created on
+              {{ localdate(version.created_on) }} by
+              {{ userStore.get({ userId: version.creator_id })?.data?.value?.name }}
+            </div>
+          </div>
+
+          <div v-if="songHistory?.recent_played" class="text-right">
+            <div>
+              <button
+                type="button"
+                @click="showHistory = !showHistory"
+                class="transition hover:scale-125"
+                title="Show more history"
+              >
+                <Icon name="solar:music-library-2-line-duotone" />
+              </button>
+              Last played
+              <NuxtLink
+                :to="`/setlists/${songHistory?.recent_played_setlist_id}`"
+                class="hover:underline"
+              >
+                {{ localdate(songHistory.recent_played) }}
+              </NuxtLink>
+            </div>
+            <div v-if="showHistory">
+              <div>
+                First played
+                <NuxtLink
+                  :to="`/setlists/${songHistory?.first_played_setlist_id}`"
+                  class="hover:underline"
+                >
+                  {{ localdate(songHistory?.first_played) }}
+                </NuxtLink>
+              </div>
+              <div>
+                Total plays: {{ songHistory.num_played }} (past year:
+                {{ songHistory.num_played_past_year }})
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -162,6 +199,7 @@ import {
   useSongVersionlistStore,
   useSongRefreshStore,
 } from "@/stores/songs"
+import { useSongHistoryStore } from "@/stores/history"
 import { useUserStore } from "@/stores/users"
 import { localdate } from "@/utils"
 
@@ -171,6 +209,7 @@ const songStore = useSongStore()
 const userStore = useUserStore()
 const versionsStore = useSongVersionlistStore()
 const refreshStore = useSongRefreshStore()
+const songHistoryStore = useSongHistoryStore()
 
 const { canEdit } = useRole()
 
@@ -181,6 +220,7 @@ const {
 
 const song = songStore.get({ songId: id as string }).data
 const versions = versionsStore.get({ songId: id as string }).data
+const songHistory = songHistoryStore.get({ songId: id as string }).data
 const user = computed(() => {
   const userId = song.value?.creator_id
   if (userId) {
@@ -271,4 +311,6 @@ async function saveVersion(version: SongVersion, field: keyof SongVersion) {
 function shareSong() {
   window.navigator.share({ url: window.location.href, title: song.value?.title })
 }
+
+const showHistory = ref(false)
 </script>
