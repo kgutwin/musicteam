@@ -2,7 +2,7 @@ chalice==1.32.0
 black==26.1.0
 mypy==1.19.1
 pytest==9.0.2
-syrupy==5.0.0
+syrupy==5.1.0
 psycopg==3.3.2
 types-psutil==7.2.1.20260116
 types-requests-oauthlib==2.0.0.20250809
