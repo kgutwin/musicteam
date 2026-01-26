@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "generate-api": "node app/services/generate-api.js",
     "preview": "nuxt preview",
-    "postinstall": "patch-package && nuxt prepare",
+    "postinstall": "patch-package && ./get-pdfjs.sh && nuxt prepare",
     "lint": "prettier --write --list-different . && eslint --ext .ts,.js,.vue . --fix",
     "lint:tsc": "nuxt prepare && vue-tsc -b --noEmit",
     "lint:prettier": "prettier --check .",

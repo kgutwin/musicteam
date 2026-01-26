@@ -22,8 +22,6 @@
 ## Bugs
 
 - Copy to New Version option doesn't really work...
-- PDF editing seems broken - there are errors in the console
-  - only on Safari 17.2.1, not on 26.1 ? must test other browsers
 - on mobile, the PDF embed only shows the first page and you can't really scroll
   to the next page
 
