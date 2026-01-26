@@ -63,11 +63,11 @@ Cypress.Commands.add("mountVModel", (componentDef, initModelValue, props = {}) =
 })
 
 Cypress.Commands.add("setModel", (newV) => {
-  cy.get("@component").then((component) => {
-    ;(component as any).setProps({ modelValue: newV })
+  cy.get("@component").then((component: any) => {
+    component.setProps({ modelValue: newV })
   })
-  cy.get("@model").then((model) => {
-    ;(model as unknown as Ref).value = newV
+  cy.get("@model").then((model: any) => {
+    model.value = newV
   })
 })
 
