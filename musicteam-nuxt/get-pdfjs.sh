@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 cd public
 curl -L -o pdfjs-5.zip \
