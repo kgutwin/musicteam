@@ -27,6 +27,9 @@
           {{ author }}
         </span>
       </template>
+      <template #tags="{ row }">
+        <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>
+      </template>
       <template #appearances="{ row }">
         {{
           row.appearances === Math.trunc(row.appearances)
@@ -62,6 +65,7 @@ const topSongs = computed(
 const columns = ref([
   { name: "title", title: "Title" },
   { name: "authors", title: "Authors" },
+  { name: "tags", title: "Tags" },
   { name: "appearances", title: "Appearances" },
   { name: "sparkline", title: "History (2 yr)" },
 ])

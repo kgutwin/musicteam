@@ -175,16 +175,36 @@ const sparklines = useHistorySparklineStore()
 const { canEdit } = useRole()
 
 const allColumns = ref([
-  { name: "uploaded", title: "Uploaded", active: window.innerWidth > 800 },
-  { name: "title", title: "Title", active: true },
-  { name: "authors", title: "Authors", active: true },
-  { name: "tags", title: "Tags", active: window.innerWidth > 400 },
-  { name: "ccli", title: "CCLI Number", active: false },
-  { name: "sparkline", title: "History (2 yr)", active: false },
-  { name: "versions", title: "Versions", active: false },
+  {
+    name: "uploaded",
+    title: "Uploaded",
+    active: prefs.columns.uploaded ?? window.innerWidth > 800,
+  },
+  { name: "title", title: "Title", active: prefs.columns.title ?? true },
+  { name: "authors", title: "Authors", active: prefs.columns.authors ?? true },
+  {
+    name: "tags",
+    title: "Tags",
+    active: prefs.columns.tags ?? window.innerWidth > 400,
+  },
+  { name: "ccli", title: "CCLI Number", active: prefs.columns.ccli ?? false },
+  {
+    name: "sparkline",
+    title: "History (2 yr)",
+    active: prefs.columns.sparkline ?? false,
+  },
+  { name: "versions", title: "Versions", active: prefs.columns.versions ?? false },
 ])
 
 const columns = computed(() => allColumns.value.filter((c) => c.active))
+
+watch(
+  allColumns,
+  (newV) => {
+    prefs.columns = Object.fromEntries(newV.map((col) => [col.name, col.active]))
+  },
+  { deep: true },
+)
 
 const filterAuthorSearch = ref<string>()
 

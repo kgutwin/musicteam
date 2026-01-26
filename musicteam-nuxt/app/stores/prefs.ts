@@ -20,6 +20,7 @@ export const useSonglistPrefsStore = defineStore("songlistPrefs", {
       } as SonglistPrefsFilters,
       sortBy: "Title" as SonglistPrefsSortBy,
       sortAsc: true,
+      columns: {} as Record<string, boolean>,
     }
   },
   persist: true,
