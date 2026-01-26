@@ -84,29 +84,29 @@ WITH top_songs AS (
   SELECT song_id, count(setlist_id) AS appearances
   FROM song_history
   GROUP BY song_id
-  ORDER BY appearances DESC
-  LIMIT :num
 )
 SELECT
   songs.id, songs.title, songs.authors, songs.ccli_num, songs.tags, songs.created_on,
   songs.creator_id, songs.last_modified, top_songs.appearances
 FROM top_songs
 INNER JOIN songs ON songs.id = top_songs.song_id
+ORDER BY top_songs.appearances DESC
+LIMIT :num
         """
     elif query_params.ranking == "recent":
         query = """
 WITH top_songs AS (
-  SELECT song_id, count(setlist_id) AS appearances
+  SELECT song_id, count(setlist_id) AS appearances, max(setlist_service_date) AS recent
   FROM song_history
   GROUP BY song_id
-  ORDER BY max(setlist_service_date) DESC, appearances DESC
-  LIMIT :num
 )
 SELECT
   songs.id, songs.title, songs.authors, songs.ccli_num, songs.tags, songs.created_on,
   songs.creator_id, songs.last_modified, top_songs.appearances
 FROM top_songs
 INNER JOIN songs ON songs.id = top_songs.song_id
+ORDER BY top_songs.recent DESC, top_songs.appearances DESC
+LIMIT :num
         """
     elif query_params.ranking == "weighted":
         query = """
@@ -116,14 +116,14 @@ WITH top_songs AS (
     sum(power(2.0, (setlist_service_date - current_date) / 365.0)) AS appearances
   FROM song_history
   GROUP BY song_id
-  ORDER BY appearances DESC
-  LIMIT :num
 )
 SELECT
   songs.id, songs.title, songs.authors, songs.ccli_num, songs.tags, songs.created_on,
   songs.creator_id, songs.last_modified, top_songs.appearances
 FROM top_songs
 INNER JOIN songs ON songs.id = top_songs.song_id
+ORDER BY top_songs.appearances DESC
+LIMIT :num
         """
 
     with db.connect() as conn:
