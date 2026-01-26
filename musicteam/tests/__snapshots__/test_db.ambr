@@ -35,6 +35,15 @@
   
   
   --
+  -- Name: first_agg(anyelement, anyelement); Type: FUNCTION; Schema: public; Owner: -
+  --
+  
+  CREATE FUNCTION public.first_agg(anyelement, anyelement) RETURNS anyelement
+      LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+      AS $_$SELECT $1$_$;
+  
+  
+  --
   -- Name: jsonb_to_text_array(jsonb); Type: FUNCTION; Schema: public; Owner: -
   --
   
@@ -43,6 +52,15 @@
       AS $$
       SELECT array(SELECT jsonb_array_elements_text(_json))
   $$;
+  
+  
+  --
+  -- Name: last_agg(anyelement, anyelement); Type: FUNCTION; Schema: public; Owner: -
+  --
+  
+  CREATE FUNCTION public.last_agg(anyelement, anyelement) RETURNS anyelement
+      LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
+      AS $_$SELECT $2$_$;
   
   
   --
@@ -121,6 +139,28 @@
           RETURN NEW;
       END;
   $$;
+  
+  
+  --
+  -- Name: first(anyelement); Type: AGGREGATE; Schema: public; Owner: -
+  --
+  
+  CREATE AGGREGATE public.first(anyelement) (
+      SFUNC = public.first_agg,
+      STYPE = anyelement,
+      PARALLEL = safe
+  );
+  
+  
+  --
+  -- Name: last(anyelement); Type: AGGREGATE; Schema: public; Owner: -
+  --
+  
+  CREATE AGGREGATE public.last(anyelement) (
+      SFUNC = public.last_agg,
+      STYPE = anyelement,
+      PARALLEL = safe
+  );
   
   
   SET default_tablespace = '';
@@ -389,6 +429,21 @@
   
   
   --
+  -- Name: song_history; Type: VIEW; Schema: public; Owner: -
+  --
+  
+  CREATE VIEW public.song_history AS
+   SELECT DISTINCT setlists.id AS setlist_id,
+      setlists.service_date AS setlist_service_date,
+      song_versions.song_id
+     FROM (((public.song_versions
+       JOIN public.song_sheets ON ((song_sheets.song_version_id = song_versions.id)))
+       JOIN public.setlist_sheets ON ((setlist_sheets.song_sheet_id = song_sheets.id)))
+       JOIN public.setlists ON ((setlists.id = setlist_sheets.setlist_id)))
+    WHERE ((setlist_sheets.type !~~ '%candidate%'::text) AND (setlist_sheets.setlist_position_id IS NOT NULL) AND (setlists.service_date <= CURRENT_DATE));
+  
+  
+  --
   -- Name: users; Type: TABLE; Schema: public; Owner: -
   --
   
@@ -409,7 +464,7 @@
   -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
   --
   
-  INSERT INTO public._version VALUES ('db_version', 5);
+  INSERT INTO public._version VALUES ('db_version', 6);
   
   
   --
