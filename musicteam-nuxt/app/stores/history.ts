@@ -13,3 +13,11 @@ export const useHistorySparklineStore = defineStore(
   "historysparkline",
   createStoreState(async () => await api.history.getHistorySparkline()),
 )
+
+export const useHistoryTopSongsStore = defineStore(
+  "historytopsongs",
+  createParamStoreState(
+    async (params: { ranking: "alltime" | "recent" | "weighted" }) =>
+      await api.history.getHistoryTopSongs({ ranking: params.ranking }),
+  ),
+)

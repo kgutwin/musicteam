@@ -507,6 +507,19 @@ class _SparkLineHistoryRow(BaseModel):
     appearances: int
 
 
+class TopSongParams(BaseModel):
+    ranking: Literal["alltime", "recent", "weighted"] = "alltime"
+    num: int = 50
+
+
+class TopSong(Song):
+    appearances: int | float
+
+
+class TopSongs(BaseModel):
+    songs: list[TopSong]
+
+
 # Chalice response types
 class KnownResponse(Response):
     _code = 200

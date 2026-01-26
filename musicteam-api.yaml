@@ -247,6 +247,43 @@ paths:
       tags:
       - History
       summary: Get history data suitable for spark line render
+  /history/topSongs:
+    get:
+      operationId: history.get_history_top_songs
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopSongs'
+      tags:
+      - History
+      summary: Get the top songs based on various methods
+      parameters:
+      - name: ranking
+        in: query
+        required: false
+        schema:
+          default: alltime
+          enum:
+          - alltime
+          - recent
+          - weighted
+          title: Ranking
+          type: string
+      - name: num
+        in: query
+        required: false
+        schema:
+          default: 50
+          title: Num
+          type: integer
   /info/authors:
     get:
       operationId: info.list_authors
@@ -2795,6 +2832,84 @@ components:
       required:
       - songs
       title: SparkLineHistory
+      type: object
+    TopSong:
+      properties:
+        title:
+          title: Title
+          type: string
+        authors:
+          items:
+            type: string
+          title: Authors
+          type: array
+        ccli_num:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: CCLI Number
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+        last_modified:
+          format: date-time
+          title: Last Modified
+          type: string
+        appearances:
+          anyOf:
+          - type: integer
+          - type: number
+          title: Appearances
+      required:
+      - title
+      - authors
+      - ccli_num
+      - id
+      - created_on
+      - creator_id
+      - last_modified
+      - appearances
+      title: TopSong
+      type: object
+    TopSongParams:
+      properties:
+        ranking:
+          default: alltime
+          enum:
+          - alltime
+          - recent
+          - weighted
+          title: Ranking
+          type: string
+        num:
+          default: 50
+          title: Num
+          type: integer
+      title: TopSongParams
+      type: object
+    TopSongs:
+      properties:
+        songs:
+          items:
+            $ref: '#/components/schemas/TopSong'
+          title: Songs
+          type: array
+      required:
+      - songs
+      title: TopSongs
       type: object
     UpdateComment:
       properties:

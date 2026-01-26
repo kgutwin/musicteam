@@ -7,6 +7,9 @@ from chalicelib.types import NotFound
 from chalicelib.types import SongHistory
 from chalicelib.types import SparkLineHistory
 from chalicelib.types import SparkLineHistoryPoint
+from chalicelib.types import TopSong
+from chalicelib.types import TopSongParams
+from chalicelib.types import TopSongs
 
 bp = Blueprint(__name__)
 
@@ -67,3 +70,62 @@ def get_history_sparkline() -> Forbidden | SparkLineHistory:
             rv.songs[song].sort()
 
         return rv
+
+
+@bp.route("/history/topSongs", methods=["GET"])
+def get_history_top_songs(query_params: TopSongParams) -> Forbidden | TopSongs:
+    """Get the top songs based on various methods"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    if query_params.ranking == "alltime":
+        query = """
+WITH top_songs AS (
+  SELECT song_id, count(setlist_id) AS appearances
+  FROM song_history
+  GROUP BY song_id
+  ORDER BY appearances DESC
+  LIMIT :num
+)
+SELECT
+  songs.id, songs.title, songs.authors, songs.ccli_num, songs.tags, songs.created_on,
+  songs.creator_id, songs.last_modified, top_songs.appearances
+FROM top_songs
+INNER JOIN songs ON songs.id = top_songs.song_id
+        """
+    elif query_params.ranking == "recent":
+        query = """
+WITH top_songs AS (
+  SELECT song_id, count(setlist_id) AS appearances
+  FROM song_history
+  GROUP BY song_id
+  ORDER BY max(setlist_service_date) DESC, appearances DESC
+  LIMIT :num
+)
+SELECT
+  songs.id, songs.title, songs.authors, songs.ccli_num, songs.tags, songs.created_on,
+  songs.creator_id, songs.last_modified, top_songs.appearances
+FROM top_songs
+INNER JOIN songs ON songs.id = top_songs.song_id
+        """
+    elif query_params.ranking == "weighted":
+        query = """
+WITH top_songs AS (
+  SELECT
+    song_id,
+    sum(power(2.0, (setlist_service_date - current_date) / 365.0)) AS appearances
+  FROM song_history
+  GROUP BY song_id
+  ORDER BY appearances DESC
+  LIMIT :num
+)
+SELECT
+  songs.id, songs.title, songs.authors, songs.ccli_num, songs.tags, songs.created_on,
+  songs.creator_id, songs.last_modified, top_songs.appearances
+FROM top_songs
+INNER JOIN songs ON songs.id = top_songs.song_id
+        """
+
+    with db.connect() as conn:
+        curs = conn.execute(query, {"num": query_params.num}, output=TopSong)
+        return TopSongs(songs=curs.fetchall())

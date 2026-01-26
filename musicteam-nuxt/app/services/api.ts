@@ -754,6 +754,57 @@ export interface SparkLineHistory {
   songs: Record<string, SparkLineHistoryPoint[]>;
 }
 
+/** TopSong */
+export interface TopSong {
+  /** Title */
+  title: string;
+  /** Authors */
+  authors: string[];
+  /** CCLI Number */
+  ccli_num: number | null;
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Id */
+  id: string;
+  /**
+   * Created On
+   * @format date-time
+   */
+  created_on: string;
+  /** Creator Id */
+  creator_id: string;
+  /**
+   * Last Modified
+   * @format date-time
+   */
+  last_modified: string;
+  /** Appearances */
+  appearances: number;
+}
+
+/** TopSongParams */
+export interface TopSongParams {
+  /**
+   * Ranking
+   * @default "alltime"
+   */
+  ranking?: "alltime" | "recent" | "weighted";
+  /**
+   * Num
+   * @default 50
+   */
+  num?: number;
+}
+
+/** TopSongs */
+export interface TopSongs {
+  /** Songs */
+  songs: TopSong[];
+}
+
 /** UpdateComment */
 export interface UpdateComment {
   /**
@@ -1596,6 +1647,39 @@ export class Api<
       this.request<SparkLineHistory, ServerError>({
         path: `/history/sparkline`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags History
+     * @name GetHistoryTopSongs
+     * @summary Get the top songs based on various methods
+     * @request GET:/history/topSongs
+     * @secure
+     */
+    getHistoryTopSongs: (
+      query?: {
+        /**
+         * Ranking
+         * @default "alltime"
+         */
+        ranking?: "alltime" | "recent" | "weighted";
+        /**
+         * Num
+         * @default 50
+         */
+        num?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<TopSongs, ServerError>({
+        path: `/history/topSongs`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

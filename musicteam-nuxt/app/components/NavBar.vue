@@ -12,6 +12,7 @@
     <div class="grow flex flex-row gap-4 md:gap-8 font-semibold tracking-wide">
       <NuxtLink to="/songs">Songs</NuxtLink>
       <NuxtLink to="/setlists">Set Lists</NuxtLink>
+      <NuxtLink to="/history">History</NuxtLink>
       <NuxtLink to="/team">Team</NuxtLink>
     </div>
     <div v-if="status === 'authenticated'" class="self-start flex flex-row gap-4">
