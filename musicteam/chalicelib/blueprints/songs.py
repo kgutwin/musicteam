@@ -132,7 +132,7 @@ def update_song(
     if not request_body.any_replacements:
         return NoContent()
 
-    with db.connect() as conn:
+    with db.connect(transaction=True) as conn:
         conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE songs SET {request_body.replacement_sql} WHERE id = :id",
@@ -150,7 +150,7 @@ def delete_song(song_id: str) -> BadRequest | Forbidden | NotFound | NoContent:
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
-    with db.connect() as conn:
+    with db.connect(transaction=True) as conn:
         conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute("DELETE FROM songs WHERE id = :id", {"id": song_id})
@@ -280,7 +280,7 @@ def update_song_version(
     if not request_body.any_replacements:
         return NoContent()
 
-    with db.connect() as conn:
+    with db.connect(transaction=True) as conn:
         conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE song_versions SET {request_body.replacement_sql} "
@@ -303,7 +303,7 @@ def delete_song_version(
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
-    with db.connect() as conn:
+    with db.connect(transaction=True) as conn:
         conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute(
@@ -407,7 +407,7 @@ def update_song_sheet(
     if not request_body.any_replacements:
         return NoContent()
 
-    with db.connect() as conn:
+    with db.connect(transaction=True) as conn:
         conn.set_session_id(session_user(bp.current_request).id)
         result = conn.execute(
             f"UPDATE song_sheets SET {request_body.replacement_sql} "
@@ -432,7 +432,7 @@ def delete_song_sheet(
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
-    with db.connect() as conn:
+    with db.connect(transaction=True) as conn:
         conn.set_session_id(session_user(bp.current_request).id)
         try:
             result = conn.execute(

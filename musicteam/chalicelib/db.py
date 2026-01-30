@@ -121,6 +121,7 @@ class Interface:
         self, conn: aurora_data_api.AuroraDataAPIClient, transaction: bool = False
     ):
         self.conn = conn
+        self.transaction_enabled = transaction
 
         # does this improve performance?
         if hasattr(self.conn, "_transaction_id") and not transaction:
@@ -214,6 +215,14 @@ class Interface:
             curs.executemany(sql, translated_params)
 
     def set_session_id(self, sessid: str) -> None:
+        """Set session ID.
+
+        Used in triggers that reference current_setting('my.id', TRUE).
+
+        Requires the connection to have been opened with a transaction.
+        """
+        assert self.transaction_enabled, "set_session_id requires a transaction"
+
         # We need to do special validation on the session ID since
         # we're not allowed to use parameters for it
         ALLOWED_CHARS = "u:0123456789-abcdef"
@@ -255,7 +264,7 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
     with cast(aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)) as conn:
-        yield Interface(conn)
+        yield Interface(conn, transaction)
 
 
 class VersionRow(BaseModel):
