@@ -2,7 +2,7 @@ aurora-data-api==0.5.0
 pydantic==2.12.5
 requests-oauthlib==2.0.0
 google-auth==2.48.0
-PyJWT==2.10.1
+PyJWT==2.11.0
 psutil==7.2.1
 boto3==1.42.39
 # kgutwin 2025-11-12  having trouble installing pymupdf this way; chalice cannot find
