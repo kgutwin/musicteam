@@ -25,13 +25,13 @@ repos:
           - "PyJWT==2.11.0"
           - "chalice==1.32.0"
           - "psycopg==3.3.2"
-          - "types-psutil==7.2.1.20260116"
+          - "types-psutil==7.2.2.20260130"
           - "types-requests-oauthlib==2.0.0.20250809"
           - "types-PyYAML==6.0.12.20250915"
           - "apispec==6.9.0"
           - "apispec-pydantic-plugin==0.8.2"
-          - "boto3-stubs==1.42.39"
-          - "pymupdf-stubs==1.26.1.post1"
+          - "boto3-stubs==1.42.44"
+          - "pymupdf-stubs==1.26.7.post3"
 
   - repo: https://github.com/wimglenn/reorder-python-imports-black
     rev: v3.14.0

@@ -81,7 +81,7 @@ def add_verse_order(doc: pymupdf.Document, verse_order: list[str]) -> pymupdf.Do
     px = page.get_pixmap(clip=rect)
 
     # slide down to try to find a blank spot
-    while not px.is_unicolor and (rect.y1 + top) < page.rect.height:  # type: ignore[attr-defined]
+    while not px.is_unicolor and (rect.y1 + top) < page.rect.height:
         rect = pymupdf.IRect(rect.x0, rect.y0 + 2, rect.x1, rect.y1 + 2)
         px = page.get_pixmap(clip=rect)
 
