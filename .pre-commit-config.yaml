@@ -18,19 +18,20 @@ repos:
         args: ["--strict"]
         exclude: "musicteam/tests/"
         additional_dependencies:
-          - "aurora-data-api"
-          - "pydantic>2"
-          - "requests-oauthlib"
-          - "google-auth"
-          - "pyjwt"
-          - "chalice"
-          - "psycopg"
-          - "types-psutil"
-          - "types-requests-oauthlib"
-          - "apispec"
-          - "apispec-pydantic-plugin"
-          - "boto3-stubs"
-          - "pymupdf-stubs==1.26.1-post1"
+          - "aurora-data-api==0.5.0"
+          - "pydantic==2.12.5"
+          - "requests-oauthlib==2.0.0"
+          - "google-auth==2.48.0"
+          - "PyJWT==2.11.0"
+          - "chalice==1.32.0"
+          - "psycopg==3.3.2"
+          - "types-psutil==7.2.1.20260116"
+          - "types-requests-oauthlib==2.0.0.20250809"
+          - "types-PyYAML==6.0.12.20250915"
+          - "apispec==6.9.0"
+          - "apispec-pydantic-plugin==0.8.2"
+          - "boto3-stubs==1.42.39"
+          - "pymupdf-stubs==1.26.1.post1"
 
   - repo: https://github.com/wimglenn/reorder-python-imports-black
     rev: v3.14.0
@@ -50,6 +51,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: requirements-sync
+        name: sync pre-commit requirements
+        language: system
+        entry: python musicteam/pre_commit_requirements_sync.py --in-place
+        pass_filenames: false
+        files: "requirements-dev.txt|musicteam/requirements.txt"
+        types: [file]
+
       - id: generate-apispec
         name: generate api spec
         language: system
