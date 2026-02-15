@@ -146,6 +146,150 @@ describe("songs", () => {
     })
   })
 
+  context("copying songs", () => {
+    beforeEach(() => {
+      cy.prep("song")
+      cy.get("@prep.song").then((id) => {
+        cy.visit(`/songs/${id}`)
+        cy.contains("Test One").should("exist")
+      })
+    })
+
+    it("can copy a version without a sheet", () => {
+      cy.get(".btn-tab").contains("Lyrics").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Copy to New Version").click()
+
+      cy.formLabel("Label").select("Updated")
+      cy.formLabel("Verse Order").within(() => {
+        cy.get(".inp-array-newtag").type("V3 ")
+      })
+
+      cy.get("textarea.txt-panel").type("{selectall}{del}New Lyrics")
+
+      cy.dataCy("save").click()
+
+      cy.exists("CCLI Number")
+      cy.exists(["From Cypress", "Updated", "V1 C1 V2 C1 V3", "New Lyrics"])
+      cy.contains("Chord").should("not.exist") // no sheets yet
+    })
+
+    it("can copy a version with a text chord sheet", () => {
+      cy.get(".btn-tab").contains("Chord (C)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Copy to New Version").click()
+
+      cy.formLabel("Label").select("Updated")
+      cy.formLabel("Verse Order").within(() => {
+        cy.get(".inp-array-newtag").type("V3 ")
+      })
+
+      cy.formLabel("Music Sheet Type").select("Hymn")
+      cy.formLabel("Musical Key").type("{selectall}{del}D")
+      cy.formLabel("include verse order").select("Sheet already has verse order")
+
+      cy.dataCy("song-lyrics-editor").type("{selectall}{del}Some New Lyrics")
+      cy.dataCy("song-text-editor").type("{selectall}{del}Edited song sheet")
+
+      cy.dataCy("save").click()
+
+      cy.exists("CCLI Number")
+      cy.get(".btn-tab").contains("Hymn (D)").click()
+      cy.exists(["Edited song sheet", "From Cypress", "Updated", "V1 C1 V2 C1 V3"])
+      cy.contains(".btn-tab", "Lyrics").click()
+      cy.exists("Some New Lyrics")
+    })
+
+    it("can copy a version with a PDF chord sheet", () => {
+      cy.get(".btn-tab").contains("Lead (C)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Copy to New Version").click()
+
+      cy.formLabel("Label").select("Updated")
+      cy.formLabel("Verse Order").within(() => {
+        cy.get(".inp-array-newtag").type("V3 ")
+      })
+
+      cy.formLabel("Music Sheet Type").select("Hymn")
+      cy.formLabel("Musical Key").type("{selectall}{del}E")
+      cy.formLabel("include verse order").select("Sheet already has verse order")
+
+      cy.dataCy("song-lyrics-editor").type("{selectall}{del}Some New Lyrics")
+
+      cy.pdfjsViewerElement().within(() => {
+        cy.get("#editorFreeTextButton").click()
+        cy.get(".annotationEditorLayer").click().type("blah")
+        cy.get("#editorFreeTextButton").click()
+      })
+
+      cy.dataCy("save").click()
+
+      cy.exists(["CCLI Number", "From Cypress", "Updated", "V1 C1 V2 C1 V3"])
+      cy.contains(".btn-tab", "Lyrics").click()
+      cy.exists("Some New Lyrics")
+
+      // Electron browser doesn't have PDF viewer; to confirm our annotation was
+      // saved, we open the edit screen again
+
+      cy.get(".btn-tab").contains("Hymn (E)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Edit Current Version").click()
+
+      cy.pdfjsViewerElement().within(() => {
+        cy.exists("blah")
+      })
+    })
+
+    it("can copy a text chord sheet", () => {
+      cy.get(".btn-tab").contains("Chord (C)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Copy to New Sheet").click()
+
+      cy.formLabel("Music Sheet Type").select("Hymn")
+      cy.formLabel("Musical Key").type("{selectall}{del}D")
+      cy.formLabel("include verse order").select("Sheet already has verse order")
+
+      cy.get("textarea.txt-panel").type("{selectall}{del}New song sheet")
+
+      cy.dataCy("save").click()
+
+      cy.exists(["CCLI Number", "Chord (C)", "Lead (C)"])
+      cy.get(".btn-tab").contains("Hymn (D)").click()
+      cy.exists("New song sheet")
+    })
+
+    it("can copy a PDF chord sheet", () => {
+      cy.get(".btn-tab").contains("Lead (C)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Copy to New Sheet").click()
+
+      cy.formLabel("Music Sheet Type").select("Vocal")
+      cy.formLabel("Musical Key").type("{selectall}{del}D")
+      cy.formLabel("include verse order").select("Sheet already has verse order")
+
+      cy.pdfjsViewerElement().within(() => {
+        cy.get("#editorFreeTextButton").click()
+        cy.get(".annotationEditorLayer").click().type("blah")
+        cy.get("#editorFreeTextButton").click()
+      })
+
+      cy.dataCy("save").click()
+
+      cy.exists(["CCLI Number", "Chord (C)", "Lead (C)", "Vocal (D)"])
+
+      // Electron browser doesn't have PDF viewer; to confirm our annotation was
+      // saved, we open the edit screen again
+
+      cy.get(".btn-tab").contains("Vocal (D)").click()
+      cy.dataCy("edit-sheet").click()
+      cy.get("button").contains("Edit Current Version").click()
+
+      cy.pdfjsViewerElement().within(() => {
+        cy.exists("blah")
+      })
+    })
+  })
+
   context("deleting songs", () => {
     beforeEach(() => {
       cy.prep("songMultiVersion")

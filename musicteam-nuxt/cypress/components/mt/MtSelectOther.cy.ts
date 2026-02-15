@@ -23,6 +23,13 @@ describe("<MtSelectOther />", () => {
       cy.getModel().should("eq", "flarb")
     })
 
+    it("can handle when the other box becomes empty", () => {
+      cy.get("select").select("Other...")
+      cy.get("input").type("fla{backspace}{backspace}{backspace}")
+      cy.get("select").should("have.value", "Other...")
+      cy.getModel().should("eq", "")
+    })
+
     it("can change between other and options", () => {
       cy.get("select").select("Other...")
       cy.get("input").type("flarb")

@@ -1,6 +1,10 @@
 <template>
   <div class="flex flex-col">
-    <textarea v-model="textContent" class="txt-panel h-[48rem] with-size-guide">
+    <textarea
+      v-model="textContent"
+      class="txt-panel h-[48rem] with-size-guide"
+      data-cy="song-text-editor"
+    >
     </textarea>
   </div>
 </template>

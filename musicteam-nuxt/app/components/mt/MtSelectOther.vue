@@ -27,7 +27,7 @@ const isOther = computed(() => model.value && !props.options.includes(model.valu
 const choice = computed({
   get() {
     if (props.options.includes(model.value as string)) return model.value
-    return model.value ? "Other..." : undefined
+    return model.value !== undefined ? "Other..." : undefined
   },
   set(newV) {
     if (newV === "Other...") {

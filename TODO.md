@@ -3,7 +3,6 @@
 ## Frontend
 
 - Complete mobile layout
-- Should be able to annotate an existing PDF and save as a new version or new sheet
 - Public link to lyrics for congregation
 - Browse song revisions
 - Drag to change order within candidate list / within setlist position
@@ -21,7 +20,6 @@
 
 ## Bugs
 
-- Copy to New Version option doesn't really work...
 - on mobile, the PDF embed only shows the first page and you can't really scroll
   to the next page
 - After adding a new sheet, it takes a while for the sheet to appear and there's

@@ -2,16 +2,24 @@
   <div>
     <Head>
       <Title>
-        Edit {{ sheetId === "lyrics" ? "Lyrics" : "Song Sheet" }} - MusicTeam
+        {{ copy ? "Copy" : "Edit" }}
+        {{ sheetId === "lyrics" ? "Lyrics" : "Song Sheet" }} - MusicTeam
       </Title>
     </Head>
 
     <div class="flex flex-row gap-2">
       <div class="grow">
         <h1>
+          {{ copy ? "Copy" : "Edit" }}
           <MtText :text="song?.title" loading="w-48" />
           -
-          {{ sheetId === "lyrics" ? "Lyrics" : "Song Sheet" }}
+          {{
+            copy === "version"
+              ? "Song Version"
+              : sheetId === "lyrics"
+                ? "Lyrics"
+                : "Song Sheet"
+          }}
         </h1>
         <h2>
           Version:
@@ -28,11 +36,13 @@
       </div>
     </div>
 
-    <form class="frm-edit frm-grid mb-4">
+    <form
+      v-if="sheetId === 'lyrics' || copy === 'version'"
+      class="frm-edit frm-grid mb-4"
+    >
       <label>
-        <span>Label</span>
+        <span>Version Label</span>
         <MtSelectOther
-          v-if="inputLabel"
           v-model="inputLabel"
           :options="['From CCLI', 'From Library', 'From Hymnal', 'Updated']"
         />
@@ -76,20 +86,35 @@
         </label>
       </form>
 
-      <SongPdfEditor
-        v-if="sheet?.object_type === 'application/pdf'"
-        :song-id="id as string"
-        :version-id="versionId as string"
-        :sheet-id="sheetId as string"
-        @has-save="(save) => (saveSheetObject = save)"
-      />
-      <SongTextEditor
-        v-else-if="sheet?.object_type === 'text/plain'"
-        :song-id="id as string"
-        :version-id="versionId as string"
-        :sheet-id="sheetId as string"
-        @has-save="(save) => (saveSheetObject = save)"
-      />
+      <div class="grid gap-4" :class="copy === 'version' ? 'r-2-col' : 'grid-cols-1'">
+        <div>
+          <SongPdfEditor
+            v-if="sheet?.object_type === 'application/pdf'"
+            :song-id="id as string"
+            :version-id="versionId as string"
+            :sheet-id="sheetId as string"
+            @has-save="(save) => (saveSheetObject = save)"
+          />
+          <SongTextEditor
+            v-else-if="sheet?.object_type === 'text/plain'"
+            :song-id="id as string"
+            :version-id="versionId as string"
+            :sheet-id="sheetId as string"
+            @has-save="(save) => (saveSheetObject = save)"
+          />
+        </div>
+        <div v-if="copy === 'version'">
+          <h2>Lyrics</h2>
+          <div class="mt-2 flex flex-col">
+            <textarea
+              v-model="inputLyrics"
+              class="txt-panel h-[46rem]"
+              :placeholder="'Song Title\n\nVerse 1\nYou are...'"
+              data-cy="song-lyrics-editor"
+            ></textarea>
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -113,6 +138,8 @@ const refreshStore = useSongRefreshStore()
 
 const { mustHave } = useRole()
 const { id, versionId, sheetId } = useRoute().params
+const { copy } = useRoute().query
+
 mustHave("leader", `/songs/${id}`)
 
 const song = songStore.get({ songId: id as string }).data
@@ -166,7 +193,63 @@ if (sheet) {
 
 const saveSheetObject = ref<() => Promise<Blob>>()
 
-async function save() {
+async function saveSheet() {
+  if (!saveSheetObject.value) {
+    return undefined
+  }
+
+  const data = await saveSheetObject.value()
+  const encodedFile = await fileToBase64String(data)
+  const response = await api.objects.uploadFile(encodedFile, { base64: true })
+  return response.data.id
+}
+
+async function saveNew() {
+  await useToaster(async () => {
+    let newVersionId = versionId as string
+    if (copy === "version") {
+      if (!inputLabel.value) throw new Error("missing song version label")
+
+      const newVersion = await api.songs.newSongVersion(id as string, {
+        label: inputLabel.value,
+        verse_order: inputVerseOrder.value.join(" "),
+        lyrics: inputLyrics.value,
+      })
+      newVersionId = newVersion.data["id"]
+    }
+
+    const destQuery: Record<string, string> = { version: newVersionId }
+
+    if (sheet && sheet.value) {
+      const objectId = (await saveSheet()) ?? sheet.value.object_id
+      const objectType = sheet.value.object_type
+
+      if (!objectId) throw new Error("missing object ID")
+      if (!objectType) throw new Error("missing object type")
+      if (!inputSheetType.value) throw new Error("missing song sheet type")
+      if (!inputKey.value) throw new Error("missing song key")
+
+      const newSheet = await api.songs.newSongSheet(id as string, newVersionId, {
+        type: inputSheetType.value,
+        key: inputKey.value,
+        auto_verse_order: inputAutoVerseOrder.value === "true",
+        object_id: objectId,
+        object_type: objectType,
+      })
+
+      destQuery.sheet = newSheet.data["id"]
+    }
+
+    await refreshStore.refresh({ songId: id as string })
+
+    await navigateTo({
+      path: `/songs/${id as string}`,
+      query: destQuery,
+    })
+  })
+}
+
+async function saveEdit() {
   await useToaster(async () => {
     const label = inputLabel.value
     const verseOrder = inputVerseOrder.value.join(" ")
@@ -189,13 +272,7 @@ async function save() {
         type: inputSheetType.value,
         key: inputKey.value,
         auto_verse_order: inputAutoVerseOrder.value === "true",
-      }
-
-      if (saveSheetObject.value) {
-        const data = await saveSheetObject.value()
-        const encodedFile = await fileToBase64String(data)
-        const response = await api.objects.uploadFile(encodedFile, { base64: true })
-        update["object_id"] = response.data.id
+        object_id: await saveSheet(),
       }
 
       await api.songs.updateSongSheet(
@@ -209,6 +286,17 @@ async function save() {
     await refreshStore.refresh({ songId: id as string })
   })
 
-  await navigateTo({ path: `/songs/${id as string}` })
+  await navigateTo({
+    path: `/songs/${id as string}`,
+    query: { version: versionId as string, sheet: sheetId },
+  })
+}
+
+async function save() {
+  if (copy) {
+    return await saveNew()
+  } else {
+    return await saveEdit()
+  }
 }
 </script>

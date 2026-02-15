@@ -14,10 +14,17 @@
       <button class="mr-4 btn-icon" title="Download" @click="download(selectedSheet)">
         <Icon name="solar:download-minimalistic-bold" />
       </button>
-      <button v-if="canEdit" class="btn-gray" data-cy="edit-sheet" @click="edit">
-        <Icon name="ri:edit-2-line" class="show-lg" />
-        <span class="hide-lg">Edit...</span>
-      </button>
+      <MtDropdown v-if="canEdit" button-class="btn-gray" data-cy="edit-sheet">
+        <template #dropdown-button>
+          <Icon name="ri:edit-2-line" class="show-lg" />
+          <span class="hide-lg"> Edit / Copy </span>
+        </template>
+        <button v-if="selectedSheet !== '!lyrics'" @click="edit('copySheet')">
+          Copy to New Sheet
+        </button>
+        <button @click="edit('copyVersion')">Copy to New Version</button>
+        <button @click="edit('edit')">Edit Current Version</button>
+      </MtDropdown>
       <button v-if="canEdit" class="btn-gray" data-cy="add-sheet" @click="addSheet">
         <Icon name="ri:add-large-line" class="show-lg" />
         <span class="hide-lg">Add Sheet...</span>
@@ -161,42 +168,49 @@ function lyricsToClipboard() {
   if (props.version.lyrics) navigator.clipboard.writeText(props.version.lyrics)
 }
 
-async function editCurrentVersion() {
+async function edit(mode: "edit" | "copyVersion" | "copySheet") {
   const sheetId = selected.value === "!lyrics" ? "lyrics" : selected.value
+  const query =
+    mode === "copyVersion"
+      ? { copy: "version" }
+      : mode === "copySheet"
+        ? { copy: "sheet" }
+        : {}
   await navigateTo({
     path: `/songs/${props.version.song_id}/edit/${props.version.id}/${sheetId}`,
+    query,
   })
 }
 
-function edit() {
-  const modal = useModal()
-
-  modal.show({
-    title: "What would you like to do?",
-    body:
-      "If you have a new set of lyrics, a new verse order, or a new song sheet, " +
-      "it's probably best to click Copy to a New Version. If you are correcting a " +
-      "mistake, click Edit Current Version.",
-    primary: {
-      label: "Copy to a New Version",
-      theme: "blue",
-      action: async () =>
-        await navigateTo({
-          path: "/songs/new",
-          query: {
-            song: props.version.song_id,
-            version: props.version.id,
-            copy: "true",
-          },
-        }),
-    },
-    secondary: {
-      label: "Edit Current Version",
-      theme: "white",
-      action: editCurrentVersion,
-    },
-  })
-}
+// function edit() {
+//   const modal = useModal()
+//
+//   modal.show({
+//     title: "What would you like to do?",
+//     body:
+//       "If you have a new set of lyrics, a new verse order, or a new song sheet, " +
+//       "it's probably best to click Copy to a New Version. If you are correcting a " +
+//       "mistake, click Edit Current Version.",
+//     primary: {
+//       label: "Copy to a New Version",
+//       theme: "blue",
+//       action: async () =>
+//         await navigateTo({
+//           path: "/songs/new",
+//           query: {
+//             song: props.version.song_id,
+//             version: props.version.id,
+//             copy: "true",
+//           },
+//         }),
+//     },
+//     secondary: {
+//       label: "Edit Current Version",
+//       theme: "white",
+//       action: editCurrentVersion,
+//     },
+//   })
+// }
 
 function download(sheet: "!lyrics" | SongSheet) {
   const link = document.createElement("a")
