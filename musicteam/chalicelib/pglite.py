@@ -112,8 +112,7 @@ class PGliteManager:
         self, ext_requires_str: str, extensions_obj_str: str
     ) -> str:
         """Generate JavaScript content for Unix socket mode (original logic)."""
-        return dedent(
-            f"""
+        return dedent(f"""
             const {{ PGlite }} = require('@electric-sql/pglite');
             const {{ PGLiteSocketServer }} = require('@electric-sql/pglite-socket');
             const fs = require('fs');
@@ -190,8 +189,7 @@ class PGliteManager:
             }}
 
             startServer();
-        """
-        ).strip()
+        """).strip()
 
     def _cleanup_socket(self) -> None:
         """Clean up the PGlite socket file."""

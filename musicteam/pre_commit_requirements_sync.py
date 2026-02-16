@@ -9,7 +9,6 @@ from typing import Iterator
 
 import yaml
 
-
 package_versions = {
     dist.metadata["Name"]: dist.version for dist in importlib.metadata.distributions()
 }

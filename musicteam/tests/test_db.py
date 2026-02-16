@@ -15,8 +15,7 @@ def test_upgrade_db(db, tmp_path, snapshot):
     assert str(tmp_path) == db.INSTANCE_DIR
 
     with open(os.path.join(db.INSTANCE_DIR, "pgdump.mjs"), "w") as fp:
-        fp.write(
-            """
+        fp.write("""
 import { PGlite } from '@electric-sql/pglite';
 import { pgDump } from '@electric-sql/pglite-tools/pg_dump';
 import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
@@ -29,8 +28,7 @@ const pg = await PGlite.create({
 const dump = await pgDump({ pg, args: ['-O'] });
 const dumpContent = await dump.text();
 console.log(dumpContent)
-            """
-        )
+            """)
 
     subprocess.run(
         [
