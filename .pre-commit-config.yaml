@@ -98,3 +98,10 @@ repos:
         pass_filenames: false
         files: 'musicteam-nuxt/cypress/(.*)\.ts'
         types: [file]
+
+ci:
+  skip:
+    - generate-apispec
+    - generate-nuxt-api
+    - typecheck
+    - typecheck-ci

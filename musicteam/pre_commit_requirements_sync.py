@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import importlib.metadata
-import os
+import shutil
 import sys
 import tempfile
 from typing import IO
@@ -75,6 +75,6 @@ if __name__ == "__main__":
     if sys.argv[-1] == "--in-place":
         with tempfile.NamedTemporaryFile(mode="w") as ofp:
             do(ofp)
-            os.rename(ofp.file.name, ".pre-commit-config.yaml")
+            shutil.copy(ofp.file.name, ".pre-commit-config.yaml")
     else:
         do(sys.stdout)
