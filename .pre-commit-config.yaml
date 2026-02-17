@@ -104,4 +104,4 @@ ci:
     - generate-apispec
     - generate-nuxt-api
     - typecheck
-    - typecheck-ci
+    - typecheck-cy
