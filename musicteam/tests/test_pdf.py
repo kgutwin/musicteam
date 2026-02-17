@@ -5,7 +5,6 @@ import pytest
 from chalicelib import pdf
 from syrupy.extensions.single_file import SingleFileSnapshotExtension
 
-
 STATIC_ID = b"/ID[<C29E67C3AFC39BC289C28116217BC2AA><D4C7CDFF2AE8F6901B146F8FCBA86701>]"
 
 
@@ -33,8 +32,7 @@ def test_text_to_pdf_1(pdf_snapshot):
 
 
 def test_text_to_pdf_2(pdf_snapshot):
-    doc = pdf.text_to_pdf(
-        """
+    doc = pdf.text_to_pdf("""
 Test Song
 =========
 
@@ -42,8 +40,7 @@ Verse 1
 -------
 Bb    Ab
 Hello World
-"""
-    )
+""")
     assert to_test_bytes(doc) == pdf_snapshot
 
 
@@ -73,12 +70,10 @@ def test_add_verse_order(pdf_snapshot):
     title = "Hello " * 10
     header = "=" * 59
 
-    doc = pdf.text_to_pdf(
-        f"""{title}
+    doc = pdf.text_to_pdf(f"""{title}
 {header}
 
 Test one two three
-    """
-    )
+    """)
     doc = pdf.add_verse_order(doc, ["V1", "C1", "V2"])
     assert to_test_bytes(doc) == pdf_snapshot

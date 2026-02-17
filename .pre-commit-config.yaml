@@ -2,7 +2,7 @@ default_stages: [pre-commit]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: '^musicteam-nuxt/public/pdfjs|\.ambr$'
@@ -11,7 +11,7 @@ repos:
       - id: check-ast
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
+    rev: v1.19.1
     hooks:
       - id: mypy
         entry: bash -c "MYPYPATH=musicteam/mypy-stubs mypy $@" --
@@ -38,13 +38,13 @@ repos:
     hooks:
       - id: reorder-python-imports
 
-  - repo: https://github.com/psf/black
-    rev: 25.9.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.1.0
     hooks:
       - id: black
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.14.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.1
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -98,3 +98,10 @@ repos:
         pass_filenames: false
         files: 'musicteam-nuxt/cypress/(.*)\.ts'
         types: [file]
+
+ci:
+  skip:
+    - generate-apispec
+    - generate-nuxt-api
+    - typecheck
+    - typecheck-cy

@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 import importlib.metadata
-import os
+import shutil
 import sys
 import tempfile
 from typing import IO
 from typing import Iterator
 
 import yaml
-
 
 package_versions = {
     dist.metadata["Name"]: dist.version for dist in importlib.metadata.distributions()
@@ -76,6 +75,7 @@ if __name__ == "__main__":
     if sys.argv[-1] == "--in-place":
         with tempfile.NamedTemporaryFile(mode="w") as ofp:
             do(ofp)
-            os.rename(ofp.file.name, ".pre-commit-config.yaml")
+            ofp.flush()
+            shutil.copy(ofp.file.name, ".pre-commit-config.yaml")
     else:
         do(sys.stdout)
