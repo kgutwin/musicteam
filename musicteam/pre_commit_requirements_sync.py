@@ -75,6 +75,7 @@ if __name__ == "__main__":
     if sys.argv[-1] == "--in-place":
         with tempfile.NamedTemporaryFile(mode="w") as ofp:
             do(ofp)
+            ofp.flush()
             shutil.copy(ofp.file.name, ".pre-commit-config.yaml")
     else:
         do(sys.stdout)
