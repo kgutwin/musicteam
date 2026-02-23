@@ -10,6 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'kgutwin/musicteam'
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Update pre-commit versions
+        run: |
+          python musicteam/pre_commit_requirements_sync.py --in-place
+          git add .pre-commit-config.yaml
+          git commit -m "chore(deps): sync pre-commit config"
+          git push
+
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v2
