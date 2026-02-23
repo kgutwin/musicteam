@@ -3,7 +3,7 @@ black==26.1.0
 mypy==1.19.1
 pytest==9.0.2
 syrupy==5.1.0
-psycopg==3.3.2
+psycopg==3.3.3
 PyYAML==6.0.3
 types-psutil==7.2.2.20260130
 types-requests-oauthlib==2.0.0.20250809
