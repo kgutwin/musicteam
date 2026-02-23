@@ -49,17 +49,18 @@ repos:
       - id: ruff-check
         args: ["--fix"]
 
-  - repo: https://github.com/kgutwin/pre-commit-mypy-sync
-    rev: b8a8383f7d2983eed8be9e7cd28f1e0e78cca572
-    hooks:
-      - id: mypy-requirements-sync
-        args:
-          - "-r"
-          - "requirements-dev.txt"
-          - "-r"
-          - "musicteam/requirements.txt"
-          - "--in-place"
-        files: "requirements-dev.txt|musicteam/requirements.txt"
+  # kgutwin 2026-02-23  this needs more work
+  #   - repo: https://github.com/kgutwin/pre-commit-mypy-sync
+  #     rev: b8a8383f7d2983eed8be9e7cd28f1e0e78cca572
+  #     hooks:
+  #       - id: mypy-requirements-sync
+  #         args:
+  #           - "-r"
+  #           - "requirements-dev.txt"
+  #           - "-r"
+  #           - "musicteam/requirements.txt"
+  #           - "--in-place"
+  #         files: "requirements-dev.txt|musicteam/requirements.txt"
 
   - repo: local
     hooks:
