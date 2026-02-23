@@ -49,16 +49,20 @@ repos:
       - id: ruff-check
         args: ["--fix"]
 
+  - repo: https://github.com/kgutwin/pre-commit-mypy-sync
+    rev: c557c8659540c3545f8408e6087454a752a5c0c4
+    hooks:
+      - id: mypy-requirements-sync
+        args:
+          - "-r"
+          - "requirements-dev.txt"
+          - "-r"
+          - "musicteam/requirements.txt"
+          - "--in-place"
+        files: "requirements-dev.txt|musicteam/requirements.txt"
+
   - repo: local
     hooks:
-      - id: requirements-sync
-        name: sync pre-commit requirements
-        language: system
-        entry: python musicteam/pre_commit_requirements_sync.py --in-place
-        pass_filenames: false
-        files: "requirements-dev.txt|musicteam/requirements.txt"
-        types: [file]
-
       - id: generate-apispec
         name: generate api spec
         language: system
