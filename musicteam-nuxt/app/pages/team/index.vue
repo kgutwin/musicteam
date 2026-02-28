@@ -55,12 +55,14 @@ const { canAdmin } = useRole()
 
 type UserRole = "viewer" | "leader" | "manager" | "admin" | "inactive"
 
-const columns: TableColumn[] = [
+const allColumns: TableColumn[] = [
   { name: "picture", title: "" },
   { name: "name", title: "Name" },
-  { name: "email", title: "Email" },
+  { name: "email", title: "Email", active: window.innerWidth > 800 },
   { name: "role", title: "Role" },
 ]
+
+const columns = computed(() => allColumns.filter((c) => c.active ?? true))
 
 async function saveRole(row: User) {
   await useToaster(async () => {

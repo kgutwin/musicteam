@@ -64,7 +64,7 @@ const showMenu = ref(false)
   @apply flex flex-col sm:flex-row gap-4 items-baseline;
 
   @apply fixed top-0 right-0 sm:relative;
-  @apply max-sm:h-screen z-20;
+  @apply max-sm:h-svh z-20;
   @apply transition-transform sm:transition-none duration-300 ease-out;
 }
 

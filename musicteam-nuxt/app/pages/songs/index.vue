@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head><Title>Songs - MusicTeam</Title></Head>
-    <div class="flex flex-row items-baseline gap-2 flex-wrap sm:flex-nowrap">
+    <div class="flex flex-row items-stretch gap-2 flex-wrap sm:flex-nowrap">
       <h1 class="grow hide-sm">Songs</h1>
       <div v-if="numSongs" class="hide-lg">
         <template v-if="numSongs.filtered !== numSongs.total">
@@ -19,10 +19,8 @@
       </div>
       <MtDropdown :button-class="`btn-gray ` + (hasFilters ? `bg-gray-stripes` : ``)">
         <template #dropdown-button>
-          <div class="flex flex-row gap-1 items-center">
-            <Icon name="ri:filter-2-line" class="show-lg" />
-            <span class="hide-lg">Filter</span>
-          </div>
+          <span class="hide-lg">Filter</span>
+          <Icon name="ri:filter-2-line" class="show-lg -mb-0.5" />
         </template>
 
         <template v-if="hasFilters">
@@ -63,8 +61,8 @@
       </MtDropdown>
       <MtDropdown button-class="btn-gray">
         <template #dropdown-button>
-          <Icon name="ri:layout-column-line" class="show-lg" />
           <span class="hide-lg">Columns</span>
+          <Icon name="ri:layout-column-line" class="show-lg -mb-0.5" />
         </template>
         <MtDropdownCheckbox
           v-for="column in allColumns"
@@ -101,10 +99,8 @@
       </MtDropdown>
       <div>
         <NuxtLink class="inline-block btn-gray mr-2" to="/songs/search">
-          <div class="flex flex-row gap-1 items-center">
-            <span class="hide-lg">Search</span>
-            <Icon name="ri:search-line" />
-          </div>
+          <span class="hide-lg mr-1">Search</span>
+          <Icon name="ri:search-line" class="-mb-0.5" />
         </NuxtLink>
         <NuxtLink v-if="canEdit" class="inline-block btn-blue" to="/songs/new">
           New...
@@ -185,7 +181,7 @@ const allColumns = ref([
   {
     name: "tags",
     title: "Tags",
-    active: prefs.columns.tags ?? window.innerWidth > 400,
+    active: prefs.columns.tags ?? window.innerWidth > 440,
   },
   { name: "ccli", title: "CCLI Number", active: prefs.columns.ccli ?? false },
   {

@@ -62,11 +62,13 @@ const topSongs = computed(
   () => topSongsStore.get({ ranking: ranking.value }).data.value,
 )
 
-const columns = ref([
+const allColumns = ref([
   { name: "title", title: "Title" },
-  { name: "authors", title: "Authors" },
-  { name: "tags", title: "Tags" },
-  { name: "appearances", title: "Appearances" },
+  { name: "authors", title: "Authors", active: window.innerWidth > 600 },
+  { name: "tags", title: "Tags", active: window.innerWidth > 800 },
+  { name: "appearances", title: window.innerWidth > 600 ? "Appearances" : "Count" },
   { name: "sparkline", title: "History (2 yr)" },
 ])
+
+const columns = computed(() => allColumns.value.filter((c) => c.active ?? true))
 </script>

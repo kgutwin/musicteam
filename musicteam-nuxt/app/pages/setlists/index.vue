@@ -34,12 +34,6 @@
       <template #tags="{ row }">
         <span v-for="tag in row.tags" :key="tag" class="spn-tag">{{ tag }}</span>
       </template>
-      <template #created-on="{ row }">
-        {{ localdate(row.created_on) }}
-      </template>
-      <template #created-by="{ row }">
-        {{ user.get({ userId: row.creator_id })?.data?.value?.name }}
-      </template>
     </MtTable>
   </div>
 </template>
@@ -54,13 +48,13 @@ const user = useUserStore()
 
 const { canLead } = useRole()
 
-const columns: TableColumn[] = [
+const allColumns: TableColumn[] = [
   { name: "service-date", title: "Service Date" },
   { name: "leader", title: "Leader" },
-  { name: "title", title: "Title" },
+  { name: "title", title: "Title", active: window.innerWidth > 400 },
   { name: "team", title: "Participants" },
-  { name: "tags", title: "Tags" },
-  // { name: "created-on", title: "Created On" },
-  // { name: "created-by", title: "Created By" },
+  { name: "tags", title: "Tags", active: window.innerWidth > 800 },
 ]
+
+const columns = computed(() => allColumns.filter((c) => c.active ?? true))
 </script>

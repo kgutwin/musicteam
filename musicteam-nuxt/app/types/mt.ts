@@ -3,6 +3,7 @@ export interface TableColumn {
   title: string
   cls?: string
   required?: boolean
+  active?: boolean
 }
 
 export interface Tab {

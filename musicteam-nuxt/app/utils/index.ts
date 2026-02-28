@@ -55,3 +55,14 @@ export function chordRatio(line: string): number {
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+export function isMobileSafari() {
+  // Source - https://stackoverflow.com/a/29696509
+  // Posted by unwitting, modified by community. See post 'Timeline' for change history
+  // Retrieved 2026-02-28, License - CC BY-SA 3.0
+
+  var ua = window.navigator.userAgent
+  var iOS = !!ua.match(/iP(ad|one)/i)
+  var webkit = !!ua.match(/WebKit/i)
+  return iOS && webkit && !ua.match(/CriOS/i)
+}

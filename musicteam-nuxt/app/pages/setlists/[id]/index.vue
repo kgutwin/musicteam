@@ -4,8 +4,8 @@
       <Title>{{ setlist?.service_date }} Set List - MusicTeam</Title>
     </Head>
     <div class="div-panel">
-      <div class="flex flex-row gap-2">
-        <h1 class="grow flex flex-row gap-2">
+      <div class="flex flex-row flex-wrap sm:flex-nowrap gap-2 items-start">
+        <h1 class="grow flex sm:flex-col lg:flex-row gap-2 sm:gap-0 lg:gap-2">
           Set List for
           <MtEditable
             :model="setlist"
@@ -13,8 +13,12 @@
             type="date"
             @save="saveSetlist('service_date')"
           />
-          <Icon name="solar:double-alt-arrow-right-bold-duotone" class="self-center" />
-          <MtEditable :model="setlist" prop="title" @save="saveSetlist('title')" />
+        </h1>
+        <h1>
+          <MtEditable :model="setlist" prop="title" @save="saveSetlist('title')">
+            <Icon name="solar:double-alt-arrow-right-bold-duotone" class="min-w-8" />
+            {{ setlist?.title ?? "" }}
+          </MtEditable>
         </h1>
         <button class="btn-icon" @click="shareSetlist" title="Share...">
           <Icon name="solar:share-outline" />
@@ -122,6 +126,13 @@
         class="w-full h-screen"
         @load="pdfLoading = false"
       ></iframe>
+      <button
+        v-if="isMobileSafari()"
+        class="block w-full p-2 rounded-b shadow bg-violet-200 text-center"
+        @click="downloadPacket(selectedTab)"
+      >
+        Open full packet
+      </button>
     </template>
     <SongTextPanel v-else-if="selectedTab === 'lyrics'" @click="copyLyricsToClipboard">
       <object :data="`/api/setlists/${id}/packet/lyrics`" class="w-full h-screen" />
@@ -139,6 +150,7 @@ import {
   useSetlistRefreshStore,
 } from "@/stores/setlists"
 import { useSongStore, useSongSheetStore } from "@/stores/songs"
+import { isMobileSafari } from "@/utils"
 
 import type { SetlistSheet, SetlistPosition, Setlist } from "@/services/api"
 import type { Tab } from "@/types/mt"

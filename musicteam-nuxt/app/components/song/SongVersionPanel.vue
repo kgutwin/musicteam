@@ -25,14 +25,19 @@
         <button @click="edit('copyVersion')">Copy to New Version</button>
         <button @click="edit('edit')">Edit Current Version</button>
       </MtDropdown>
-      <button v-if="canEdit" class="btn-gray" data-cy="add-sheet" @click="addSheet">
+      <button
+        v-if="canEdit"
+        class="btn-gray max-sm:h-8"
+        data-cy="add-sheet"
+        @click="addSheet"
+      >
         <Icon name="ri:add-large-line" class="show-lg" />
         <span class="hide-lg">Add Sheet...</span>
       </button>
       <button
         v-if="canLead && activeSetlistStore.setlist"
         :disabled="selectedSheet === '!lyrics'"
-        class="btn-gray"
+        class="btn-gray max-sm:h-8"
         @click="addToCandidates"
       >
         <Icon name="ri:play-list-add-line" class="show-lg" />
@@ -63,11 +68,19 @@
         :sheet-id="selectedSheet.id"
       />
     </SongTextPanel>
-    <object
-      v-else
-      :data="`/api/songs/${version.song_id}/versions/${version.id}/sheets/${selectedSheet.id}/doc`"
-      class="w-full h-screen"
-    ></object>
+    <template v-else>
+      <object
+        :data="`/api/songs/${version.song_id}/versions/${version.id}/sheets/${selectedSheet.id}/doc`"
+        class="w-full h-screen"
+      ></object>
+      <button
+        v-if="isMobileSafari()"
+        class="block w-full p-2 rounded-b shadow bg-violet-200 text-center"
+        @click="download(selectedSheet)"
+      >
+        Open full sheet
+      </button>
+    </template>
   </div>
 </template>
 
@@ -78,6 +91,7 @@ import type { SongVersion, SongSheet } from "@/services/api"
 import { api } from "@/services"
 import { useSongSheetlistStore } from "@/stores/songs"
 import { useActiveSetlistStore, useSetlistSheetlistStore } from "@/stores/setlists"
+import { isMobileSafari } from "@/utils"
 
 import type { ToasterStatus } from "@/types/toast"
 

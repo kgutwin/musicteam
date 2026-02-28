@@ -54,8 +54,11 @@
       </template>
     </MtTable>
 
-    <div v-if="canLead" class="mt-8 rounded-lg shadow-lg grid grid-cols-2 gap-2">
-      <div class="italic col-span-2 p-2 bg-gray-200">Candidates</div>
+    <div
+      v-if="canLead"
+      class="mt-8 rounded-lg shadow-lg grid grid-cols-1 sm:grid-cols-2 gap-2"
+    >
+      <div class="italic sm:col-span-2 p-2 bg-gray-200">Candidates</div>
       <SetlistSidebarSong
         v-for="sheet in filtered(slist?.sheets)"
         :key="sheet.id"
@@ -63,7 +66,7 @@
       />
       <div
         v-if="filtered(slist?.sheets).length === 0"
-        class="col-span-2 italic p-2 text-center"
+        class="sm:col-span-2 italic p-2 text-center"
       >
         <div class="font-bold">No candidates added</div>
         <div v-if="canLead && !activeStore.setlist" class="text-gray-600">
@@ -101,11 +104,12 @@ const { canLead } = useRole()
 
 const columns = computed(() => {
   const rv: TableColumn[] = [
-    { name: "presenter", title: "Presenter" },
     { name: "label", title: "Label" },
     { name: "song", title: "Song" },
   ]
+  if (window.innerWidth > 600) rv.unshift({ name: "presenter", title: "Presenter" })
   if (props.editOrder) {
+    rv.pop()
     rv.splice(2, 0, { name: "is-music", title: "Needs Music?" })
     rv.push({ name: "controls", title: "", cls: "w-24" })
   }
