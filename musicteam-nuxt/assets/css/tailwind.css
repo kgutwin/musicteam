@@ -29,6 +29,9 @@ hr {
 .hide-sm {
   @apply hidden sm:display-inherit;
 }
+.hide-md {
+  @apply hidden md:display-inherit;
+}
 .hide-lg {
   @apply hidden lg:display-inherit;
 }

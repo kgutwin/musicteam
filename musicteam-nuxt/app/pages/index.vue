@@ -1,7 +1,7 @@
 <template>
   <div>
     <Head><Title>MusicTeam</Title></Head>
-    <h1 class="text-4xl">Welcome to MusicTeam!</h1>
+    <h1 class="text-4xl max-sm:text-center">Welcome to MusicTeam!</h1>
 
     <div class="hero-grid">
       <div>
