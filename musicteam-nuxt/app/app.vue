@@ -1,15 +1,15 @@
 <template>
   <PingBar v-if="pingStore.isPinging" />
-  <div class="page-grid page-grid-sidebar-open">
-    <NavBar class="col-span-2" />
+  <div class="page-grid">
+    <NavBar class="sm:col-span-2 order-0" />
 
-    <div class="container mx-auto p-4 sm:p-8">
+    <div class="container mx-auto p-4 sm:p-8 order-2 sm:order-1">
       <NuxtPage />
     </div>
 
-    <SetlistSidebar class="row-span-2" />
+    <SetlistSidebar class="sm:row-span-2 order-1 sm:order-2" />
 
-    <Footer />
+    <Footer class="order-3" />
   </div>
 </template>
 
@@ -22,9 +22,8 @@ pingStore.ping()
 
 <style>
 .page-grid {
-  @apply min-h-screen grid grid-cols-2 grid-rows-[auto_minmax(15rem,1fr)_auto];
-}
-.page-grid-sidebar-open {
-  @apply grid-cols-[minmax(15rem,1fr)_auto];
+  @apply min-h-screen grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-[minmax(15rem,1fr)_auto];
+  @apply grid-rows-[auto_auto_minmax(15rem,1fr)_auto];
+  @apply sm:grid-rows-[auto_minmax(15rem,1fr)_auto];
 }
 </style>

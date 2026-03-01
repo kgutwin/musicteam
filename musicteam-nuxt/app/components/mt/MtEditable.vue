@@ -6,7 +6,7 @@
           <MtText
             is="span"
             :text="getText()"
-            :loading="wide ? 'w-72' : 'w-48'"
+            :loading="wide ? 'w-48 sm:w-72' : 'w-24 sm:w-48'"
             :placeholder="placeholder"
           />
         </slot>

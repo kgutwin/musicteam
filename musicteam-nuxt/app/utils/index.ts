@@ -62,7 +62,7 @@ export function isMobileSafari() {
   // Retrieved 2026-02-28, License - CC BY-SA 3.0
 
   var ua = window.navigator.userAgent
-  var iOS = !!ua.match(/iP(ad|one)/i)
+  var iOS = !!ua.match(/iP(ad|hone)/i)
   var webkit = !!ua.match(/WebKit/i)
   return iOS && webkit && !ua.match(/CriOS/i)
 }

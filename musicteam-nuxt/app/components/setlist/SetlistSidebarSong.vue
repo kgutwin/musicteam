@@ -13,7 +13,7 @@
       <NuxtLink
         :to="`/songs/${song?.id}?version=${sheet.song_version_id}&sheet=${sheet.song_sheet_id}`"
       >
-        <MtText is="span" loading="w-48" :text="song?.title" />
+        <MtText is="span" loading="w-24 sm:w-48" :text="song?.title" />
       </NuxtLink>
     </div>
     <MtDropdown>

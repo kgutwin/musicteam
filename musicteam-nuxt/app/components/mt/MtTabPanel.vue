@@ -32,13 +32,13 @@ const selected = defineModel<string>()
 
 <style>
 .div-tab-panel {
-  @apply flex flex-col md:flex-row gap-4;
+  @apply flex flex-col md:flex-row gap-x-4 gap-y-2;
 }
 .div-tab-panel-buttons {
-  @apply flex flex-row gap-4 items-start flex-wrap sm:flex-nowrap;
+  @apply flex flex-row gap-x-4 gap-y-2 items-start flex-wrap sm:flex-nowrap ml-4;
 }
 .div-tab-panel-tabs {
-  @apply grow flex flex-row flex-wrap gap-4;
+  @apply grow flex flex-row flex-wrap gap-x-4 gap-y-2;
 }
 .btn-tab {
   @apply font-semibold rounded-lg px-4 py-1 border-2 border-transparent;

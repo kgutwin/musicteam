@@ -2,12 +2,12 @@
   <div
     v-if="active.setlist"
     class="bg-sky-100 p-4 shadow-xl"
-    :class="{ 'w-80': panelOpen, 'w-12 relative': !panelOpen }"
+    :class="panelOpen ? 'setlist-bar-open' : 'setlist-bar-closed'"
     data-cy="sidebar"
     @dragover="(ev) => ev.preventDefault()"
   >
     <button
-      class="float-right mt-2 transition-transform"
+      class="float-right sm:mt-2 transition-transform"
       :class="{ 'rotate-90': !panelOpen }"
       data-cy="toggle-panel"
       @click="panelOpen = !panelOpen"
@@ -111,8 +111,12 @@
         <button class="btn-gray" @click="active.setlist = null">Close</button>
       </div>
     </div>
-    <div v-else class="absolute rotate-90 top-40 -right-14 w-40">
-      Set List: <span class="font-bold">{{ active.setlist.service_date }}</span>
+    <div v-else class="setlist-bar-closed-header">
+      <span class="inline sm:hidden">Active</span> Set List:
+      <span class="font-bold">{{ active.setlist.service_date }}</span>
+      <button class="btn-gray inline ml-8 sm:hidden" @click="active.setlist = null">
+        Close
+      </button>
     </div>
   </div>
   <div v-else />
@@ -137,7 +141,7 @@ const positionlist = useSetlistPositionlistStore()
 const sheetlist = useSetlistSheetlistStore()
 const refreshSetlists = useSetlistRefreshStore()
 
-const panelOpen = ref(true)
+const panelOpen = ref(window.innerWidth > 600)
 const showCandidates = ref(true)
 
 const plist = computed(() => {
@@ -181,3 +185,15 @@ async function draggableChange(
   }
 }
 </script>
+
+<style>
+.setlist-bar-open {
+  @apply sm:w-80 relative sm:absolute sm:right-0 sm:top-20 md:relative md:top-0;
+}
+.setlist-bar-closed {
+  @apply sm:w-12 relative;
+}
+.setlist-bar-closed-header {
+  @apply sm:absolute sm:rotate-90 sm:top-40 sm:-right-14 sm:w-40;
+}
+</style>
