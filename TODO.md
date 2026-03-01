@@ -2,11 +2,7 @@
 
 ## Frontend
 
-- Complete mobile layout
 - Public link to lyrics for congregation
-- Browse song revisions
-- Drag to change order within candidate list / within setlist position
-- Copy existing setlist?
 - Preview lyrics on hover within song list?
 - Rectangle whiteout in PDF annotation??
 - Allow users to upload their own profile picture, change other profile details
@@ -20,8 +16,6 @@
 
 ## Bugs
 
-- on mobile, the PDF embed only shows the first page and you can't really scroll
-  to the next page
 - After adding a new sheet, it takes a while for the sheet to appear and there's
   no loading indicator to let you know it's reloading
 - After editing a song's authors (or adding a new tag) the Filter option in the
@@ -33,6 +27,9 @@
 
 - Music packet loads slowly and there is no feedback that it is working
 - User-selectable PDF viewer (between browser-native and PDF.js)
+- Browse song revisions
+- Drag to change order within candidate list / within setlist position
+- Copy existing setlist?
 
 ## Performance
 
