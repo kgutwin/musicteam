@@ -384,7 +384,7 @@ class SetlistSheetList(BaseModel):
     sheets: list[SetlistSheet]
 
 
-class _PositionLyricDetails(BaseModel):
+class PositionLyricDetails(BaseModel):
     position_id: str
     title: str
     lyrics: str | None
@@ -399,6 +399,12 @@ class _PositionSheetDetails(BaseModel):
     auto_verse_order: bool
     object_id: str
     object_type: str
+
+
+class SetlistInfo(BaseModel):
+    service_date: date | None
+    title: str | None
+    lyrics: list[PositionLyricDetails]
 
 
 class NewSetlistTemplate(BaseModel):

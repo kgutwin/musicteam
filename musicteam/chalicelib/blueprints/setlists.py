@@ -6,7 +6,6 @@ from chalicelib import pdf
 from chalicelib import storage
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
-from chalicelib.types import _PositionLyricDetails
 from chalicelib.types import _PositionSheetDetails
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
@@ -18,7 +17,9 @@ from chalicelib.types import NewSetlistTemplate
 from chalicelib.types import NewSetlistTemplatePosition
 from chalicelib.types import NoContent
 from chalicelib.types import NotFound
+from chalicelib.types import PositionLyricDetails
 from chalicelib.types import Setlist
+from chalicelib.types import SetlistInfo
 from chalicelib.types import SetlistList
 from chalicelib.types import SetlistPosition
 from chalicelib.types import SetlistPositionList
@@ -126,6 +127,72 @@ def delete_setlist(setlist_id: str) -> Forbidden | NotFound | NoContent:
         return NoContent() if result else NotFound()
 
 
+@bp.route("/setlists/{setlist_id}/info", methods=["GET"])
+def get_setlist_info(setlist_id: str) -> NotFound | SetlistInfo:
+    """Retrieve basic information, including lyrics, for this setlist
+
+    Specifying "LATEST" as the setlist_id will retrieve info about the
+    most recent setlist that has passed.
+
+    Note that this endpoint is intentionally unauthenticated to offer
+    this info to the general community.
+
+    """
+    with db.connect() as conn:
+        setlist = conn.execute(
+            "SELECT"
+            "  id, leader_name, service_date, tags, title, participants, created_on,"
+            "  creator_id "
+            "FROM setlists "
+            "WHERE id = ("
+            "  CASE WHEN :setlist_id = 'LATEST' THEN ("
+            "    SELECT id FROM setlists WHERE service_date <= current_date"
+            "    ORDER BY service_date DESC LIMIT 1"
+            "  ) ELSE :setlist_id END"
+            ")",
+            {"setlist_id": setlist_id},
+            output=Setlist,
+        ).fetchone()
+
+        if setlist is None:
+            return NotFound()
+
+        lyric_details = conn.execute(
+            "WITH lyric_versions AS ("
+            "  SELECT setlist_sheets.setlist_position_id, song_versions.id"
+            "  FROM setlist_sheets"
+            "  INNER JOIN song_sheets ON setlist_sheets.song_sheet_id = song_sheets.id"
+            "  INNER JOIN song_versions"
+            "     ON song_sheets.song_version_id = song_versions.id"
+            "  WHERE setlist_sheets.setlist_id = :setlist_id"
+            "    AND setlist_sheets.type NOT LIKE '%candidate%'"
+            "  GROUP BY setlist_sheets.setlist_position_id, song_versions.id"
+            ") "
+            "SELECT"
+            "  setlist_positions.id AS position_id,"
+            "  songs.title,"
+            "  song_versions.lyrics,"
+            "  song_versions.verse_order "
+            "FROM setlists "
+            "INNER JOIN setlist_positions"
+            "   ON setlists.id = setlist_positions.setlist_id "
+            "INNER JOIN lyric_versions"
+            "   ON setlist_positions.id = lyric_versions.setlist_position_id "
+            "INNER JOIN song_versions"
+            "   ON lyric_versions.id = song_versions.id "
+            "INNER JOIN songs"
+            "   ON song_versions.song_id = songs.id "
+            "WHERE setlists.id = :setlist_id "
+            "ORDER BY setlist_positions.index",
+            {"setlist_id": setlist.id},
+            output=PositionLyricDetails,
+        ).fetchall()
+
+    return SetlistInfo(
+        service_date=setlist.service_date, title=setlist.title, lyrics=lyric_details
+    )
+
+
 @bp.route("/setlists/{setlist_id}/packet/lyrics", methods=["GET"])
 def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Download:
     """Retrieve the text-format lyric packet for this setlist"""
@@ -181,7 +248,7 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
             "WHERE setlists.id = :setlist_id "
             "ORDER BY setlist_positions.index",
             {"setlist_id": setlist_id},
-            output=_PositionLyricDetails,
+            output=PositionLyricDetails,
         ).fetchall()
 
     fp = StringIO()

@@ -40,6 +40,11 @@ export const useSetlistSheetlistStore = defineStore(
   ),
 )
 
+export const useSetlistInfoLatestStore = defineStore(
+  "setlistinfolatest",
+  createStoreState(async () => await api.setlists.getSetlistInfo("LATEST")),
+)
+
 export const useSetlistRefreshStore = defineStore(
   "setlistRefresh",
   createRefreshStoreState([
@@ -47,5 +52,6 @@ export const useSetlistRefreshStore = defineStore(
     useSetlistStore,
     useSetlistPositionlistStore,
     useSetlistSheetlistStore,
+    useSetlistInfoLatestStore,
   ]),
 )

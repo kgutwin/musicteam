@@ -263,6 +263,21 @@ export interface ObjectId {
   id: string;
 }
 
+/** PositionLyricDetails */
+export interface PositionLyricDetails {
+  /** Position Id */
+  position_id: string;
+  /** Title */
+  title: string;
+  /** Lyrics */
+  lyrics: string | null;
+  /**
+   * Verse Order
+   * @default null
+   */
+  verse_order?: string | null;
+}
+
 /** Song */
 export interface Song {
   /** Title */
@@ -354,6 +369,16 @@ export interface Setlist {
   created_on: string;
   /** Creator Id */
   creator_id: string;
+}
+
+/** SetlistInfo */
+export interface SetlistInfo {
+  /** Service Date */
+  service_date: string | null;
+  /** Title */
+  title: string | null;
+  /** Lyrics */
+  lyrics: PositionLyricDetails[];
 }
 
 /** SetlistList */
@@ -2063,6 +2088,24 @@ export class Api<
         path: `/setlists/${setlistId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Specifying "LATEST" as the setlist_id will retrieve info about the most recent setlist that has passed. Note that this endpoint is intentionally unauthenticated to offer this info to the general community.
+     *
+     * @tags Setlists
+     * @name GetSetlistInfo
+     * @summary Retrieve basic information, including lyrics, for this setlist
+     * @request GET:/setlists/{setlist_id}/info
+     * @secure
+     */
+    getSetlistInfo: (setlistId: string, params: RequestParams = {}) =>
+      this.request<SetlistInfo, ServerError>({
+        path: `/setlists/${setlistId}/info`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 

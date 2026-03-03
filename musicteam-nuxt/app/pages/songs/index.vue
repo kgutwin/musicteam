@@ -3,7 +3,7 @@
     <Head><Title>Songs - MusicTeam</Title></Head>
     <div class="flex flex-row items-stretch gap-2 flex-wrap sm:flex-nowrap">
       <h1 class="grow hide-sm">Songs</h1>
-      <div v-if="numSongs" class="hide-lg">
+      <div v-if="numSongs" class="hide-lg self-center">
         <template v-if="numSongs.filtered !== numSongs.total">
           {{ numSongs.filtered }} of
         </template>

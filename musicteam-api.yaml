@@ -677,6 +677,36 @@ paths:
       required: true
       schema:
         type: string
+  /setlists/{setlist_id}/info:
+    get:
+      operationId: setlists.get_setlist_info
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistInfo'
+      tags:
+      - Setlists
+      summary: Retrieve basic information, including lyrics, for this setlist
+      description: 'Specifying "LATEST" as the setlist_id will retrieve info about
+        the most recent setlist that has passed.
+
+
+        Note that this endpoint is intentionally unauthenticated to offer this info
+        to the general community.'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
   /setlists/{setlist_id}/packet/lyrics:
     get:
       operationId: setlists.get_setlist_packet_lyrics
@@ -2054,6 +2084,31 @@ components:
       - id
       title: ObjectId
       type: object
+    PositionLyricDetails:
+      properties:
+        position_id:
+          title: Position Id
+          type: string
+        title:
+          title: Title
+          type: string
+        lyrics:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lyrics
+        verse_order:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Verse Order
+      required:
+      - position_id
+      - title
+      - lyrics
+      title: PositionLyricDetails
+      type: object
     Song:
       properties:
         title:
@@ -2194,6 +2249,30 @@ components:
       - created_on
       - creator_id
       title: Setlist
+      type: object
+    SetlistInfo:
+      properties:
+        service_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Service Date
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        lyrics:
+          items:
+            $ref: '#/components/schemas/PositionLyricDetails'
+          title: Lyrics
+          type: array
+      required:
+      - service_date
+      - title
+      - lyrics
+      title: SetlistInfo
       type: object
     SetlistList:
       properties:

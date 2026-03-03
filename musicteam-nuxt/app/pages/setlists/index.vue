@@ -2,11 +2,10 @@
   <div>
     <Head><Title>Set Lists - MusicTeam</Title></Head>
 
-    <div class="flex flex-row">
+    <div class="flex flex-row gap-2">
       <h1 class="grow">Set Lists</h1>
-      <div v-if="canLead">
-        <NuxtLink class="btn-gray" to="/setlists/new">New...</NuxtLink>
-      </div>
+      <NuxtLink class="btn-gray" to="/lyrics">Latest Lyrics</NuxtLink>
+      <NuxtLink v-if="canLead" class="btn-blue" to="/setlists/new">New...</NuxtLink>
     </div>
 
     <MtTable
