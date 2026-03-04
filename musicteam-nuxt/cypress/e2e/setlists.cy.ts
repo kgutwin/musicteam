@@ -370,37 +370,51 @@ describe("setlists", () => {
       cy.get("tr").contains("First").parents("tr").contains("Song Two")
     })
 
-    it("can get lyrics packet", () => {
-      // assign songs to positions
-      cy.sidebarSong("Song One", () => {
-        cy.dataCy("drop").click()
-        cy.contains("First").click()
-      })
-
-      cy.sidebarSong("Song Two", () => {
-        cy.dataCy("drop").click()
-        cy.contains("Last").click()
-      })
-
-      cy.sidebarSong("Song One", () => cy.dataCy("state").click())
-      cy.sidebarSong("Song Two", () => cy.dataCy("state").click())
-
-      cy.contains("Lyrics Packet").click()
-      cy.get('button[title="Warnings"]').should("not.exist")
-
-      cy.get("object")
-        .its("0.contentDocument.body")
-        .should("not.be.empty")
-        .then(cy.wrap)
-        .within(() => {
-          cy.exists([
-            "# Set list for 2026-01-04",
-            "** Song One **",
-            "** Song Two **",
-            "This has some basic lyrics.",
-            "These are lyrics from the second song.",
-          ])
+    context("packets", () => {
+      beforeEach(() => {
+        // assign songs to positions
+        cy.sidebarSong("Song One", () => {
+          cy.dataCy("drop").click()
+          cy.contains("First").click()
         })
+
+        cy.sidebarSong("Song Two", () => {
+          cy.dataCy("drop").click()
+          cy.contains("Last").click()
+        })
+
+        cy.sidebarSong("Song One", () => cy.dataCy("state").click())
+        cy.sidebarSong("Song Two", () => cy.dataCy("state").click())
+      })
+
+      it("can get lyrics packet", () => {
+        cy.contains("Lyrics Packet").click()
+        cy.get('button[title="Warnings"]').should("not.exist")
+
+        cy.get("object")
+          .its("0.contentDocument.body")
+          .should("not.be.empty")
+          .then(cy.wrap)
+          .within(() => {
+            cy.exists([
+              "# Set list for 2026-01-04",
+              "** Song One **",
+              "** Song Two **",
+              "This has some basic lyrics.",
+              "These are lyrics from the second song.",
+            ])
+          })
+      })
+
+      it("can get audience lyrics", () => {
+        cy.visit("/lyrics")
+
+        cy.exists(["Song One", "Song Two"])
+        cy.contains("Song One").click()
+        cy.exists("This has some basic lyrics.")
+        cy.contains("Song Two").click()
+        cy.exists("These are lyrics from the second song.")
+      })
     })
   })
 

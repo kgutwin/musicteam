@@ -55,7 +55,7 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
         return currentData.value
 
       try {
-        return useToaster(async () => {
+        return await useToaster(async () => {
           status.value = "pending"
           await pingStore.wake() // make sure API is awake before invoking fetcher
           const response = await fetcher()
@@ -76,7 +76,7 @@ export function createStoreState<T>(fetcher: () => Promise<HttpResponse<T, any>>
     /** Schedule an update of the store data without wiping the existing state. */
     function refresh() {
       status.value = "pending"
-      get()
+      get().catch(() => true)
     }
 
     /**

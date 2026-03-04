@@ -2,10 +2,6 @@
 
 ## Frontend
 
-- Public link to lyrics for congregation
-  - add "up/close" button at bottom of lyrics
-  - hide first line of lyrics if equal to song title
-  - cypress testing
 - Preview lyrics on hover within song list?
 - Rectangle whiteout in PDF annotation??
 - Allow users to upload their own profile picture, change other profile details

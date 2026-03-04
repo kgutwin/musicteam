@@ -21,11 +21,18 @@
         {{ song.title }}
       </button>
       <div v-if="isOpen[song.position_id]" class="lyrics">
-        {{ song.lyrics }}
+        {{ trimTitle(song.title, song.lyrics) }}
+        <button class="close-song" @click="isOpen[song.position_id] = false">
+          <Icon name="ri:arrow-up-line" />
+        </button>
       </div>
     </div>
 
     <div v-if="false">{{ setlistInfo.data }}</div>
+  </div>
+  <div v-else-if="setlistInfo.isError" class="lyrics-loading">
+    <h1>Whoops!</h1>
+    <h3>Something went wrong, sorry... let us know!</h3>
   </div>
   <div v-else class="lyrics-loading">
     <h1>Welcome!</h1>
@@ -52,6 +59,15 @@ definePageMeta({
 const setlistInfo = useSetlistInfoLatestStore()
 
 const isOpen = ref<Record<string, boolean>>({})
+
+function trimTitle(title: string, lyrics: string | null) {
+  if (!lyrics) return ""
+
+  if (lyrics.startsWith(title)) {
+    lyrics = lyrics.replace(title, "")
+  }
+  return lyrics.trim()
+}
 </script>
 
 <style>
@@ -84,6 +100,10 @@ const isOpen = ref<Record<string, boolean>>({})
 
     & .lyrics {
       @apply px-2 whitespace-pre-wrap pt-2 pb-8;
+    }
+
+    & .close-song {
+      @apply rounded-full bg-blue-200 text-2xl size-12 float-right mr-2 mb-4 shadow-lg;
     }
   }
 }
