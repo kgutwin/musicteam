@@ -307,12 +307,10 @@ class UpdateSetlist(_ReplacementModel):
     tags: list[str] | None = None
     title: str | None = None
     participants: list[str] | None = None
-    music_packet_object_id: str | None = None
-    lyric_packet_object_id: str | None = None
 
 
 class Setlist(_CoreModel, NewSetlist):
-    pass
+    music_packet_object_id: str | None = None
 
 
 class SetlistList(BaseModel):

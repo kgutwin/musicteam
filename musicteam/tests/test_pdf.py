@@ -1,11 +1,6 @@
-import re
 from unittest.mock import Mock
 
-import pytest
 from chalicelib import pdf
-from syrupy.extensions.single_file import SingleFileSnapshotExtension
-
-STATIC_ID = b"/ID[<C29E67C3AFC39BC289C28116217BC2AA><D4C7CDFF2AE8F6901B146F8FCBA86701>]"
 
 
 def to_test_bytes(doc, compress=False):
@@ -14,16 +9,7 @@ def to_test_bytes(doc, compress=False):
         opts["garbage"] = 3
         opts["deflate"] = True
         opts["use_objstms"] = 1
-    return re.sub(rb"/ID\[[^]]+\]", STATIC_ID, doc.tobytes(**opts))
-
-
-class PDFSnapshotExtension(SingleFileSnapshotExtension):
-    file_extension = "pdf"
-
-
-@pytest.fixture
-def pdf_snapshot(snapshot):
-    return snapshot.use_extension(PDFSnapshotExtension)
+    return doc.tobytes(**opts)
 
 
 def test_text_to_pdf_1(pdf_snapshot):

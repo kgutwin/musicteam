@@ -744,6 +744,10 @@ paths:
           $ref: '#/components/responses/NotFound'
         '200':
           $ref: '#/components/responses/Download'
+        '206':
+          $ref: '#/components/responses/PartialDownload'
+        '302':
+          $ref: '#/components/responses/Found'
       tags:
       - Setlists
       summary: Retrieve the PDF-format packet for this setlist
@@ -2243,6 +2247,12 @@ components:
         creator_id:
           title: Creator Id
           type: string
+        music_packet_object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Music Packet Object Id
       required:
       - leader_name
       - id
@@ -3037,18 +3047,6 @@ components:
           - type: 'null'
           default: null
           title: Participants
-        music_packet_object_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Music Packet Object Id
-        lyric_packet_object_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Lyric Packet Object Id
       title: UpdateSetlist
       type: object
     UpdateSetlistPosition:

@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 from io import RawIOBase
 from typing import cast
 
@@ -97,3 +98,14 @@ def get_download(
         return PartialDownload(body, headers=headers)
     else:
         return Download(body, headers=headers)
+
+
+def put(object_id: str, content: bytes) -> None:
+    s3.put_object(Bucket=OBJECT_BUCKET_NAME, Key=object_id, Body=content)
+
+
+MUSICTEAM_NAMESPACE = uuid.UUID("0d2bcec9-2cae-4cda-81bd-98a8ee511376")
+
+
+def to_object_id(hash: str) -> str:
+    return str(uuid.uuid5(MUSICTEAM_NAMESPACE, hash))

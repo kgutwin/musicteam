@@ -369,6 +369,11 @@ export interface Setlist {
   created_on: string;
   /** Creator Id */
   creator_id: string;
+  /**
+   * Music Packet Object Id
+   * @default null
+   */
+  music_packet_object_id?: string | null;
 }
 
 /** SetlistInfo */
@@ -866,16 +871,6 @@ export interface UpdateSetlist {
    * @default null
    */
   participants?: string[] | null;
-  /**
-   * Music Packet Object Id
-   * @default null
-   */
-  music_packet_object_id?: string | null;
-  /**
-   * Lyric Packet Object Id
-   * @default null
-   */
-  lyric_packet_object_id?: string | null;
 }
 
 /** UpdateSetlistPosition */

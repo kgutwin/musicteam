@@ -1,3 +1,4 @@
+import hashlib
 from io import StringIO
 
 from chalice.app import Blueprint
@@ -9,6 +10,7 @@ from chalicelib.middleware import session_user
 from chalicelib.types import _PositionSheetDetails
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
+from chalicelib.types import Found
 from chalicelib.types import GetPacketPdfParams
 from chalicelib.types import NewSetlist
 from chalicelib.types import NewSetlistPosition
@@ -17,6 +19,7 @@ from chalicelib.types import NewSetlistTemplate
 from chalicelib.types import NewSetlistTemplatePosition
 from chalicelib.types import NoContent
 from chalicelib.types import NotFound
+from chalicelib.types import PartialDownload
 from chalicelib.types import PositionLyricDetails
 from chalicelib.types import Setlist
 from chalicelib.types import SetlistInfo
@@ -37,6 +40,19 @@ from chalicelib.types import UpdateSetlistTemplate
 from chalicelib.types import UpdateSetlistTemplatePosition
 
 bp = Blueprint(__name__)
+
+
+def build_hash(parts: list[str]) -> str:
+    """Turn the string parts into a hash.
+
+    >>> build_hash(["foo", "bar"])
+    'c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2'
+
+    """
+    m = hashlib.sha256()
+    for part in parts:
+        m.update(part.encode())
+    return m.hexdigest()
 
 
 @bp.route("/setlists", methods=["GET"])
@@ -89,8 +105,8 @@ def get_setlist(setlist_id: str) -> Forbidden | NotFound | Setlist:
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "  id, leader_name, service_date, tags, title, participants, created_on,"
-            "  creator_id "
+            "  id, leader_name, service_date, tags, title, participants,"
+            "  music_packet_object_id, created_on, creator_id "
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
@@ -203,7 +219,7 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
         setlist = conn.execute(
             "SELECT"
             "  id, leader_name, service_date, tags, title, participants, created_on,"
-            "  creator_id "
+            "  creator_id"
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
@@ -296,7 +312,7 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
 @bp.route("/setlists/{setlist_id}/packet/pdf", methods=["GET"])
 def get_setlist_packet_pdf(
     setlist_id: str, query_params: GetPacketPdfParams
-) -> Forbidden | NotFound | Download:
+) -> Forbidden | NotFound | Download | PartialDownload | Found:
     """Retrieve the PDF-format packet for this setlist"""
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
@@ -304,8 +320,8 @@ def get_setlist_packet_pdf(
     with db.connect() as conn:
         setlist = conn.execute(
             "SELECT"
-            "  id, leader_name, service_date, tags, title, participants, created_on,"
-            "  creator_id "
+            "  id, leader_name, service_date, tags, title, participants,"
+            "  music_packet_object_id, created_on, creator_id "
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
@@ -349,6 +365,18 @@ def get_setlist_packet_pdf(
             output=_PositionSheetDetails,
         ).fetchall()
 
+        packet_hash = build_hash(
+            [setlist.model_dump_json(), query_params.model_dump_json()]
+            + [p.model_dump_json() for p in positions]
+            + [d.model_dump_json() for d in sheet_details]
+        )
+        packet_object_id = storage.to_object_id(packet_hash)
+
+        if setlist.music_packet_object_id == packet_object_id:
+            return storage.get_download(
+                setlist.music_packet_object_id, "application/pdf"
+            )
+
     # build packet
     music_sheets = [pdf.make_cover_sheet(setlist, positions, sheet_details)]
     for obj in sheet_details:
@@ -366,12 +394,20 @@ def get_setlist_packet_pdf(
 
         music_sheets.append(sheet)
 
-    packet = pdf.concatenate(music_sheets, two_page_align=query_params.two_page_align)
+    packet = pdf.concatenate(
+        music_sheets, two_page_align=query_params.two_page_align
+    ).tobytes(garbage=3, deflate=True, use_objstms=1)
 
-    return Download(
-        packet.tobytes(garbage=3, deflate=True, use_objstms=1),
-        headers={"Content-Type": "application/pdf"},
-    )
+    storage.put(packet_object_id, packet)
+
+    with db.connect() as conn:
+        conn.execute(
+            "UPDATE setlists SET music_packet_object_id = :music_packet_object_id "
+            "WHERE id = :setlist_id",
+            {"music_packet_object_id": packet_object_id, "setlist_id": setlist_id},
+        )
+
+    return Download(packet, headers={"Content-Type": "application/pdf"})
 
 
 @bp.route("/setlists/{setlist_id}/pos", methods=["GET"])
