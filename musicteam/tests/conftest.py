@@ -37,6 +37,9 @@ def client(monkeypatch, db):
             ")"
         )
 
+    # without this, the setlist lyric packet test fails
+    monkeypatch.setattr(app.api, "binary_types", app.api.binary_types + ["text/plain"])
+
     with Client(app) as client:
         # add a json kwarg to client request
         original_request = client.http.request

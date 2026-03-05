@@ -1,0 +1,4 @@
+# serializer version: 1
+# name: test_setlists_get_lyric_packet
+  b'# Set list for 2026-01-25\n## Leader: joe\n\n\nSet list:\n---------\n- position\n   - ** test song **\n\n\n\nmy song lyrics\n\n'
+# ---

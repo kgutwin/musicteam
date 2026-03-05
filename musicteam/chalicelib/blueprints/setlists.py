@@ -219,7 +219,7 @@ def get_setlist_packet_lyrics(setlist_id: str) -> Forbidden | NotFound | Downloa
         setlist = conn.execute(
             "SELECT"
             "  id, leader_name, service_date, tags, title, participants, created_on,"
-            "  creator_id"
+            "  creator_id "
             "FROM setlists WHERE id = :setlist_id",
             {"setlist_id": setlist_id},
             output=Setlist,
