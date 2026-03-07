@@ -366,7 +366,10 @@ def get_setlist_packet_pdf(
         ).fetchall()
 
         packet_hash = build_hash(
-            [setlist.model_dump_json(), query_params.model_dump_json()]
+            [
+                setlist.model_dump_json(exclude={"music_packet_object_id"}),
+                query_params.model_dump_json(),
+            ]
             + [p.model_dump_json() for p in positions]
             + [d.model_dump_json() for d in sheet_details]
         )
