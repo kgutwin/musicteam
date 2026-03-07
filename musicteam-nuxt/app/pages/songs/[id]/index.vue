@@ -202,6 +202,7 @@ import {
 } from "@/stores/songs"
 import { useSongHistoryStore } from "@/stores/history"
 import { useUserStore } from "@/stores/users"
+import { useAuthorlistStore, useTaglistStore } from "@/stores/info"
 import { localdate } from "@/utils"
 
 import type { Song, SongVersion, SongSheet } from "@/services/api"
@@ -211,6 +212,8 @@ const userStore = useUserStore()
 const versionsStore = useSongVersionlistStore()
 const refreshStore = useSongRefreshStore()
 const songHistoryStore = useSongHistoryStore()
+const authorlist = useAuthorlistStore()
+const taglist = useTaglistStore()
 
 const { canEdit } = useRole()
 
@@ -300,6 +303,8 @@ async function saveSong(field: keyof Song) {
   if (!song.value) return
   await api.songs.updateSong(id as string, { [field]: song.value[field] })
   await refreshStore.refresh({ songId: id as string })
+  if (field === "authors") await authorlist.refresh()
+  if (field === "tags") await taglist.refresh()
 }
 
 async function saveVersion(version: SongVersion, field: keyof SongVersion) {

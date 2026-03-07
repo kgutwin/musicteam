@@ -1,9 +1,7 @@
 <template>
   <div class="div-panel div-tab-panel my-4">
     <div class="div-tab-panel-tabs">
-      <MtText v-if="loading" loading="w-20 mx-4" />
       <button
-        v-else
         v-for="opt in options"
         :key="opt.name"
         class="btn-tab"
@@ -12,6 +10,7 @@
       >
         {{ opt.title }}
       </button>
+      <MtText v-if="loading" loading="w-20 mx-4 self-center" />
     </div>
     <div class="div-tab-panel-buttons">
       <slot></slot>

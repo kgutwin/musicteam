@@ -8,19 +8,11 @@
 
 ## Backend
 
-- Cache packets so they load faster
 - Bucket maintenance
 - Bulk endpoints (all songs, all setlists, etc.)
   - Export as CSV or JSON
 
 ## Bugs
-
-- After adding a new sheet, it takes a while for the sheet to appear and there's
-  no loading indicator to let you know it's reloading
-- After editing a song's authors (or adding a new tag) the Filter option in the
-  song listing doesn't reflect the new author/tag
-- When toggling to two-page view in the setlist music packet, the existing PDF
-  should go away and the Loading... pane should re-appear
 
 ## Wishful improvements
 

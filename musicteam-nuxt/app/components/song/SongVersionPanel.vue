@@ -8,7 +8,7 @@
 
     <MtTabPanel
       v-model="selected"
-      :loading="sheets?.song_sheets === undefined"
+      :loading="sheets?.song_sheets === undefined || sheetsStatus === 'pending'"
       :options="sheetTabs"
     >
       <button class="mr-4 btn-icon" title="Download" @click="download(selectedSheet)">
@@ -118,6 +118,12 @@ const sheets = computed(
     }).data.value,
 )
 
+const sheetsStatus = computed(
+  () =>
+    sheetsStore.get({ songId: props.version.song_id, versionId: props.version.id })
+      .status.value,
+)
+
 const sheetTabs = computed(() => {
   return [{ name: "!lyrics", title: "Lyrics" }].concat(
     (sheets.value?.song_sheets ?? []).map((s) => ({
@@ -128,7 +134,7 @@ const sheetTabs = computed(() => {
 })
 const selected = ref<string>((query.sheet as string) ?? "!lyrics")
 const selectedSheet = computed<"!lyrics" | SongSheet>(
-  () => sheets?.value?.song_sheets?.find((s) => s.id === selected.value) ?? "!lyrics",
+  () => sheets.value?.song_sheets?.find((s) => s.id === selected.value) ?? "!lyrics",
 )
 
 watchEffect(() => {
