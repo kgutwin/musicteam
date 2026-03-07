@@ -5,7 +5,7 @@
     </Head>
     <div class="div-panel">
       <div class="flex flex-row flex-wrap sm:flex-nowrap gap-2 items-start">
-        <h1 class="grow flex sm:flex-col lg:flex-row gap-2 sm:gap-0 lg:gap-2">
+        <h1 class="flex sm:flex-col lg:flex-row gap-2 sm:gap-0 lg:gap-2">
           Set List for
           <MtEditable
             :model="setlist"
@@ -14,16 +14,18 @@
             @save="saveSetlist('service_date')"
           />
         </h1>
-        <h1>
+        <h1 class="grow">
           <MtEditable :model="setlist" prop="title" @save="saveSetlist('title')">
             <Icon name="solar:double-alt-arrow-right-bold-duotone" class="min-w-8" />
             {{ setlist?.title ?? "" }}
           </MtEditable>
         </h1>
-        <button class="btn-icon" @click="shareSetlist" title="Share...">
-          <Icon name="solar:share-outline" />
-        </button>
-        <button v-if="canLead" class="btn-red" @click="deleteSetlist">Delete</button>
+        <div>
+          <button class="btn-icon mr-2" @click="shareSetlist" title="Share...">
+            <Icon name="solar:share-outline" />
+          </button>
+          <button v-if="canLead" class="btn-red" @click="deleteSetlist">Delete</button>
+        </div>
       </div>
       <div class="flex flex-row">
         <div class="grow">
@@ -104,7 +106,12 @@
           class="self-center"
           :class="{ 'text-blue-500': twoPageAlign }"
           title="Two-page Align"
-          @click="twoPageAlign = !twoPageAlign"
+          @click="
+            () => {
+              pdfLoading = true
+              twoPageAlign = !twoPageAlign
+            }
+          "
         >
           <Icon name="solar:notebook-minimalistic-outline" size="28" />
         </button>
@@ -118,7 +125,7 @@
     />
     <template v-else-if="selectedTab === 'pdf'">
       <div v-if="pdfLoading" class="div-loading-panel">
-        Loading
+        Assembling packet
         <Icon name="svg-spinners:3-dots-fade" />
       </div>
       <iframe
