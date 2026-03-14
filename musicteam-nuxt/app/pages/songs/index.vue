@@ -2,22 +2,25 @@
   <div>
     <Head><Title>Songs - MusicTeam</Title></Head>
     <div class="flex flex-row items-stretch gap-2 flex-wrap sm:flex-nowrap">
-      <h1 class="grow hide-sm">Songs</h1>
-      <div v-if="numSongs" class="hide-lg self-center">
+      <h1 class="grow hide-md order-1">Songs</h1>
+      <div v-if="numSongs" class="self-center order-2">
         <template v-if="numSongs.filtered !== numSongs.total">
           {{ numSongs.filtered }} of
         </template>
         {{ numSongs.total }} songs
       </div>
-      <div>
-        <input
-          v-model="prefs.filters.title"
-          type="search"
-          placeholder="Filter by Title..."
-          class="inp-text w-32 md:w-48"
-        />
-      </div>
-      <MtDropdown :button-class="`btn-gray ` + (hasFilters ? `bg-gray-stripes` : ``)">
+      <input
+        v-model="prefs.filters.title"
+        type="search"
+        placeholder="Filter by Title"
+        class="inp-text grow sm:grow-0 order-3 w-12 sm:w-32"
+      />
+      <div class="sm:hidden basis-full order-4 min-[320px]:max-[390px]:order-7"></div>
+      <div class="hidden min-[390px]:max-sm:block grow order-5"></div>
+      <MtDropdown
+        :button-class="`btn-gray ` + (hasFilters ? `bg-gray-stripes` : ``)"
+        class="order-6"
+      >
         <template #dropdown-button>
           <span class="hide-lg">Filter</span>
           <Icon name="ri:filter-2-line" class="show-lg -mb-0.5" />
@@ -59,7 +62,7 @@
           :label="author.entry"
         />
       </MtDropdown>
-      <MtDropdown button-class="btn-gray">
+      <MtDropdown button-class="btn-gray" class="order-8">
         <template #dropdown-button>
           <span class="hide-lg">Columns</span>
           <Icon name="ri:layout-column-line" class="show-lg -mb-0.5" />
@@ -71,7 +74,7 @@
           :label="column.title"
         />
       </MtDropdown>
-      <MtDropdown button-class="btn-gray">
+      <MtDropdown button-class="btn-gray" class="order-9">
         <template #dropdown-button>
           <div class="flex flex-row gap-1 items-center">
             <span class="hide-lg">Sort:</span>
@@ -97,7 +100,7 @@
           Descending
         </button>
       </MtDropdown>
-      <div>
+      <div class="order-10">
         <NuxtLink class="inline-block btn-gray mr-2" to="/songs/search">
           <span class="hide-lg mr-1">Search</span>
           <Icon name="ri:search-line" class="-mb-0.5" />
