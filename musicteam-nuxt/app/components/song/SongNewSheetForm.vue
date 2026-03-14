@@ -18,6 +18,11 @@
     </label>
 
     <label>
+      <span>Music Sheet Tags</span>
+      <MtArrayInput v-model="inputSheetTags" allow-space />
+    </label>
+
+    <label>
       <span>Select File</span>
       <div class="flex flex-row gap-2">
         <input
@@ -65,6 +70,7 @@ const inputKey = ref<string>()
 const inputObjectId = ref<string>()
 const inputObjectType = ref<string>()
 const inputAutoVerseOrder = ref<string>("true")
+const inputSheetTags = ref<string[]>([])
 
 const fileStatus = ref<ToasterStatus>()
 
@@ -90,6 +96,7 @@ watchEffect(() => {
     object_id: inputObjectId.value,
     object_type: inputObjectType.value,
     auto_verse_order: inputAutoVerseOrder.value === "true",
+    tags: inputSheetTags.value,
   }
 })
 </script>

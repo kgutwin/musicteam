@@ -104,12 +104,13 @@ describe("songs", () => {
       cy.formLabel("Music Sheet Type").select("Hymn")
       cy.formLabel("Musical Key").type("{selectall}{del}D")
       cy.formLabel("include verse order").select("Sheet already has verse order")
+      cy.formLabel("Music Sheet Tags").type(",primary")
 
       cy.get("textarea.txt-panel").type("{selectall}{del}New song sheet")
 
       cy.dataCy("save").click()
 
-      cy.exists("CCLI Number")
+      cy.exists(["CCLI Number", "primary"])
       cy.get(".btn-tab").contains("Hymn (D)").click()
       cy.exists("New song sheet")
     })
@@ -122,6 +123,7 @@ describe("songs", () => {
       cy.formLabel("Music Sheet Type").select("Vocal")
       cy.formLabel("Musical Key").type("{selectall}{del}D")
       cy.formLabel("include verse order").select("Sheet already has verse order")
+      cy.formLabel("Music Sheet Tags").type(",primary{enter}")
 
       cy.pdfjsViewerElement().within(() => {
         cy.get("#editorFreeTextButton").click()
@@ -131,7 +133,7 @@ describe("songs", () => {
 
       cy.dataCy("save").click()
 
-      cy.exists(["CCLI Number", "Vocal (D)"])
+      cy.exists(["CCLI Number", "Vocal (D)", "primary"])
 
       // Electron browser doesn't have PDF viewer; to confirm our annotation was
       // saved, we open the edit screen again
@@ -187,13 +189,14 @@ describe("songs", () => {
       cy.formLabel("Music Sheet Type").select("Hymn")
       cy.formLabel("Musical Key").type("{selectall}{del}D")
       cy.formLabel("include verse order").select("Sheet already has verse order")
+      cy.formLabel("Music Sheet Tags").type(",primary")
 
       cy.dataCy("song-lyrics-editor").type("{selectall}{del}Some New Lyrics")
       cy.dataCy("song-text-editor").type("{selectall}{del}Edited song sheet")
 
       cy.dataCy("save").click()
 
-      cy.exists("CCLI Number")
+      cy.exists(["CCLI Number", "primary"])
       cy.get(".btn-tab").contains("Hymn (D)").click()
       cy.exists(["Edited song sheet", "From Cypress", "Updated", "V1 C1 V2 C1 V3"])
       cy.contains(".btn-tab", "Lyrics").click()
@@ -213,6 +216,7 @@ describe("songs", () => {
       cy.formLabel("Music Sheet Type").select("Hymn")
       cy.formLabel("Musical Key").type("{selectall}{del}E")
       cy.formLabel("include verse order").select("Sheet already has verse order")
+      cy.formLabel("Music Sheet Tags").type(",primary")
 
       cy.dataCy("song-lyrics-editor").type("{selectall}{del}Some New Lyrics")
 
@@ -224,7 +228,7 @@ describe("songs", () => {
 
       cy.dataCy("save").click()
 
-      cy.exists(["CCLI Number", "From Cypress", "Updated", "V1 C1 V2 C1 V3"])
+      cy.exists(["CCLI Number", "From Cypress", "Updated", "V1 C1 V2 C1 V3", "primary"])
       cy.contains(".btn-tab", "Lyrics").click()
       cy.exists("Some New Lyrics")
 
@@ -357,6 +361,7 @@ describe("songs", () => {
         .within(() => {
           cy.get("label span").contains("Music Sheet Type").next().select("Lead")
           cy.get("label span").contains("Musical Key").next().type("D")
+          cy.get("label span").contains("Music Sheet Tags").next().type("primary")
           cy.get("label span")
             .contains("Select File")
             .next()
@@ -375,6 +380,7 @@ describe("songs", () => {
         "V1 C1 V2 C1 V3 C2",
         "Chord (D)",
         "Lead (D)",
+        "primary",
         "Test one two three",
       ])
 
