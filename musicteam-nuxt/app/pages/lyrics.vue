@@ -2,7 +2,15 @@
   <div v-if="setlistInfo.data" class="lyrics-base">
     <Head><Title>Lyrics - MusicTeam</Title></Head>
     <h1>
-      Songs for {{ setlistInfo.data.service_date }}
+      <div class="text-size">
+        <button class="text-base" @click="largeText = false">
+          <Icon name="ri:font-size" />
+        </button>
+        <button @click="largeText = true">
+          <Icon name="ri:font-size" />
+        </button>
+      </div>
+      Songs for {{ localdate(setlistInfo.data.service_date, "short") }}
       <div v-if="setlistInfo.data.title" class="title">
         "{{ setlistInfo.data.title }}"
       </div>
@@ -20,7 +28,11 @@
         />
         {{ song.title }}
       </button>
-      <div v-if="isOpen[song.position_id]" class="lyrics">
+      <div
+        v-if="isOpen[song.position_id]"
+        class="lyrics"
+        :class="{ 'text-xl': largeText }"
+      >
         {{ trimTitle(song.title, song.lyrics) }}
         <button class="close-song" @click="isOpen[song.position_id] = false">
           <Icon name="ri:arrow-up-line" />
@@ -45,6 +57,7 @@
 
 <script setup lang="ts">
 import { useSetlistInfoLatestStore } from "@/stores/setlists"
+import { localdate } from "@/utils"
 
 declare module "nuxt/app" {
   interface NuxtLayouts {
@@ -58,6 +71,7 @@ definePageMeta({
 
 const setlistInfo = useSetlistInfoLatestStore()
 
+const largeText = ref(false)
 const isOpen = ref<Record<string, boolean>>({})
 
 function trimTitle(title: string, lyrics: string | null) {
@@ -78,6 +92,19 @@ function trimTitle(title: string, lyrics: string | null) {
 
     & .title {
       @apply italic text-base font-light;
+    }
+
+    & .text-size {
+      @apply float-right mt-1;
+      @apply flex flex-row gap-1 items-center;
+      @apply rounded-lg bg-gradient-to-tr from-slate-200 to-gray-100 px-1;
+      @apply border border-slate-300 divide-x-2 divide-slate-300;
+      @apply shadow;
+      @apply text-gray-600;
+
+      & button {
+        @apply pt-1 px-2;
+      }
     }
   }
 

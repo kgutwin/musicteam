@@ -35,6 +35,7 @@
 
 - Do we need tags on song versions and song sheets?
   - How should they be shown, and how do we avoid confusion with song tags?
+- How do we represent "which version/sheet do I prefer?"
 
 ## Other
 

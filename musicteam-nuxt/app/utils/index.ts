@@ -6,12 +6,25 @@ export function trimArray(arr: string[], cut: number = 3): string[] {
 }
 
 /** Converts UTC datetime into local time; returns date as string */
-export function localdate(datetime?: string | null): string {
+export function localdate(
+  datetime?: string | null,
+  mode: "default" | "long" | "short" = "default",
+): string {
   if (!datetime) return ""
   if (!datetime.includes("T")) datetime += "T12:00:00"
   if (!datetime.endsWith("Z")) datetime += "Z"
   const d = new Date(datetime)
-  return d.toLocaleDateString()
+  const options: Intl.DateTimeFormatOptions = {}
+  if (mode === "long") {
+    options.month = "long"
+    options.day = "numeric"
+    options.year = "numeric"
+  } else if (mode === "short") {
+    options.month = "short"
+    options.day = "numeric"
+    options.year = "numeric"
+  }
+  return d.toLocaleDateString("default", options)
 }
 
 export function nextSunday(): string {
