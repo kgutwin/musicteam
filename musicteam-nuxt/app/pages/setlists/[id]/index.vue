@@ -16,12 +16,18 @@
         </h1>
         <h1 class="grow">
           <MtEditable :model="setlist" prop="title" @save="saveSetlist('title')">
-            <Icon name="solar:double-alt-arrow-right-bold-duotone" class="min-w-8" />
-            {{ setlist?.title ?? "" }}
+            <Icon
+              name="solar:double-alt-arrow-right-bold-duotone"
+              class="min-w-8 self-center"
+            />
+            <div v-if="setlist?.title">
+              {{ setlist.title }}
+            </div>
+            <div v-else class="italic text-gray-400">Title</div>
           </MtEditable>
         </h1>
-        <div>
-          <button class="btn-icon mr-2" @click="shareSetlist" title="Share...">
+        <div class="flex flex-row gap-2 items-end">
+          <button class="btn-icon" @click="shareSetlist" title="Share...">
             <Icon name="solar:share-outline" />
           </button>
           <button v-if="canLead" class="btn-red" @click="deleteSetlist">Delete</button>

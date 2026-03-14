@@ -8,7 +8,9 @@
         :selected="selected === opt.name"
         @click="selected = opt.name"
       >
-        {{ opt.title }}
+        <slot name="tab-button" :opt="opt">
+          {{ opt.title }}
+        </slot>
       </button>
       <MtText v-if="loading" loading="w-20 mx-4 self-center" />
     </div>
@@ -18,11 +20,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Tab">
 import type { Tab } from "@/types/mt"
 
 defineProps<{
-  options: Tab[]
+  options: T[]
   loading?: boolean
 }>()
 
@@ -37,7 +39,7 @@ const selected = defineModel<string>()
   @apply flex flex-row gap-x-4 gap-y-2 items-start flex-wrap sm:flex-nowrap ml-4;
 }
 .div-tab-panel-tabs {
-  @apply grow flex flex-row flex-wrap gap-x-4 gap-y-2;
+  @apply grow flex flex-row flex-wrap gap-x-2 gap-y-2;
 }
 .btn-tab {
   @apply font-semibold rounded-lg px-4 py-1 border-2 border-transparent;

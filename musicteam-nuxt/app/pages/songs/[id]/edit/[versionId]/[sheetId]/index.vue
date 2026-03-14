@@ -84,6 +84,11 @@
             <option value="false">Sheet already has verse order</option>
           </select>
         </label>
+
+        <label>
+          <span>Music Sheet Tags</span>
+          <MtArrayInput v-model="inputSheetTags" allow-space />
+        </label>
       </form>
 
       <div class="grid gap-4" :class="copy === 'version' ? 'r-2-col' : 'grid-cols-1'">
@@ -176,6 +181,7 @@ watch(
 const inputSheetType = ref<string>()
 const inputKey = ref<string>()
 const inputAutoVerseOrder = ref<string>("true")
+const inputSheetTags = ref<string[]>([])
 
 if (sheet) {
   watch(
@@ -185,6 +191,7 @@ if (sheet) {
         inputSheetType.value = sheet.value.type
         inputKey.value = sheet.value.key
         inputAutoVerseOrder.value = sheet.value.auto_verse_order ? "true" : "false"
+        inputSheetTags.value = sheet.value.tags ?? []
       }
     },
     { immediate: true },
@@ -233,6 +240,7 @@ async function saveNew() {
         type: inputSheetType.value,
         key: inputKey.value,
         auto_verse_order: inputAutoVerseOrder.value === "true",
+        tags: inputSheetTags.value,
         object_id: objectId,
         object_type: objectType,
       })
@@ -272,6 +280,7 @@ async function saveEdit() {
         type: inputSheetType.value,
         key: inputKey.value,
         auto_verse_order: inputAutoVerseOrder.value === "true",
+        tags: inputSheetTags.value,
         object_id: await saveSheet(),
       }
 

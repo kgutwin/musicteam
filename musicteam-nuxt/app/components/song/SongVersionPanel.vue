@@ -11,6 +11,21 @@
       :loading="sheets?.song_sheets === undefined || sheetsStatus === 'pending'"
       :options="sheetTabs"
     >
+      <template #tab-button="{ opt }">
+        <div class="flex flex-row gap-2">
+          <div>{{ opt.title }}</div>
+          <div v-if="(opt?.tags?.length ?? 0) > 0">
+            <span
+              v-for="tag in opt.tags"
+              :key="tag"
+              class="spn-tag text-gray-500 text-xs"
+            >
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+      </template>
+
       <button class="mr-4 btn-icon" title="Download" @click="download(selectedSheet)">
         <Icon name="solar:download-minimalistic-bold" />
       </button>
@@ -124,11 +139,18 @@ const sheetsStatus = computed(
       .status.value,
 )
 
-const sheetTabs = computed(() => {
+interface SheetTab {
+  name: string
+  title: string
+  tags?: string[]
+}
+
+const sheetTabs = computed<SheetTab[]>(() => {
   return [{ name: "!lyrics", title: "Lyrics" }].concat(
     (sheets.value?.song_sheets ?? []).map((s) => ({
       name: s.id,
       title: `${s.type} (${s.key})`,
+      tags: s.tags,
     })),
   )
 })
