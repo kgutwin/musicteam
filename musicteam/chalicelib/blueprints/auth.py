@@ -71,18 +71,23 @@ def auth_callback() -> Forbidden | Found:
 
         try:
             if state != bp.current_request.context["cookies"]["state"]:
+                print(f"{state=} {bp.current_request.context['cookies']=}")
                 return Forbidden("invalid request state")
         except KeyError:
+            print(f"{bp.current_request.context['cookies']=}")
             return Forbidden("missing request state cookie")
+
+        code = bp.current_request.query_params.get("code")
+        if code is None:
+            print(f"{bp.current_request.query_params=}")
+            return Forbidden("OAuth code not provided by Google, please retry")
 
         redirect_uri = url_for(bp.current_request, "/auth/callback")
         oauth_session = OAuth2Session(
             OAUTH_CLIENT_ID, state=state, redirect_uri=redirect_uri
         )
         token = oauth_session.fetch_token(
-            TOKEN_URL,
-            client_secret=OAUTH_CLIENT_SECRET,
-            code=bp.current_request.query_params["code"],
+            TOKEN_URL, client_secret=OAUTH_CLIENT_SECRET, code=code
         )
 
         payload = google.oauth2.id_token.verify_oauth2_token(  # type: ignore[no-untyped-call]
