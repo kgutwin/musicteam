@@ -4,7 +4,7 @@ import yaml from "yaml"
 declare global {
   namespace Cypress {
     interface Chainable {
-      login(dest?: string): Chainable<void>
+      login(name?: string): Chainable<void>
       prep(fixture: string): Chainable<void>
       wipe(): Chainable<void>
       dataCy(label: string, extra?: string): Chainable<JQuery<HTMLElement>>
@@ -20,15 +20,29 @@ declare global {
   }
 }
 
-Cypress.Commands.add("login", (dest) => {
-  cy.request({ method: "GET", url: "/api/auth/callback", followRedirect: false }).then(
-    (response) => {
-      expect(response.status).to.equal(302)
+Cypress.Commands.add("login", (name = "Local User") => {
+  cy.session(
+    name,
+    () => {
+      cy.request({
+        method: "GET",
+        url: "/api/auth/callback",
+        qs: { name },
+        followRedirect: false,
+      }).then((response) => {
+        expect(response.status).to.equal(302)
+      })
+      cy.visit("/login?complete=1")
+      cy.contains(name).should("exist")
+    },
+    {
+      validate() {
+        cy.request("/api/auth/session").then((response) => {
+          expect(response.body.name).to.equal(name)
+        })
+      },
     },
   )
-  cy.visit("/login?complete=1")
-  cy.contains("Local User").should("exist")
-  cy.visit(dest ?? "/")
 })
 
 // Backend object fixtures

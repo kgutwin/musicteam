@@ -14,6 +14,8 @@
 
 ## Bugs
 
+- toast in dark mode is not legible
+
 ## Wishful improvements
 
 - Music packet loads slowly and there is no feedback that it is working

@@ -33,7 +33,10 @@ def list_users() -> Forbidden | UserList:
 
 @bp.route("/users/{user_id}", methods=["GET"])
 def get_user(user_id: str) -> Forbidden | NotFound | User:
-    if not session_role(bp.current_request, "viewer"):
+    if not (
+        user_id == session_user(bp.current_request).id
+        or session_role(bp.current_request, "viewer")
+    ):
         return Forbidden()
 
     with db.connect() as conn:

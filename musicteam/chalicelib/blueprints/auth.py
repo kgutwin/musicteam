@@ -1,3 +1,5 @@
+import uuid
+
 import google.auth.transport.requests
 import google.oauth2.id_token
 import jwt.exceptions
@@ -23,6 +25,8 @@ SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
 ]
+
+LOCAL_NAMESPACE = uuid.UUID("b7d3c052-8ac5-5cb7-b238-50ba642c898b")
 
 
 def url_for(request: Request, suffix: str) -> str:
@@ -98,9 +102,16 @@ def auth_callback() -> Forbidden | Found:
 
     else:
         # bypassing OAuth since client and secret are not defined
+        name = "Local User"
+        if (
+            bp.current_request.query_params
+            and "name" in bp.current_request.query_params
+        ):
+            name = bp.current_request.query_params["name"]
+        sub = uuid.uuid5(LOCAL_NAMESPACE, name)
         payload = {
-            "name": "Local User",
-            "sub": "1111222233334444",
+            "name": name,
+            "sub": sub,
             "email": "user@example.com",
             "picture": None,
         }

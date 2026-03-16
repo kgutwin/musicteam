@@ -19,7 +19,13 @@
         {{ row.email }}
       </template>
       <template #role="{ row }">
-        <MtEditable :model="row" prop="role" edit-needs="manager" @save="saveRole(row)">
+        <MtEditable
+          :model="row"
+          prop="role"
+          edit-needs="manager"
+          @save="saveRole(row)"
+          data-cy="role-editable"
+        >
           <template #input="{ modelValue, updateModelValue }">
             <select
               :value="modelValue"
