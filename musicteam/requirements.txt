@@ -4,7 +4,7 @@ requests-oauthlib==2.0.0
 google-auth==2.49.0
 PyJWT==2.12.1
 psutil==7.2.2
-boto3==1.42.68
+boto3==1.42.73
 # kgutwin 2025-11-12  having trouble installing pymupdf this way; chalice cannot find
 #                     a wheel that it thinks is compatible with the Lambda runtime.
 # PyMuPDF
