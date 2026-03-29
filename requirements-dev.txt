@@ -11,6 +11,6 @@ types-PyYAML==6.0.12.20250915
 apispec==6.10.0
 apispec-pydantic-plugin==0.8.2
 pre_commit==4.5.1
-boto3-stubs==1.42.73
+boto3-stubs==1.42.78
 PyMuPDF==1.26.7
 pymupdf-stubs==1.26.7.post4
