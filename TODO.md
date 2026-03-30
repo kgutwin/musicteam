@@ -11,14 +11,27 @@
 - Bucket maintenance
 - Bulk endpoints (all songs, all setlists, etc.)
   - Export as CSV or JSON
+- Semantic search
+  - pgvector holds vectors per song version (lyrics)
+  - Dedicated Lambda function uses `sentence-transformers` library with selectable
+    model
+    - be sure to pack the model into the Lambda layer at build time
+  - SQS queue distributes encoding jobs to Lambda
+  - Each function
+    - extracts relevant lines
+    - feeds the whole song lyrics (probably) into the model
+    - stores the resulting vector in the database
+  - then the API functions can easily find similar songs by comparing the vector from
+    one song with the rest of the database
 
 ## Bugs
 
 - toast in dark mode is not legible
+- active set list bar, Nathan's name should not wrap
+- adding a set list position gives no feedback that it's working
 
 ## Wishful improvements
 
-- Music packet loads slowly and there is no feedback that it is working
 - User-selectable PDF viewer (between browser-native and PDF.js)
 - Browse song revisions
 - Drag to change order within candidate list / within setlist position
