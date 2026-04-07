@@ -22,7 +22,7 @@
     "@pinia/nuxt": "^0.11.3",
     "@sidebase/nuxt-auth": "^1.2.0",
     "mime-types": "^3.0.2",
-    "next-auth": "~4.24.13",
+    "next-auth": "~4.21.1",
     "nuxt": "^4.4.2",
     "pdfjs-viewer-element": "^2.7.4",
     "pinia": "^3.0.4",
