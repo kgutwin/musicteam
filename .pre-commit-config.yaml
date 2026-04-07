@@ -93,7 +93,7 @@ repos:
         language: system
         entry: bash -c 'cd musicteam-nuxt; npm run lint:tsc'
         pass_filenames: false
-        files: "musicteam-nuxt/app"
+        files: "musicteam-nuxt/app|musicteam-nuxt/package"
         types: [file]
 
       - id: typecheck-cy
