@@ -59,11 +59,6 @@
 import { useSetlistInfoLatestStore } from "@/stores/setlists"
 import { localdate } from "@/utils"
 
-declare module "nuxt/app" {
-  interface NuxtLayouts {
-    blank: unknown
-  }
-}
 definePageMeta({
   auth: false,
   layout: "blank",
