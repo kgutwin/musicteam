@@ -26,3 +26,5 @@ logs
 # pdfjs artifacts
 public/pdfjs-5/
 public/pdfjs-5.zip
+
+public/static/*.mp3

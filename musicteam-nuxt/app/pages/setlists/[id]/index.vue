@@ -79,7 +79,7 @@
         </button>
         <button v-if="canLead" class="btn-gray" @click="makeActive">Make Active</button>
       </template>
-      <template v-else>
+      <template v-else-if="selectedTab !== 'recording'">
         <MtDropdown
           v-if="packetWarnings.length > 0"
           class="self-center"
@@ -151,6 +151,7 @@
 
       <object :data="`/api/setlists/${id}/packet/lyrics`" class="w-full h-screen" />
     </SongTextPanel>
+    <SetlistRecordingPanel v-else-if="selectedTab === 'recording'" />
   </div>
 </template>
 
@@ -188,6 +189,7 @@ const tabs: Tab[] = [
   { name: "order", title: "Set List Order" },
   { name: "pdf", title: "Music Packet" },
   { name: "lyrics", title: "Lyrics Packet" },
+  { name: "recording", title: "Recording" },
 ]
 const selectedTab = ref("order")
 
