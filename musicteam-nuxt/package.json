@@ -52,7 +52,7 @@
     "patch-package": "^8.0.1",
     "prettier": "^3.8.1",
     "swagger-typescript-api": "^13.6.7",
-    "typescript": "^6.0.2",
+    "typescript": "^5.9.3",
     "vite-plugin-version-mark": "^0.2.2",
     "vue-tsc": "^3.2.6"
   },
