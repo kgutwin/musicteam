@@ -14,7 +14,7 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import "./commands"
+import "./commands.js"
 
 import { ref, type Ref } from "vue"
 import { mount } from "cypress/vue"
@@ -48,7 +48,7 @@ Cypress.Commands.add("mountVModel", (componentDef, initModelValue, props = {}) =
     props: {
       ...props,
       modelValue: model.value,
-      "onUpdate:modelValue": (newV) => {
+      "onUpdate:modelValue": (newV: any) => {
         model.value = newV
         component.value.setProps({ modelValue: newV })
       },

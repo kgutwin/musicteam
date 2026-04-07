@@ -13,7 +13,7 @@ declare global {
         withEditable: (el: Chainable<JQuery<HTMLElement>>) => void,
       ): Chainable<JQuery<HTMLElement>>
       exists(text: string): Chainable<JQuery<HTMLElement>>
-      exists(text: string[]): Chainable<void>
+      exists(text: string[]): Chainable<undefined>
       formLabel(label: string): Chainable<JQuery<HTMLElement>>
       pdfjsViewerElement(): Chainable<JQuery<HTMLElement>>
     }
@@ -49,6 +49,10 @@ Cypress.Commands.add("login", (name = "Local User") => {
 
 interface HasId {
   id: string
+}
+
+interface HasTags {
+  tags: string[]
 }
 
 type FixtureType =
@@ -94,8 +98,8 @@ Cypress.Commands.add("prep", (fixture) => {
 
       const links: LinkRecord = {}
       Object.entries(obj.links ?? {}).forEach(([ftype, fref]) => {
-        cy.get(`@prep.${fref}`).then((v) => {
-          links[ftype] = v
+        cy.get(`@prep.${fref}`).then((v: any) => {
+          links[ftype as FixtureType] = v as string
         })
       })
 
@@ -116,7 +120,7 @@ Cypress.Commands.add("prep", (fixture) => {
                   break
                 case "string":
                   if (o[k].startsWith("!Ref ")) {
-                    o[k] = links[o[k].substring(5)]
+                    o[k] = links[o[k].substring(5) as FixtureType]
                   }
                   break
               }
@@ -136,14 +140,16 @@ Cypress.Commands.add("prep", (fixture) => {
 Cypress.Commands.add("wipe", () => {
   cy.request({ url: "/api/setlists" })
     .then((response) =>
-      response.body.setlists.filter((setlist) => setlist.tags.includes("cypress")),
+      response.body.setlists.filter((setlist: HasTags) =>
+        setlist.tags.includes("cypress"),
+      ),
     )
     .each((setlist: HasId) =>
       cy.request({ method: "DELETE", url: `/api/setlists/${setlist.id}` }),
     )
   cy.request({ url: "/api/songs" })
     .then((response) =>
-      response.body.songs.filter((song) => song.tags.includes("cypress")),
+      response.body.songs.filter((song: HasTags) => song.tags.includes("cypress")),
     )
     .each((song: HasId) =>
       cy.request({ method: "DELETE", url: `/api/songs/${song.id}` }),
