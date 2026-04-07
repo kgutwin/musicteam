@@ -17,7 +17,7 @@
     "cy:tsc": "tsc -p cypress --noEmit"
   },
   "dependencies": {
-    "@nuxt/icon": "^2.1.0",
+    "@nuxt/icon": "^2.2.1",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^0.11.2",
     "@sidebase/nuxt-auth": "^1.1.0",
@@ -38,7 +38,7 @@
     "printWidth": 88
   },
   "devDependencies": {
-    "@iconify-json/ri": "^1.2.6",
+    "@iconify-json/ri": "^1.2.10",
     "@iconify-json/solar": "^1.2.5",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@nuxt/nitro-server": "^4.4.2",
