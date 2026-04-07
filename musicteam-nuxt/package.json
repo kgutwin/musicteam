@@ -31,7 +31,7 @@
     "tailvue": "^1.0.0",
     "vue": "^3.5.22",
     "vue-draggable-next": "^2.3.0",
-    "vue-router": "^4.5.1"
+    "vue-router": "^5.0.4"
   },
   "prettier": {
     "semi": false,
