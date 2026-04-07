@@ -24,7 +24,7 @@
     "mime-types": "^3.0.2",
     "next-auth": "~4.21.1",
     "nuxt": "^4.4.2",
-    "pdfjs-viewer-element": "^2.7.4",
+    "pdfjs-viewer-element": "^3.2.2",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "randomcolor": "^0.6.2",
@@ -51,7 +51,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "patch-package": "^8.0.1",
     "prettier": "^3.6.2",
-    "swagger-typescript-api": "^13.2.15",
+    "swagger-typescript-api": "^13.6.7",
     "typescript": "^5.9.3",
     "vite-plugin-version-mark": "^0.2.2",
     "vue-tsc": "^3.1.1"
