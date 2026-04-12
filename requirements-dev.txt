@@ -6,7 +6,7 @@ syrupy==5.1.0
 psycopg==3.3.3
 PyYAML==6.0.3
 types-psutil==7.2.2.20260130
-types-requests-oauthlib==2.0.0.20260402
+types-requests-oauthlib==2.0.0.20260408
 types-PyYAML==6.0.12.20250915
 apispec==6.10.0
 apispec-pydantic-plugin==0.8.2
