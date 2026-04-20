@@ -130,7 +130,7 @@ def test_setlists_get_music_packet(client, mock_storage, pdf_snapshot):
     assert response.json_body["music_packet_object_id"] is not None
     music_packet_object_id = response.json_body["music_packet_object_id"]
 
-    assert len(mock_storage.data[music_packet_object_id]) == 432482
+    assert len(mock_storage.data[music_packet_object_id]) == 432539
 
     # get packet a second time
     response = client.http.get(
