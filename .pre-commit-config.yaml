@@ -30,7 +30,7 @@ repos:
           - "types-PyYAML==6.0.12.20260408"
           - "apispec==6.10.0"
           - "apispec-pydantic-plugin==0.8.2"
-          - "boto3-stubs==1.42.91"
+          - "boto3-stubs==1.42.96"
           - "pymupdf-stubs==1.27.2.2"
 
   - repo: https://github.com/wimglenn/reorder-python-imports-black
