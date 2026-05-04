@@ -2,7 +2,8 @@
   <div class="flex flex-col">
     <textarea
       v-model="textContent"
-      class="txt-panel h-[48rem] with-size-guide"
+      class="txt-panel with-size-guide"
+      :class="short ? 'h-[30rem]' : 'h-[48rem]'"
       data-cy="song-text-editor"
     >
     </textarea>
@@ -13,21 +14,24 @@
 import { api } from "@/services"
 
 const props = defineProps<{
-  songId: string
-  versionId: string
-  sheetId: string
+  songId?: string
+  versionId?: string
+  sheetId?: string
+  short?: boolean
 }>()
 
 const emit = defineEmits<{ hasSave: [() => Promise<Blob>] }>()
 
 const textContent = ref<string>()
 
-const blob = await api.songs.getSongSheetDoc(
-  props.songId,
-  props.versionId,
-  props.sheetId,
-)
-textContent.value = await blob.text()
+if (props.songId && props.versionId && props.sheetId) {
+  const blob = await api.songs.getSongSheetDoc(
+    props.songId,
+    props.versionId,
+    props.sheetId,
+  )
+  textContent.value = await blob.text()
+}
 
 onMounted(async () => {
   emit(

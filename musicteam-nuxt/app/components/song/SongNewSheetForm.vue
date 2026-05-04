@@ -22,9 +22,9 @@
       <MtArrayInput v-model="inputSheetTags" allow-space />
     </label>
 
-    <label>
+    <label v-if="!useTextEditor">
       <span>Select File</span>
-      <div class="flex flex-row gap-2">
+      <div class="flex flex-row gap-2 items-baseline">
         <input
           type="file"
           accept="text/plain, application/pdf, application/vnd.recordare.musicxml+xml"
@@ -41,6 +41,30 @@
           size="24"
           class="text-green-500"
         />
+	<span class="mr-4">or</span>
+	<button type="button" class="btn-gray" @click="useTextEditor = true">
+	  Use Text Editor
+	</button>
+      </div>
+    </label>
+
+    <label v-else>
+      <span>Text Sheet Contents</span>
+      <div class="flex flex-row gap-4 items-start">
+        <SongTextEditor :short="true" class="grow" @has-save="(save) => (saveTextFile = save)" />
+	<div class="flex flex-col gap-4">
+	  <button type="button" class="btn-blue" @click="addFile()">
+	    Save Sheet
+            <Icon
+              v-if="inputObjectId"
+              name="ri:file-check-line"
+              class="ml-2 text-green-600"
+            />
+	  </button>
+  	  <button type="button" class="btn-gray" @click="useTextEditor = false">
+ 	    Upload File
+	  </button>
+	</div>
       </div>
     </label>
 
@@ -72,10 +96,15 @@ const inputObjectType = ref<string>()
 const inputAutoVerseOrder = ref<string>("true")
 const inputSheetTags = ref<string[]>([])
 
+const useTextEditor = ref(false)
+const saveTextFile = ref<() => Promise<Blob>>()
 const fileStatus = ref<ToasterStatus>()
 
-async function addFile(event: any) {
-  const file = event.target?.files?.[0] as File | undefined
+async function addFile(event?: any) {
+  const file = useTextEditor.value && saveTextFile.value
+    ? await saveTextFile.value()
+    : event?.target?.files?.[0] as File | undefined
+
   if (file) {
     inputObjectType.value = file.type
     inputObjectId.value = await useToaster(
