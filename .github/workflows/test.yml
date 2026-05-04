@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -21,7 +21,7 @@ jobs:
       - name: npm install
         run: "cd musicteam-nuxt && npm install"
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
           cache: pip
@@ -31,7 +31,7 @@ jobs:
             musicteam/requirements.txt
 
       - name: Cache pre-commit hooks
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: "pre-commit|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}"
           path: ~/.cache/pre-commit
@@ -47,11 +47,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
           cache: pip
@@ -80,14 +80,14 @@ jobs:
           fetch-depth: 0
 
       - name: Run Cypress Component test
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           component: true
           working-directory: musicteam-nuxt
 
       - name: Record Cypress Component test run
         if: failure()
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           component: true
           working-directory: musicteam-nuxt
@@ -113,7 +113,7 @@ jobs:
 
       - name: Run Cypress
         id: cypress
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: musicteam-nuxt
           start: docker run -d --rm -p 3000:3000 -p 9000:9000 musicteam
@@ -121,7 +121,7 @@ jobs:
 
       - name: Record Cypress run if necessary
         if: failure() && steps.cypress.outcome == 'failure'
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: musicteam-nuxt
           wait-on: http://localhost:3000/api/
