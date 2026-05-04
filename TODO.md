@@ -3,6 +3,13 @@
 ## Frontend
 
 - Not yet using updateSetlistPositions when manipulating setlist positions
+- "swap" option for songs in setlist
+  - If user has a song sheet open in the main window, the dropdown on the setlist song
+    adds an option: "Replace"
+  - or: "Add as Candidate" changes to "Add to Set List" and then
+    - if the song is not in the setlist, it behaves as current
+    - if the song is somewhere in the set list, a dialog appears
+      - Replace existing? Or add as secondary? Or add as candidate?
 - Preview lyrics on hover within song list?
 - Rectangle whiteout in PDF annotation??
 - Allow users to upload their own profile picture, change other profile details
