@@ -16,8 +16,8 @@
     </button>
 
     <div v-if="panelOpen">
-      <h1>Active Set List:</h1>
-      <h2>
+      <h1>Active Set List</h1>
+      <h2 class="text-base">
         <NuxtLink
           :to="`/setlists/${active.setlist.id}`"
           class="hover:underline"
@@ -26,7 +26,7 @@
           {{ active.setlist.service_date }} - {{ active.setlist.leader_name }}
         </NuxtLink>
       </h2>
-      <h3 v-if="(active.setlist.participants ?? []).length">
+      <h3 v-if="(active.setlist.participants ?? []).length" class="text-base">
         Team: {{ (active.setlist.participants ?? []).join(", ") }}
       </h3>
 
@@ -194,6 +194,6 @@ async function draggableChange(
   @apply sm:w-12 relative;
 }
 .setlist-bar-closed-header {
-  @apply sm:absolute sm:rotate-90 sm:top-40 sm:-right-14 sm:w-40;
+  @apply sm:absolute sm:rotate-90 sm:top-40 sm:-right-16 sm:w-44;
 }
 </style>

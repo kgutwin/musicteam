@@ -39,17 +39,31 @@
       </template>
       <template #controls="{ row }">
         <div class="flex flex-row gap-1">
-          <button @click="addPosition(row)" data-cy="add-position">
-            <Icon name="ri:add-large-line" size="20" />
+          <button
+            @click="addPosition(row)"
+            :disabled="performingAction !== null"
+            data-cy="add-position"
+          >
+            <Icon
+              :name="
+                performingAction === row.index
+                  ? 'svg-spinners:270-ring-with-bg'
+                  : 'ri:add-large-line'
+              "
+              size="20"
+            />
           </button>
           <button
             class="hover:text-red-500"
+            :disabled="performingAction !== null"
             data-cy="delete-position"
             @click="deletePosition(row)"
           >
             <Icon name="ri:delete-bin-6-line" size="20" />
           </button>
-          <button class="drag-handle"><Icon name="ri:draggable" size="20" /></button>
+          <button class="drag-handle" :disabled="performingAction !== null">
+            <Icon name="ri:draggable" size="20" />
+          </button>
         </div>
       </template>
     </MtTable>
@@ -140,10 +154,15 @@ async function savePosition(position: SetlistPosition, field: keyof SetlistPosit
   await refreshStore.refresh({ setlistId: props.setlistId })
 }
 
+const performingAction = ref<number | null>(null)
+
 async function addPosition(position: SetlistPosition) {
   // what we really need to do is update the index of every position after this
   // one, then add a new position
   if (!positions.value) return
+
+  performingAction.value = position.index
+
   const promises = []
   for (let i = positions.value.positions.length - 1; i >= 0; i--) {
     const pos = positions.value.positions[i]
@@ -162,6 +181,7 @@ async function addPosition(position: SetlistPosition) {
     is_music: true,
   })
   await refreshStore.refresh({ setlistId: props.setlistId })
+  performingAction.value = null
 }
 
 async function dragPosition(event: SortableEvent) {
@@ -188,7 +208,9 @@ async function dragPosition(event: SortableEvent) {
 }
 
 async function deletePosition(position: SetlistPosition) {
+  performingAction.value = position.index
   await api.setlists.deleteSetlistPosition(props.setlistId, position.id)
   await refreshStore.refresh({ setlistId: props.setlistId })
+  performingAction.value = null
 }
 </script>

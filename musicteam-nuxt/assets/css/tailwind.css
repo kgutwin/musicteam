@@ -183,3 +183,14 @@ hr {
 .grid.r-2-col {
   @apply grid-cols-1 lg:grid-cols-2;
 }
+
+/*
+ * Force disable dark mode styling on toasts
+ */
+#toasts .bg-white {
+  @apply !bg-white;
+}
+
+#toasts .bg-gray-200 {
+  @apply !bg-gray-200;
+}

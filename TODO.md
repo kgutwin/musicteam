@@ -2,6 +2,7 @@
 
 ## Frontend
 
+- Not yet using updateSetlistPositions when manipulating setlist positions
 - Preview lyrics on hover within song list?
 - Rectangle whiteout in PDF annotation??
 - Allow users to upload their own profile picture, change other profile details
@@ -25,10 +26,6 @@
     one song with the rest of the database
 
 ## Bugs
-
-- toast in dark mode is not legible
-- active set list bar, Nathan's name should not wrap
-- adding a set list position gives no feedback that it's working
 
 ## Wishful improvements
 
