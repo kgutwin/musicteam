@@ -19,7 +19,7 @@ repos:
         exclude: "musicteam/tests/"
         additional_dependencies:
           - "aurora-data-api==0.5.0"
-          - "pydantic==2.13.3"
+          - "pydantic==2.13.4"
           - "requests-oauthlib==2.0.0"
           - "google-auth==2.50.0"
           - "PyJWT==2.12.1"
