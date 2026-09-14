@@ -5,10 +5,7 @@ from chalice.app import Blueprint
 from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.middleware import session_role
 from chalicelib.storage import s3
-from chalicelib.types import Forbidden
-from chalicelib.types import ObjectId
-from chalicelib.types import UploadDirect
-from chalicelib.types import UploadParams
+from chalicelib.types import Forbidden, ObjectId, UploadDirect, UploadParams
 
 bp = Blueprint(__name__)
 
