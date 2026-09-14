@@ -1,24 +1,15 @@
 import inspect
 import time
+from collections.abc import Callable, Mapping
 from http.cookies import SimpleCookie
-from typing import Any
-from typing import Callable
-from typing import cast
-from typing import Literal
-from typing import Mapping
-from typing import Self
-from typing import TypeVar
+from typing import Any, Literal, Self, TypeVar, cast
 
 import jwt.exceptions
-from chalice.app import Chalice
-from chalice.app import Request
-from chalice.app import Response
-from chalice.app import RouteEntry
-from chalicelib import db
-from chalicelib.types import BadRequest
-from chalicelib.types import User
-from chalicelib.types import UserRole
+from chalice.app import Chalice, Request, Response, RouteEntry
 from pydantic import ValidationError
+
+from chalicelib import db
+from chalicelib.types import BadRequest, User, UserRole
 
 T = TypeVar("T")
 

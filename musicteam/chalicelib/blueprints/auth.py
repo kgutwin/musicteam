@@ -3,17 +3,11 @@ import uuid
 import google.auth.transport.requests
 import google.oauth2.id_token
 import jwt.exceptions
-from chalice.app import Blueprint
-from chalice.app import Request
+from chalice.app import Blueprint, Request
 from chalicelib import db
-from chalicelib.config import OAUTH_CLIENT_ID
-from chalicelib.config import OAUTH_CLIENT_SECRET
+from chalicelib.config import OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET
 from chalicelib.middleware import no_ping_db
-from chalicelib.types import Forbidden
-from chalicelib.types import Found
-from chalicelib.types import LoginResponse
-from chalicelib.types import NoContent
-from chalicelib.types import User
+from chalicelib.types import Forbidden, Found, LoginResponse, NoContent, User
 from requests_oauthlib import OAuth2Session
 
 bp = Blueprint(__name__)
