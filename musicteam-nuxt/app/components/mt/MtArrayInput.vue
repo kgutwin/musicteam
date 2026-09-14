@@ -60,7 +60,7 @@ const props = defineProps<{
   disabled?: boolean
 }>()
 
-const tags = defineModel<string[]>({ default: [] })
+const tags = defineModel<string[]>({ default: () => [] })
 
 function addTag(ev: Event, index?: number) {
   if (props.disabled) return
