@@ -22,7 +22,7 @@ repos:
           - "pydantic==2.13.4"
           - "requests-oauthlib==2.0.0"
           - "google-auth==2.56.3"
-          - "PyJWT==2.12.1"
+          - "PyJWT==2.14.0"
           - "chalice==1.33.0"
           - "psycopg==3.3.4"
           - "types-psutil==7.2.2.20260518"
