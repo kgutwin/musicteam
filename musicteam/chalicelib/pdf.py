@@ -148,7 +148,7 @@ def make_cover_sheet(
     }
     """
 
-    archive = pymupdf.Archive()  # type: ignore[attr-defined]
+    archive = pymupdf.Archive()
     for font_file in ["Verdana-Bold.ttf", "Verdana.ttf"]:
         font_full_file = os.path.join(os.path.dirname(__file__), font_file)
         with open(font_full_file, "rb") as fp:
