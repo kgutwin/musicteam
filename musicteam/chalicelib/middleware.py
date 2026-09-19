@@ -1,5 +1,6 @@
 import inspect
 import time
+import urllib.parse
 from http.cookies import SimpleCookie
 from typing import Any
 from typing import Callable
@@ -114,6 +115,20 @@ def register(app: Chalice) -> None:
         if should_ping:
             while not db.ping():
                 time.sleep(1)
+
+        return get_response(event)
+
+    @app.middleware("http")
+    def unquote_request_params(
+        event: Request, get_response: Callable[[Request], Response]
+    ) -> Response:
+        # Chalice apparently does not normally unquote percent-encoded
+        # strings in the request parameters, so do it manually.
+        if "pathParameters" in event._event_dict:
+            event._event_dict["pathParameters"] = {
+                k: urllib.parse.unquote(v)
+                for k, v in event._event_dict["pathParameters"].items()
+            }
 
         return get_response(event)
 
