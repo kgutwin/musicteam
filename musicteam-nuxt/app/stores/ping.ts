@@ -2,7 +2,7 @@ import { api } from "@/services"
 import { sleep } from "@/utils"
 
 export const usePingStore = defineStore("api-ping", () => {
-  const timeout = 10 * 60 * 60 * 1000 // ten minutes
+  const timeout = 10 * 60 * 1000 // ten minutes
   const lastPing = ref<number>()
   const isPinging = ref(false)
   const pings = ref(0)
@@ -38,5 +38,5 @@ export const usePingStore = defineStore("api-ping", () => {
     }
   }
 
-  return { lastPing, isPinging, pings, ping, wake, isAwake, isAwakeNow }
+  return { timeout, lastPing, isPinging, pings, ping, wake, isAwake, isAwakeNow }
 })
