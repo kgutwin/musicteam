@@ -34,6 +34,8 @@
 
 ## Bugs
 
+- Swagger UI doesn't work with IDs having colons in them (probably a url encoding issue)
+
 ## Wishful improvements
 
 - User-selectable PDF viewer (between browser-native and PDF.js)
