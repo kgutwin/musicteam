@@ -375,6 +375,11 @@ paths:
       tags:
       - Objects
       summary: Upload a file (object) directly to the site's underlying storage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadDirectFields'
   /setlistTemplates:
     get:
       operationId: setlists.list_setlist_templates
@@ -3357,6 +3362,15 @@ components:
       - url
       - fields
       title: UploadDirect
+      type: object
+    UploadDirectFields:
+      properties:
+        content_type:
+          title: Content Type
+          type: string
+      required:
+      - content_type
+      title: UploadDirectFields
       type: object
     UploadParams:
       properties:

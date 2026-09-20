@@ -466,6 +466,10 @@ class UploadParams(BaseModel):
     base64: bool | None = None
 
 
+class UploadDirectFields(BaseModel):
+    content_type: str
+
+
 class UploadDirect(BaseModel):
     url: str
     fields: dict[str, str]

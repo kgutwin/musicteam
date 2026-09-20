@@ -85,6 +85,18 @@ def mock_storage(monkeypatch):
         def put_object(self, Bucket, Key, Body):
             self.data[Key] = Body
 
+        def generate_presigned_post(self, Bucket, Key, Fields=None):
+            return {
+                "url": "https://example.com/",
+                "fields": {
+                    "key": Key,
+                    "AWSAccessKeyId": "AKIAIOSFODNN7EXAMPLE",
+                    "policy": "eyJleHBpcmF0aW9uIjogIjIwMjYtMDktMjBUMTI6MDM6NTNaIiwgImNvbmRpdGlvbnMiOiBbeyJidWNrZXQiOiAiZXhhbXBsZSJ9LCB7ImtleSI6ICJ0ZXN0In1dfQ==",
+                    "signature": "a2U25T/4hAoe3dyXwwGyYnhYvLc=",
+                }
+                | (Fields if Fields else {}),
+            }
+
     mock_s3 = MockS3()
 
     monkeypatch.setattr(storage, "s3", mock_s3)

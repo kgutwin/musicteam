@@ -1120,6 +1120,12 @@ export interface UploadDirect {
   fields: Record<string, string>;
 }
 
+/** UploadDirectFields */
+export interface UploadDirectFields {
+  /** Content Type */
+  content_type: string;
+}
+
 /** UploadParams */
 export interface UploadParams {
   /**
@@ -1783,11 +1789,13 @@ export class Api<
      * @request POST:/objects/direct
      * @secure
      */
-    uploadFileDirect: (params: RequestParams = {}) =>
+    uploadFileDirect: (data: UploadDirectFields, params: RequestParams = {}) =>
       this.request<UploadDirect, ServerError>({
         path: `/objects/direct`,
         method: "POST",
+        body: data,
         secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

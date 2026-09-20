@@ -138,7 +138,9 @@ async function addFile(event: any) {
   if (file) {
     await useToaster(async () => {
       // first, get the location details for direct upload
-      const direct = await api.objects.uploadFileDirect()
+      const direct = await api.objects.uploadFileDirect({
+        content_type: file.type,
+      })
 
       const formData = new FormData()
       for (const field in direct.data.fields) {
