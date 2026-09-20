@@ -124,7 +124,7 @@ def register(app: Chalice) -> None:
     ) -> Response:
         # Chalice apparently does not normally unquote percent-encoded
         # strings in the request parameters, so do it manually.
-        if "pathParameters" in event._event_dict:
+        if event._event_dict.get("pathParameters"):
             event._event_dict["pathParameters"] = {
                 k: urllib.parse.unquote(v)
                 for k, v in event._event_dict["pathParameters"].items()
