@@ -1,4 +1,3 @@
-// @ts-expect-error this works and I can't be bothered to change it
 const remoteApi = process.env.REMOTE_API
 
 // https://nuxt.com/docs/api/configuration/nuxt-config

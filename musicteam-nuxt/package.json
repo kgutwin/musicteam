@@ -44,6 +44,7 @@
     "@nuxt/nitro-server": "^4.4.2",
     "@tailvue/nuxt": "^1.0.0",
     "@types/mime-types": "^3.0.1",
+    "@types/node": "^26.6.2",
     "@types/randomcolor": "^0.5.9",
     "baseline-browser-mapping": "^2.10.16",
     "cypress": "^15.13.0",
