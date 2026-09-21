@@ -1,3 +1,6 @@
+// @ts-expect-error this works and I can't be bothered to change it
+const remoteApi = process.env.REMOTE_API
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -49,9 +52,9 @@ export default defineNuxtConfig({
 
   nitro: {
     devProxy: {
-      "/api": process.env.REMOTE_API
+      "/api": remoteApi
         ? {
-            target: `https://${process.env.REMOTE_API}/api`,
+            target: `https://${remoteApi}/api`,
             changeOrigin: true,
             headers: {
               "x-dev-host": "localhost:3000",
