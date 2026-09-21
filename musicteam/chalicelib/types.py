@@ -1,19 +1,11 @@
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
-from typing import Annotated
-from typing import Any
-from typing import Literal
-from typing import Self
+from datetime import date, datetime, timedelta, timezone
+from typing import Annotated, Any, Literal, Self
 
 import jwt
-from chalice.app import HeadersType
-from chalice.app import Response
+from chalice.app import HeadersType, Response
+from pydantic import BaseModel, Field, field_validator
+
 from chalicelib.config import SITE_SECRET
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import field_validator
 
 
 class _ReplacementModel(BaseModel):
