@@ -1,15 +1,17 @@
 from chalice.app import Blueprint
 from chalicelib import db
 from chalicelib.middleware import session_role
-from chalicelib.types import _SparkLineHistoryRow
-from chalicelib.types import Forbidden
-from chalicelib.types import NotFound
-from chalicelib.types import SongHistory
-from chalicelib.types import SparkLineHistory
-from chalicelib.types import SparkLineHistoryPoint
-from chalicelib.types import TopSong
-from chalicelib.types import TopSongParams
-from chalicelib.types import TopSongs
+from chalicelib.types import (
+    Forbidden,
+    NotFound,
+    SongHistory,
+    SparkLineHistory,
+    SparkLineHistoryPoint,
+    TopSong,
+    TopSongParams,
+    TopSongs,
+    _SparkLineHistoryRow,
+)
 
 bp = Blueprint(__name__)
 

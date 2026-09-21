@@ -2,42 +2,41 @@ import hashlib
 from io import StringIO
 
 from chalice.app import Blueprint
-from chalicelib import db
-from chalicelib import pdf
-from chalicelib import storage
-from chalicelib.middleware import session_role
-from chalicelib.middleware import session_user
-from chalicelib.types import _PositionSheetDetails
-from chalicelib.types import Download
-from chalicelib.types import Forbidden
-from chalicelib.types import Found
-from chalicelib.types import GetPacketPdfParams
-from chalicelib.types import NewSetlist
-from chalicelib.types import NewSetlistPosition
-from chalicelib.types import NewSetlistSheet
-from chalicelib.types import NewSetlistTemplate
-from chalicelib.types import NewSetlistTemplatePosition
-from chalicelib.types import NoContent
-from chalicelib.types import NotFound
-from chalicelib.types import PartialDownload
-from chalicelib.types import PositionLyricDetails
-from chalicelib.types import Setlist
-from chalicelib.types import SetlistInfo
-from chalicelib.types import SetlistList
-from chalicelib.types import SetlistPosition
-from chalicelib.types import SetlistPositionList
-from chalicelib.types import SetlistSheet
-from chalicelib.types import SetlistSheetList
-from chalicelib.types import SetlistTemplate
-from chalicelib.types import SetlistTemplateList
-from chalicelib.types import SetlistTemplatePosition
-from chalicelib.types import SetlistTemplatePositionList
-from chalicelib.types import UpdateSetlist
-from chalicelib.types import UpdateSetlistPosition
-from chalicelib.types import UpdateSetlistPositions
-from chalicelib.types import UpdateSetlistSheet
-from chalicelib.types import UpdateSetlistTemplate
-from chalicelib.types import UpdateSetlistTemplatePosition
+from chalicelib import db, pdf, storage
+from chalicelib.middleware import session_role, session_user
+from chalicelib.types import (
+    Download,
+    Forbidden,
+    Found,
+    GetPacketPdfParams,
+    NewSetlist,
+    NewSetlistPosition,
+    NewSetlistSheet,
+    NewSetlistTemplate,
+    NewSetlistTemplatePosition,
+    NoContent,
+    NotFound,
+    PartialDownload,
+    PositionLyricDetails,
+    Setlist,
+    SetlistInfo,
+    SetlistList,
+    SetlistPosition,
+    SetlistPositionList,
+    SetlistSheet,
+    SetlistSheetList,
+    SetlistTemplate,
+    SetlistTemplateList,
+    SetlistTemplatePosition,
+    SetlistTemplatePositionList,
+    UpdateSetlist,
+    UpdateSetlistPosition,
+    UpdateSetlistPositions,
+    UpdateSetlistSheet,
+    UpdateSetlistTemplate,
+    UpdateSetlistTemplatePosition,
+    _PositionSheetDetails,
+)
 
 bp = Blueprint(__name__)
 

@@ -1,14 +1,15 @@
 from chalice.app import Blueprint
 from chalicelib import db
-from chalicelib.middleware import session_role
-from chalicelib.middleware import session_user
-from chalicelib.types import Comment
-from chalicelib.types import CommentList
-from chalicelib.types import Forbidden
-from chalicelib.types import NewComment
-from chalicelib.types import NoContent
-from chalicelib.types import NotFound
-from chalicelib.types import UpdateComment
+from chalicelib.middleware import session_role, session_user
+from chalicelib.types import (
+    Comment,
+    CommentList,
+    Forbidden,
+    NewComment,
+    NoContent,
+    NotFound,
+    UpdateComment,
+)
 
 bp = Blueprint(__name__)
 
