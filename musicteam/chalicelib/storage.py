@@ -5,17 +5,16 @@ from io import RawIOBase
 from typing import cast
 
 import boto3
-from chalicelib.config import IS_CHALICE_LOCAL
-from chalicelib.config import OBJECT_BUCKET_NAME
-from chalicelib.types import Download
-from chalicelib.types import Found
-from chalicelib.types import PartialDownload
+
+from chalicelib.config import IS_CHALICE_LOCAL, OBJECT_BUCKET_NAME
+from chalicelib.types import Download, Found, PartialDownload
 
 if OBJECT_BUCKET_NAME == "local" and IS_CHALICE_LOCAL and "local" in sys.argv:
-    import os
     import atexit
+    import os
     import shutil
     import subprocess
+
     import botocore.client
 
     minio_endpoint_url = "http://127.0.0.1:9000"

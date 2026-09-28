@@ -5,23 +5,16 @@ import random
 import re
 import threading
 import time
-from collections.abc import Sequence
-from typing import Any
-from typing import cast
-from typing import Generic
-from typing import Iterator
-from typing import Mapping
-from typing import overload
-from typing import TypeVar
+from collections.abc import Iterator, Mapping, Sequence
+from typing import Any, Generic, TypeVar, cast, overload
 
 import aurora_data_api
 import boto3
 from botocore.exceptions import ClientError
 from chalice.app import TooManyRequestsError
-from chalicelib.config import AURORA_CLUSTER_ARN
-from chalicelib.config import AURORA_SECRET_ARN
-from chalicelib.config import INSTANCE_DIR
 from pydantic import BaseModel
+
+from chalicelib.config import AURORA_CLUSTER_ARN, AURORA_SECRET_ARN, INSTANCE_DIR
 
 ###
 ### increment this whenever a new db schema update is added
@@ -39,8 +32,9 @@ try:
     if AURORA_CLUSTER_ARN is not None and AURORA_SECRET_ARN is not None:
         raise ImportError()
 
-    from chalicelib.pglite import PGliteManager
     import psycopg
+
+    from chalicelib.pglite import PGliteManager
 
     PGLITE_AVAILABLE = True
     PGLITE_MANAGER: PGliteManager | None = None

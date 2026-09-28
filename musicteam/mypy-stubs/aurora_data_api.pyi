@@ -1,6 +1,7 @@
 from collections import namedtuple
+from collections.abc import Iterable, Iterator, Mapping
 from types import TracebackType
-from typing import Self, Mapping, Any, Iterable, Iterator
+from typing import Any, Self
 
 ColumnDescription = namedtuple(
     "ColumnDescription",
