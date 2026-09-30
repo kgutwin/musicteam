@@ -13,6 +13,30 @@ fi
 
 if [[ -f .env ]]; then . .env; fi
 
+# check git status
+if ! git diff-files --quiet; then
+    echo "Unstaged changes detected, please commit and push"
+    echo
+    git status
+    exit 1
+fi
+
+# check CI status
+if [[ $1 != "--force" ]]; then
+    CI_STATUS=$(gh run list --commit `git rev-parse HEAD` \
+                   --json status --jq '.[].status')
+    if [[ -z $CI_STATUS ]]; then
+        echo "CI status for the current commit could not be found." \
+             "Did you forget to push?"
+        exit 1
+    fi
+    if [[ $CI_STATUS != "completed" ]]; then
+        echo "Deployment not ready -- CI status is: ${CI_STATUS}"
+        gh run list --commit `git rev-parse HEAD`
+        exit 1
+    fi
+fi
+
 rm -rf deploy
 
 # Frontend build
