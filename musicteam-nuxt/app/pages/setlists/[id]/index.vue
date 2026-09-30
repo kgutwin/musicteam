@@ -252,9 +252,12 @@ async function copySetlistToClipboard() {
 
   for (const pos of positions.value.positions) {
     if (!pos.is_music) continue
+    const seenSongs: Record<string, boolean> = {}
     for (const sheet of slist.value.sheets.filter(
       (s) => s.setlist_position_id === pos.id && !s.type.includes("candidate"),
     )) {
+      if (sheet.song_id in seenSongs) continue
+      seenSongs[sheet.song_id] = true
       const song = await songStore.get({ songId: sheet.song_id }).get()
       const songsheet = await songSheetStore
         .get({
