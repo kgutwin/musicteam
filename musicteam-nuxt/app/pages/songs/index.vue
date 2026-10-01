@@ -38,12 +38,15 @@
 
         <div class="italic">Tag:</div>
         <MtDropdownCheckbox
-          v-for="tag in taglist.data?.entries"
+          v-for="tag in taglist.data?.value?.entries ?? []"
           :key="tag.entry"
           v-model="prefs.filters.tags[tag.entry]"
           :label="tag.entry"
         />
-        <Icon v-if="taglist.status === 'pending'" name="svg-spinners:3-dots-fade" />
+        <Icon
+          v-if="taglist.status.value === 'pending'"
+          name="svg-spinners:3-dots-fade"
+        />
 
         <hr />
 
@@ -158,7 +161,7 @@ import type { TableColumn } from "@/types/mt"
 import type { Song, Entry } from "@/services/api"
 
 import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
-import { useAuthorlistStore, useTaglistStore } from "@/stores/info"
+import { useAuthorlistStore, useTagByResourcelistStore } from "@/stores/info"
 import { useSonglistPrefsStore } from "@/stores/prefs"
 import { useHistorySparklineStore } from "@/stores/history"
 import { trimArray } from "@/utils"
@@ -166,7 +169,7 @@ import { trimArray } from "@/utils"
 const songlist = useSonglistStore()
 const versionlist = useSongVersionlistStore()
 const authorlist = useAuthorlistStore()
-const taglist = useTaglistStore()
+const taglist = useTagByResourcelistStore().get({ resourceType: "songs" })
 
 const prefs = useSonglistPrefsStore()
 const sparklines = useHistorySparklineStore()

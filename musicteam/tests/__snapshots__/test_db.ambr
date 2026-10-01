@@ -296,29 +296,36 @@
   
   CREATE VIEW public.all_tags AS
    WITH tags AS (
-           SELECT unnest(songs.tags) AS tag
+           SELECT unnest(songs.tags) AS tag,
+              'songs'::text AS resource_type
              FROM public.songs
           UNION ALL
-           SELECT unnest(song_versions.tags) AS tag
+           SELECT unnest(song_versions.tags) AS tag,
+              'song_versions'::text AS resource_type
              FROM public.song_versions
           UNION ALL
-           SELECT unnest(song_sheets.tags) AS tag
+           SELECT unnest(song_sheets.tags) AS tag,
+              'song_sheets'::text AS resource_type
              FROM public.song_sheets
           UNION ALL
-           SELECT unnest(song_media.tags) AS tag
+           SELECT unnest(song_media.tags) AS tag,
+              'song_media'::text AS resource_type
              FROM public.song_media
           UNION ALL
-           SELECT unnest(setlists.tags) AS tag
+           SELECT unnest(setlists.tags) AS tag,
+              'setlists'::text AS resource_type
              FROM public.setlists
           UNION ALL
-           SELECT unnest(setlist_templates.tags) AS tag
+           SELECT unnest(setlist_templates.tags) AS tag,
+              'setlist_templates'::text AS resource_type
              FROM public.setlist_templates
           )
    SELECT tag,
+      resource_type,
       count(*) AS count
      FROM tags
-    GROUP BY tag
-    ORDER BY tag;
+    GROUP BY tag, resource_type
+    ORDER BY tag, resource_type;
   
   
   --
@@ -464,7 +471,7 @@
   -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
   --
   
-  INSERT INTO public._version VALUES ('db_version', 6);
+  INSERT INTO public._version VALUES ('db_version', 7);
   
   
   --

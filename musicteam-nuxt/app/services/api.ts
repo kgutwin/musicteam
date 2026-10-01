@@ -1747,6 +1747,27 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Supported resource types: songs, song_versions, song_sheets, song_media, setlists, setlist_templates
+     *
+     * @tags Info
+     * @name ListTagsByResourceType
+     * @summary List all tags for a specific resource type
+     * @request GET:/info/tags/{resource_type}
+     * @secure
+     */
+    listTagsByResourceType: (
+      resourceType: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<EntryList, ServerError>({
+        path: `/info/tags/${resourceType}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   objects = {
     /**

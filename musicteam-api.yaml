@@ -319,6 +319,32 @@ paths:
       tags:
       - Info
       summary: List all tags in the system, across songs, setlists, etc
+  /info/tags/{resource_type}:
+    get:
+      operationId: info.list_tags_by_resource_type
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: *id002
+      tags:
+      - Info
+      summary: List all tags for a specific resource type
+      description: 'Supported resource types: songs, song_versions, song_sheets, song_media,
+
+        setlists, setlist_templates'
+    parameters:
+    - name: resource_type
+      in: path
+      required: true
+      schema:
+        type: string
   /objects:
     post:
       operationId: objects.upload_file

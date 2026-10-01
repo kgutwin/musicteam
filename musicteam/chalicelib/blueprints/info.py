@@ -15,7 +15,32 @@ def list_tags() -> Forbidden | EntryList:
         return Forbidden()
 
     with db.connect() as conn:
-        curs = conn.execute("SELECT tag AS entry, count FROM all_tags", output=Entry)
+        curs = conn.execute(
+            "SELECT tag AS entry, sum(count) AS count "
+            "FROM all_tags "
+            "GROUP BY tag ORDER BY tag",
+            output=Entry,
+        )
+        return EntryList(entries=curs.fetchall())
+
+
+@bp.route("/info/tags/{resource_type}", methods=["GET"])
+def list_tags_by_resource_type(resource_type: str) -> Forbidden | EntryList:
+    """List all tags for a specific resource type
+
+    Supported resource types: songs, song_versions, song_sheets, song_media,
+    setlists, setlist_templates
+    """
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT tag AS entry, count FROM all_tags "
+            "WHERE resource_type = :resource_type",
+            {"resource_type": resource_type},
+            output=Entry,
+        )
         return EntryList(entries=curs.fetchall())
 
 
