@@ -28,5 +28,6 @@ app.register_blueprint(history.bp)
 
 
 @app.route("/")
+@middleware.no_ping_db
 def index() -> dict[str, Any]:
     return {"status": "tbd"}
