@@ -164,6 +164,32 @@ Resources:
           SslSupportMethod: sni-only
           AcmCertificateArn: !Ref FrontendCert
 
+  FrontendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/cloudfront/musicteam-${FrontendDistribution}
+
+  FrontendLogSource:
+    Type: AWS::Logs::DeliverySource
+    Properties:
+      LogType: ACCESS_LOGS
+      ResourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}
+      Name: Cloudfront-to-CWL-source
+
+  FrontendLogDestination:
+    Type: AWS::Logs::DeliveryDestination
+    Properties:
+      Name: Cloudfront-to-CWL-dest
+      DestinationResourceArn: !GetAtt FrontendLogGroup.Arn
+      DeliveryDestinationType: CWL
+
+  FrontendLogDelivery:
+    Type: AWS::Logs::Delivery
+    DependsOn: FrontendLogSource
+    Properties:
+      DeliveryDestinationArn: !GetAtt FrontendLogDestination.Arn
+      DeliverySourceName: Cloudfront-to-CWL-source
+
   # Secrets
   SiteSecret:
     Type: AWS::SecretsManager::Secret
