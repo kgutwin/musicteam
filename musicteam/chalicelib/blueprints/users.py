@@ -3,16 +3,17 @@ import string
 
 from chalice.app import Blueprint
 from chalicelib import db
-from chalicelib.middleware import session_role
-from chalicelib.middleware import session_user
-from chalicelib.types import BadRequest
-from chalicelib.types import Forbidden
-from chalicelib.types import NoContent
-from chalicelib.types import NotFound
-from chalicelib.types import UpdateUser
-from chalicelib.types import User
-from chalicelib.types import UserApikey
-from chalicelib.types import UserList
+from chalicelib.middleware import session_role, session_user
+from chalicelib.types import (
+    BadRequest,
+    Forbidden,
+    NoContent,
+    NotFound,
+    UpdateUser,
+    User,
+    UserApikey,
+    UserList,
+)
 
 bp = Blueprint(__name__)
 
