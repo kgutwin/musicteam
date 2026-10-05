@@ -2,14 +2,16 @@ from typing import Any
 
 from chalice.app import Chalice
 from chalicelib import middleware
-from chalicelib.blueprints import auth
-from chalicelib.blueprints import comments
-from chalicelib.blueprints import history
-from chalicelib.blueprints import info
-from chalicelib.blueprints import objects
-from chalicelib.blueprints import setlists
-from chalicelib.blueprints import songs
-from chalicelib.blueprints import users
+from chalicelib.blueprints import (
+    auth,
+    comments,
+    history,
+    info,
+    objects,
+    setlists,
+    songs,
+    users,
+)
 
 app = Chalice(app_name="musicteam")
 app.api.binary_types.append("application/pdf")
