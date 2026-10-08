@@ -22,8 +22,14 @@ if ! git diff-files --quiet; then
 fi
 
 # check CI status
+GIT_REVISION=$(git rev-parse HEAD)
+if [[ -z $GIT_REVISION ]]; then
+    echo "Could not determine Git commit hash"
+    exit 1
+fi
+
 if [[ $1 != "--force" ]]; then
-    CI_STATUS=$(gh run list --commit `git rev-parse HEAD` \
+    CI_STATUS=$(gh run list --commit $GIT_REVISION \
                    --json status --jq '.[].status')
     if [[ -z $CI_STATUS ]]; then
         echo "CI status for the current commit could not be found." \
@@ -32,7 +38,7 @@ if [[ $1 != "--force" ]]; then
     fi
     if [[ $CI_STATUS != "completed" ]]; then
         echo "Deployment not ready -- CI status is: ${CI_STATUS}"
-        gh run list --commit `git rev-parse HEAD`
+        gh run list --commit $GIT_REVISION
         exit 1
     fi
 fi
@@ -85,6 +91,8 @@ aws cloudformation deploy \
     HostedZoneId=$AWS_HOSTED_ZONE_ID \
     OAuthClientId=$OAUTH_CLIENT_ID \
     OAuthClientSecret=$OAUTH_CLIENT_SECRET \
+    GitRevision=$GIT_REVISION \
+    DeployedAt=$(date -Iseconds -u) \
     --capabilities CAPABILITY_IAM
 
 # Upload frontend package

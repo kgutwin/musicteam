@@ -56,6 +56,16 @@ export interface GetPacketPdfParams {
   two_page_align?: boolean;
 }
 
+/** IndexResponse */
+export interface IndexResponse {
+  /** Status */
+  status: "ok" | "down";
+  /** Version */
+  version: string;
+  /** Deployedat */
+  deployedAt: string;
+}
+
 /** ListSongParams */
 export interface ListSongParams {
   /**
@@ -1445,7 +1455,7 @@ export class Api<
    * @secure
    */
   index = (params: RequestParams = {}) =>
-    this.request<object, ServerError>({
+    this.request<IndexResponse, ServerError>({
       path: `/`,
       method: "GET",
       secure: true,
@@ -1818,6 +1828,24 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+  };
+  ping = {
+    /**
+     * No description
+     *
+     * @tags Ping
+     * @name Ping
+     * @summary Wake the backend database
+     * @request GET:/ping
+     * @secure
+     */
+    ping: (params: RequestParams = {}) =>
+      this.request<any, ServerError>({
+        path: `/ping`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
   };

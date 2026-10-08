@@ -15,6 +15,10 @@ Parameters:
   OAuthClientSecret:
     Type: String
     NoEcho: true
+  GitRevision:
+    Type: String
+  DeployedAt:
+    Type: String
 
 Resources:
   # Aurora PostgreSQL Database
@@ -215,6 +219,8 @@ Resources:
           SITE_SECRET: !Ref SiteSecret
           OAUTH_CLIENT_ID: !Ref OAuthClientId
           OAUTH_CLIENT_SECRET: !Ref ClientSecret
+          GIT_REVISION: !Ref GitRevision
+          DEPLOYED_AT: !Ref DeployedAt
 
   DefaultRole:
     Properties:

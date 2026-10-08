@@ -51,6 +51,12 @@ class ServerError(BaseModel):
     Message: str
 
 
+class IndexResponse(BaseModel):
+    status: Literal["ok", "down"]
+    version: str
+    deployedAt: str
+
+
 class LoginResponse(BaseModel):
     token: str
 

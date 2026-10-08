@@ -50,7 +50,7 @@ export const usePingStore = defineStore("api-ping", () => {
     try {
       isPinging.value = true
       pings.value += 1
-      await api.index()
+      await api.ping.ping()
       lastPing.value = Date.now()
       pings.value = 0
       return true

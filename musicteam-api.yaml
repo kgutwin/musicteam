@@ -20,7 +20,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/IndexResponse'
       tags:
       - Index
   /auth/callback:
@@ -406,6 +406,19 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UploadDirectFields'
+  /ping:
+    get:
+      operationId: ping
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Ping
+      summary: Wake the backend database
   /setlistTemplates:
     get:
       operationId: setlists.list_setlist_templates
@@ -1826,6 +1839,26 @@ components:
           title: Two Page Align
           type: boolean
       title: GetPacketPdfParams
+      type: object
+    IndexResponse:
+      properties:
+        status:
+          enum:
+          - ok
+          - down
+          title: Status
+          type: string
+        version:
+          title: Version
+          type: string
+        deployedAt:
+          title: Deployedat
+          type: string
+      required:
+      - status
+      - version
+      - deployedAt
+      title: IndexResponse
       type: object
     ListSongParams:
       properties:
