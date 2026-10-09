@@ -641,6 +641,14 @@ def search_songs(query_params: SearchSongParams) -> Forbidden | SearchSongList:
     if not session_role(bp.current_request, "viewer"):
         return Forbidden()
 
+    if query_params.q.startswith('"') and query_params.q.endswith('"'):
+        q = query_params.q.strip('"')
+        q = f"%{q}%"
+        condition = "WHERE lyrics LIKE :query"
+    else:
+        q = query_params.q
+        condition = "WHERE lyrics_tsv @@ websearch_to_tsquery('english', :query)"
+
     with db.connect() as conn:
         curs = conn.execute(
             "WITH song_hits AS ("
@@ -655,9 +663,7 @@ def search_songs(query_params: SearchSongParams) -> Forbidden | SearchSongList:
             "        'MaxFragments=4'"
             "      )"
             "    ) AS highlighted"
-            "  FROM song_versions"
-            "  WHERE lyrics_tsv @@ websearch_to_tsquery('english', :query)"
-            "  GROUP BY song_id"
+            "  FROM song_versions " + condition + " GROUP BY song_id"
             ") "
             "SELECT"
             "  songs.id,"
@@ -673,7 +679,7 @@ def search_songs(query_params: SearchSongParams) -> Forbidden | SearchSongList:
             "FROM songs "
             "INNER JOIN song_hits ON songs.id = song_hits.song_id "
             "ORDER BY song_hits.rank DESC",
-            {"query": query_params.q},
+            {"query": q},
             output=_SearchSongRow,
         )
         return SearchSongList(hits=[row.hit for row in curs.fetchall()])
