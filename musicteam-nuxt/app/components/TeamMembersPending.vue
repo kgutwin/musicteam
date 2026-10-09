@@ -1,12 +1,11 @@
 <template>
-  <NuxtLink
-    to="/team"
+  <span
     v-if="pending"
     class="btn-users-pending"
     title="One or more users need to have a role assigned"
   >
-    <Icon name="ri:account-circle-fill" size="40" class="text-white" />
-  </NuxtLink>
+    *
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -21,6 +20,6 @@ const pending = computed(() =>
 
 <style>
 .btn-users-pending {
-  @apply self-end drop-shadow-[1px_1px_red];
+  @apply self-end text-red-500;
 }
 </style>

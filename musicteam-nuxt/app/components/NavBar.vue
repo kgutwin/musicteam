@@ -27,11 +27,13 @@
         <NuxtLink to="/songs">Songs</NuxtLink>
         <NuxtLink to="/setlists">Set Lists</NuxtLink>
         <NuxtLink to="/history">History</NuxtLink>
-        <NuxtLink to="/team">Team</NuxtLink>
+        <NuxtLink to="/team">
+          Team
+          <TeamMembersPending v-if="canManage" />
+        </NuxtLink>
       </div>
 
       <div v-if="status === 'authenticated'" class="self-start flex flex-row gap-4">
-        <TeamMembersPending v-if="canManage" />
         <NuxtLink v-if="authData" to="/my/profile">
           <UserIcon :user-id="authData.id" large />
         </NuxtLink>
