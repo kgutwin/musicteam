@@ -30,13 +30,14 @@ fi
 
 if [[ $1 != "--force" ]]; then
     CI_STATUS=$(gh run list --commit $GIT_REVISION \
-                   --json status --jq '.[].status')
+                   --json status,conclusion,workflowName \
+                   --jq '(.[] | select(.workflowName == "Test")) | .status, .conclusion')
     if [[ -z $CI_STATUS ]]; then
         echo "CI status for the current commit could not be found." \
              "Did you forget to push?"
         exit 1
     fi
-    if [[ $CI_STATUS != "completed" ]]; then
+    if [[ $CI_STATUS != $'completed\nsuccess' ]]; then
         echo "Deployment not ready -- CI status is: ${CI_STATUS}"
         gh run list --commit $GIT_REVISION
         exit 1
