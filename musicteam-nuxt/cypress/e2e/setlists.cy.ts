@@ -299,10 +299,6 @@ describe("setlists", () => {
 
       // now test
       cy.sidebarSong("Song One", () => {
-        cy.dataCy("state").should("have.prop", "title", "candidate")
-
-        cy.dataCy("drop").click()
-        cy.contains("Primary").click()
         cy.dataCy("state").should("have.prop", "title", "primary")
 
         cy.dataCy("drop").click()
@@ -312,11 +308,13 @@ describe("setlists", () => {
         cy.dataCy("drop").click()
         cy.contains("Extra").click()
         cy.dataCy("state").should("have.prop", "title", "extra")
+
+        cy.dataCy("drop").click()
+        cy.contains("Candidate (high)").click()
+        cy.dataCy("state").should("have.prop", "title", "candidate-high")
       })
 
       cy.sidebarSong("Song Two", () => {
-        cy.dataCy("state").should("have.prop", "title", "candidate")
-        cy.dataCy("state").click()
         cy.dataCy("state").should("have.prop", "title", "primary")
         cy.dataCy("state").click()
         cy.dataCy("state").should("have.prop", "title", "secondary")
@@ -329,7 +327,7 @@ describe("setlists", () => {
       cy.reload()
 
       cy.sidebarSong("Song One", () => {
-        cy.dataCy("state").should("have.prop", "title", "extra")
+        cy.dataCy("state").should("have.prop", "title", "candidate-high")
       })
       cy.sidebarSong("Song Two", () => {
         cy.dataCy("state").should("have.prop", "title", "primary")

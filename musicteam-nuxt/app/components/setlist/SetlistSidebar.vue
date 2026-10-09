@@ -162,7 +162,15 @@ function filtered(sheets?: SetlistSheet[], positionId?: string): SetlistSheet[] 
 }
 
 async function addSheetTo(sheet: SetlistSheet, positionId: string | null) {
-  const newType: SetlistSheetType = !positionId ? "5:candidate" : sheet.type
+  const newType: SetlistSheetType = (() => {
+    if (!positionId) return "5:candidate"
+    if (
+      (slist.value?.sheets ?? []).every((s) => s.setlist_position_id !== positionId)
+    ) {
+      return "1:primary"
+    }
+    return sheet.type
+  })()
 
   // patch the current object
   sheet.setlist_position_id = positionId

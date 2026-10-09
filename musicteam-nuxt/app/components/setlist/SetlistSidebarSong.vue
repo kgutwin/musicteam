@@ -102,6 +102,9 @@ const songSheet = useSongSheetStore().get({
 const positionlist = useSetlistPositionlistStore().get({
   setlistId: props.sheet.setlist_id,
 }).data
+const sheetlist = useSetlistSheetlistStore().get({
+  setlistId: props.sheet.setlist_id,
+}).data
 
 const songPositions = computed(() => {
   const all = positionlist.value?.positions ?? []
@@ -111,7 +114,15 @@ const songPositions = computed(() => {
 const refreshSetlists = useSetlistRefreshStore()
 
 async function addTo(positionId: string | null) {
-  const newType: SetlistSheetType = !positionId ? "5:candidate" : props.sheet.type
+  const newType: SetlistSheetType = (() => {
+    if (!positionId) return "5:candidate"
+    if (
+      (sheetlist.value?.sheets ?? []).every((s) => s.setlist_position_id !== positionId)
+    ) {
+      return "1:primary"
+    }
+    return props.sheet.type
+  })()
 
   // patch the current object
   props.sheet.setlist_position_id = positionId
