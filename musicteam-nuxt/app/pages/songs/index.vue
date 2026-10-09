@@ -121,7 +121,10 @@
       :row-click="async (row) => await navigateTo(`/songs/${row.id}`)"
     >
       <template #uploaded="{ row }">
-        <Created :data="row" />
+        <div class="flex flex-row gap-1">
+          <UserIcon :user-id="row.creator_id" class="block w-6" />
+          <div>{{ localdate(row.created_on) }}</div>
+        </div>
       </template>
       <template #title="{ row }">
         <NuxtLink :to="`/songs/${row.id}`" class="font-semibold hover:underline">
@@ -164,7 +167,7 @@ import { useSonglistStore, useSongVersionlistStore } from "@/stores/songs"
 import { useAuthorlistStore, useTagByResourcelistStore } from "@/stores/info"
 import { useSonglistPrefsStore } from "@/stores/prefs"
 import { useHistorySparklineStore } from "@/stores/history"
-import { trimArray } from "@/utils"
+import { trimArray, localdate } from "@/utils"
 
 const songlist = useSonglistStore()
 const versionlist = useSongVersionlistStore()
