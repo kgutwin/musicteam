@@ -1,15 +1,7 @@
 <template>
   <div class="song-text-panel">
     <div class="sm:float-right sm:text-right">
-      <div v-if="!noCopy" class="pr-4 pb-2">
-        <button
-          class="btn-icon text-blue-500 hover:text-blue-700"
-          @click="$emit('copy')"
-          title="Copy to Clipboard"
-        >
-          <Icon name="solar:copy-outline" />
-        </button>
-      </div>
+      <slot name="copy" />
       <div v-if="verseOrder" class="panel-verse-order">
         Order:
         {{ verseOrder.replace(/\s+/g, "\n") }}
@@ -22,9 +14,7 @@
 <script setup lang="ts">
 defineProps<{
   verseOrder?: string | null
-  noCopy?: boolean
 }>()
-defineEmits<{ copy: [] }>()
 </script>
 
 <style>

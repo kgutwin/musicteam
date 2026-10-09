@@ -68,13 +68,7 @@
 
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
-        <button
-          class="btn-icon"
-          title="Copy to Clipboard"
-          @click="copySetlistToClipboard"
-        >
-          <Icon name="solar:copy-outline" />
-        </button>
+        <MtCopyToClipboard class="btn-icon" :content="copySetlistToClipboard" />
         <button
           v-if="canLead"
           class="btn-gray"
@@ -147,7 +141,14 @@
         Open full packet
       </button>
     </template>
-    <SongTextPanel v-else-if="selectedTab === 'lyrics'" @click="copyLyricsToClipboard">
+    <SongTextPanel v-else-if="selectedTab === 'lyrics'">
+      <template #copy>
+        <MtCopyToClipboard
+          class="pr-4 pb-2 btn-icon text-blue-500 hover:text-blue-700"
+          :content="copyLyricsToClipboard"
+        />
+      </template>
+
       <object :data="`/api/setlists/${id}/packet/lyrics`" class="w-full h-screen" />
     </SongTextPanel>
   </div>
@@ -271,7 +272,7 @@ async function copySetlistToClipboard() {
     }
   }
 
-  navigator.clipboard.writeText(lines.join("\n"))
+  return lines.join("\n")
 }
 
 async function copyLyricsToClipboard() {
@@ -283,8 +284,7 @@ async function copyLyricsToClipboard() {
       reject(error)
     }
   })
-  const clipboardItem = new ClipboardItem({ "text/plain": lyrics })
-  await navigator.clipboard.write([clipboardItem])
+  return lyrics
 }
 
 function shareSetlist() {

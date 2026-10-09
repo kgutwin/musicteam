@@ -68,14 +68,19 @@
     <SongTextPanel
       v-if="selectedSheet === '!lyrics'"
       :verse-order="version.verse_order"
-      @copy="lyricsToClipboard"
     >
+      <template #copy>
+        <MtCopyToClipboard
+          class="pr-4 pb-2 btn-icon text-blue-500 hover:text-blue-700"
+          :content="lyricsToClipboard"
+        />
+      </template>
+
       {{ version.lyrics ?? "Lyrics are missing, use the Edit button to add them!" }}
     </SongTextPanel>
     <SongTextPanel
       v-else-if="selectedSheet.object_type === 'text/plain'"
       :verse-order="selectedSheet.auto_verse_order ? version.verse_order : null"
-      no-copy
     >
       <SongText
         :song-id="version.song_id"
@@ -207,7 +212,7 @@ async function addToCandidates() {
 }
 
 function lyricsToClipboard() {
-  if (props.version.lyrics) navigator.clipboard.writeText(props.version.lyrics)
+  if (props.version.lyrics) return props.version.lyrics
 }
 
 async function edit(mode: "edit" | "copyVersion" | "copySheet") {
