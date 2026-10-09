@@ -122,17 +122,20 @@ def auth_callback() -> Forbidden | Found:
         # in will be an admin.
         curs = conn.execute(
             (
-                "INSERT INTO users (name, provider_id, email, picture, role) "
+                "INSERT INTO users ("
+                "  name, provider_id, email, picture, last_login, role"
+                ") "
                 "SELECT"
                 "  :name AS name,"
                 "  :provider_id AS provider_id,"
                 "  :email AS email,"
                 "  :picture AS picture,"
+                "  now() AS last_login,"
                 "  CASE WHEN count(*) > 0 THEN 'pending' ELSE 'admin' END AS role "
                 "FROM users "
                 "ON CONFLICT (provider_id) DO UPDATE"
                 "  SET name = EXCLUDED.name, email = EXCLUDED.email,"
-                "  picture = EXCLUDED.picture "
+                "  picture = EXCLUDED.picture, last_login = now() "
                 "RETURNING id, name, provider_id, email, picture, role"
             ),
             {
