@@ -1,5 +1,8 @@
 <template>
   <div class="text-sm mt-1">
+    <div class="float-right">
+      <MtCopyToClipboard class="text-xl" :content="getMediaLinksForClipboard" />
+    </div>
     <div v-for="sheet in sheets">
       <h3>{{ songStore.get({ songId: sheet.song_id }).data.value?.title }}</h3>
       <template v-for="entry in sheet.media">
@@ -54,4 +57,22 @@ const sheets = computed<AnnotatedSetlistSheet[]>(() => {
   }
   return Object.values(rv).toSorted(byPositionIndex)
 })
+
+function getMediaLinksForClipboard() {
+  const rv: string[] = ["Song Media Links", "----------------"]
+
+  for (const sheet of sheets.value) {
+    const songName = songStore.get({ songId: sheet.song_id }).data.value?.title
+    if (!songName) continue
+    rv.push(`* ${songName}`)
+
+    for (const entry of sheet.media) {
+      if (entry.url) {
+        rv.push(`    - ${entry.title}: ${entry.url}`)
+      }
+    }
+  }
+
+  return rv.join("\n")
+}
 </script>
