@@ -1,10 +1,10 @@
 <template>
   <button title="Copy to Clipboard" @click="copyToClipboard" @mouseout="copied = false">
     <slot v-if="copied" name="copied">
-      <Icon name="solar:check-square-linear" class="text-green-700" />
+      <Icon name="solar:clipboard-check-linear" class="text-green-700" />
     </slot>
     <slot v-else>
-      <Icon :name="iconName ?? 'solar:copy-outline'" />
+      <Icon :name="iconName ?? 'solar:clipboard-text-linear'" />
     </slot>
   </button>
 </template>
