@@ -20,6 +20,7 @@
         :key="row.id"
         :clickable="!!rowClick"
         :selected="selected?.(row) ?? false"
+        :class="styleRow?.(row) ?? []"
         @click="
           () => {
             if (rowClick) {
@@ -60,6 +61,7 @@ const props = defineProps<{
   error?: boolean
   rowClick?: (row: T) => any
   selected?: (row: T) => boolean
+  styleRow?: (row: T) => string[]
 }>()
 
 defineEmits<{ dragEnd: [SortableEvent] }>()

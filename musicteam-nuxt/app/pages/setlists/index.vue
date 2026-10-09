@@ -13,6 +13,16 @@
       :data="setlists.data?.setlists"
       :error="setlists.isError"
       :row-click="async (row) => await navigateTo(`/setlists/${row.id}`)"
+      :style-row="
+        (row) => {
+          if (!row.service_date) return []
+          const rowDate = asDate(row.service_date)
+          const sunday = asDate(nextSunday())
+          if (rowDate > sunday) return ['text-gray-500', 'italic']
+          if (rowDate > new Date()) return ['font-medium']
+          return []
+        }
+      "
     >
       <template #service-date="{ row }">
         <NuxtLink :to="`/setlists/${row.id}`" class="hover:underline">
@@ -40,6 +50,8 @@
 <script setup lang="ts">
 import { useSetlistlistStore } from "@/stores/setlists"
 import { useUserStore } from "@/stores/users"
+import { localdate, asDate, nextSunday } from "@/utils"
+
 import type { TableColumn } from "@/types/mt"
 
 const setlists = useSetlistlistStore()
