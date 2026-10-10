@@ -124,16 +124,18 @@ async function addTo(positionId: string | null) {
     return props.sheet.type
   })()
 
-  // patch the current object
-  props.sheet.setlist_position_id = positionId
-  props.sheet.type = newType
+  await useToaster(async () => {
+    await api.setlists.updateSetlistSheet(props.sheet.setlist_id, props.sheet.id, {
+      setlist_position_id: positionId,
+      type: newType,
+    })
 
-  await api.setlists.updateSetlistSheet(props.sheet.setlist_id, props.sheet.id, {
-    setlist_position_id: positionId,
-    type: newType,
+    // patch the current object
+    props.sheet.setlist_position_id = positionId
+    props.sheet.type = newType
+
+    await refreshSetlists.refresh({ setlistId: props.sheet.setlist_id })
   })
-
-  await refreshSetlists.refresh({ setlistId: props.sheet.setlist_id })
 }
 
 async function setType(type: SetlistSheetType) {

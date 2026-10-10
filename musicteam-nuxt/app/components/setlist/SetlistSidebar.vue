@@ -172,16 +172,18 @@ async function addSheetTo(sheet: SetlistSheet, positionId: string | null) {
     return sheet.type
   })()
 
-  // patch the current object
-  sheet.setlist_position_id = positionId
-  sheet.type = newType
+  await useToaster(async () => {
+    await api.setlists.updateSetlistSheet(sheet.setlist_id, sheet.id, {
+      setlist_position_id: positionId,
+      type: newType,
+    })
 
-  await api.setlists.updateSetlistSheet(sheet.setlist_id, sheet.id, {
-    setlist_position_id: positionId,
-    type: newType,
+    // patch the current object
+    sheet.setlist_position_id = positionId
+    sheet.type = newType
+
+    await refreshSetlists.refresh({ setlistId: sheet.setlist_id })
   })
-
-  await refreshSetlists.refresh({ setlistId: sheet.setlist_id })
 }
 
 async function draggableChange(
