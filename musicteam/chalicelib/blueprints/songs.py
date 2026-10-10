@@ -644,7 +644,7 @@ def search_songs(query_params: SearchSongParams) -> Forbidden | SearchSongList:
     if query_params.q.startswith('"') and query_params.q.endswith('"'):
         q = query_params.q.strip('"')
         q = f"%{q}%"
-        condition = "WHERE lyrics LIKE :query"
+        condition = "WHERE lyrics ILIKE :query"
     else:
         q = query_params.q
         condition = "WHERE lyrics_tsv @@ websearch_to_tsquery('english', :query)"
