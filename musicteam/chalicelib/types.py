@@ -589,6 +589,16 @@ class NotFound(KnownResponse):
         super().__init__(ServerError(Code="NotFound", Message=message))
 
 
+class Conflict(KnownResponse):
+    """Conflict. The request conflicts with the current state of the server."""
+
+    _code = 409
+    _response_model = ServerError
+
+    def __init__(self, message: str = ""):
+        super().__init__(ServerError(Code="Conflict", Message=message))
+
+
 class TooManyRequests(KnownResponse):
     """Too Many Requests. The server cannot handle the rate of requests it is
     receiving."""

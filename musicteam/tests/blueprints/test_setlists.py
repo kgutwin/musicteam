@@ -1,4 +1,8 @@
-def test_setlists_add_song(client):
+import pytest
+
+
+@pytest.fixture
+def song(client):
     response = client.http.post(
         "/songs",
         json={
@@ -25,6 +29,12 @@ def test_setlists_add_song(client):
         },
     )
     song_sheet_id = response.json_body["id"]
+
+    return song_id, song_version_id, song_sheet_id
+
+
+def test_setlists_add_song(client, song):
+    song_id, song_version_id, song_sheet_id = song
 
     # create a set list
     response = client.http.post(
@@ -61,6 +71,45 @@ def test_setlists_add_song(client):
     # then we can delete the song
     response = client.http.delete(f"/songs/{song_id}")
     assert response.status_code == 204
+
+
+def test_setlists_no_duplicate_sheet_per_position(client, song):
+    song_id, song_version_id, song_sheet_id = song
+
+    # create a set list
+    response = client.http.post(
+        "/setlists",
+        json={"leader_name": "joe", "service_date": "2026-01-25", "tags": ["pytest"]},
+    )
+    setlist_id = response.json_body["id"]
+
+    response = client.http.post(
+        f"/setlists/{setlist_id}/pos",
+        json={"index": 0, "label": "position", "is_music": True},
+    )
+    setlist_position_id = response.json_body["id"]
+
+    # add song to position
+    response = client.http.post(
+        f"/setlists/{setlist_id}/sheets",
+        json={
+            "type": "1:primary",
+            "song_sheet_id": song_sheet_id,
+            "setlist_position_id": setlist_position_id,
+        },
+    )
+    assert response.status_code == 200, response.body
+
+    # can't add a second time, even as a different type
+    response = client.http.post(
+        f"/setlists/{setlist_id}/sheets",
+        json={
+            "type": "2:secondary",
+            "song_sheet_id": song_sheet_id,
+            "setlist_position_id": setlist_position_id,
+        },
+    )
+    assert response.status_code == 409, response.body
 
 
 def test_setlists_get_music_packet(client, mock_storage, pdf_snapshot):

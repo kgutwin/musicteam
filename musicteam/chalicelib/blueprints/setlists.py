@@ -8,6 +8,7 @@ from chalicelib import storage
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
 from chalicelib.types import _PositionSheetDetails
+from chalicelib.types import Conflict
 from chalicelib.types import Download
 from chalicelib.types import Forbidden
 from chalicelib.types import Found
@@ -562,24 +563,27 @@ def list_setlist_sheets(setlist_id: str) -> Forbidden | SetlistSheetList:
 @bp.route("/setlists/{setlist_id}/sheets", methods=["POST"])
 def new_setlist_sheet(
     setlist_id: str, request_body: NewSetlistSheet
-) -> Forbidden | SetlistSheet:
+) -> Forbidden | Conflict | SetlistSheet:
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
     with db.connect() as conn:
-        curs = conn.execute(
-            "INSERT INTO setlist_sheets ("
-            "  setlist_id, type, song_sheet_id, setlist_position_id"
-            ") VALUES ("
-            "  :setlist_id, :type, :song_sheet_id, :setlist_position_id"
-            ") "
-            "RETURNING id, setlist_id, type, song_sheet_id, setlist_position_id,"
-            "  '' AS song_version_id, '' AS song_id",
-            request_body.model_dump() | {"setlist_id": setlist_id},
-            output=SetlistSheet,
-        )
-        sheet = curs.fetchone()
-        assert sheet is not None
+        try:
+            curs = conn.execute(
+                "INSERT INTO setlist_sheets ("
+                "  setlist_id, type, song_sheet_id, setlist_position_id"
+                ") VALUES ("
+                "  :setlist_id, :type, :song_sheet_id, :setlist_position_id"
+                ") "
+                "RETURNING id, setlist_id, type, song_sheet_id, setlist_position_id,"
+                "  '' AS song_version_id, '' AS song_id",
+                request_body.model_dump() | {"setlist_id": setlist_id},
+                output=SetlistSheet,
+            )
+            sheet = curs.fetchone()
+            assert sheet is not None
+        except db.UniqueViolation:
+            return Conflict("The selected sheet is already in this setlist position")
 
     return sheet
 
@@ -617,7 +621,7 @@ def get_setlist_sheet(
 @bp.route("/setlists/{setlist_id}/sheets/{sheet_id}", methods=["PUT"])
 def update_setlist_sheet(
     setlist_id: str, sheet_id: str, request_body: UpdateSetlistSheet
-) -> Forbidden | NotFound | NoContent:
+) -> Forbidden | NotFound | Conflict | NoContent:
     if not session_role(bp.current_request, "leader"):
         return Forbidden()
 
@@ -625,13 +629,16 @@ def update_setlist_sheet(
         return NoContent()
 
     with db.connect() as conn:
-        result = conn.execute(
-            f"UPDATE setlist_sheets SET {request_body.replacement_sql} "
-            f"WHERE id = :sheet_id AND setlist_id = :setlist_id",
-            {"sheet_id": sheet_id, "setlist_id": setlist_id}
-            | request_body.replacement_params,
-        )
-        return NoContent() if result else NotFound()
+        try:
+            result = conn.execute(
+                f"UPDATE setlist_sheets SET {request_body.replacement_sql} "
+                f"WHERE id = :sheet_id AND setlist_id = :setlist_id",
+                {"sheet_id": sheet_id, "setlist_id": setlist_id}
+                | request_body.replacement_params,
+            )
+            return NoContent() if result else NotFound()
+        except db.UniqueViolation:
+            return Conflict("The chosen sheet is already in this setlist position")
 
 
 @bp.route("/setlists/{setlist_id}/sheets/{sheet_id}", methods=["DELETE"])

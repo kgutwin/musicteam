@@ -25,12 +25,13 @@ from pydantic import BaseModel
 
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 7
+DB_VERSION = 8
 
 DatabaseResumingException = boto3.client(
     "rds-data"
 ).exceptions.DatabaseResumingException
 ForeignKeyViolation = aurora_data_api.PostgreSQLError.from_code("23503")
+UniqueViolation = aurora_data_api.PostgreSQLError.from_code("23505")
 UndefinedTable = aurora_data_api.PostgreSQLError.from_code("42P01")
 
 PSYCOPG_PARAM: re.Pattern[str] | None
@@ -254,6 +255,10 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
     global ForeignKeyViolation
     ForeignKeyViolation = cast(
         type[aurora_data_api.DatabaseError], psycopg.errors.ForeignKeyViolation
+    )
+    global UniqueViolation
+    UniqueViolation = cast(
+        type[aurora_data_api.DatabaseError], psycopg.errors.UniqueViolation
     )
 
     global PGLITE_MANAGER

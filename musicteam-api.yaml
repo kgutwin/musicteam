@@ -961,6 +961,8 @@ paths:
           $ref: '#/components/responses/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '200':
           content:
             application/json:
@@ -1008,6 +1010,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '204':
           $ref: '#/components/responses/NoContent'
       tags:
@@ -3508,6 +3512,12 @@ components:
   responses:
     BadRequest:
       description: Bad request. The request could not be completed as specified.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServerError'
+    Conflict:
+      description: Conflict. The request conflicts with the current state of the server.
       content:
         application/json:
           schema:
