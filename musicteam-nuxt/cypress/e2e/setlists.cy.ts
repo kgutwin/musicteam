@@ -156,9 +156,7 @@ describe("setlists", () => {
       cy.prep("song")
       cy.prep("songMultiVersion")
       cy.prep("setlist")
-    })
 
-    it("can add a song as a candidate", () => {
       cy.get("@prep.setlist").then((id) => {
         cy.visit(`/setlists/${id}`)
         cy.exists("Test Title")
@@ -169,8 +167,10 @@ describe("setlists", () => {
       cy.contains("Test One").click()
 
       cy.contains("Chord (C)").click()
-      cy.contains("Add as Candidate").click()
+      cy.contains("Add to Set List").click()
+    })
 
+    it("can add a song as a candidate", () => {
       cy.dataCy("sidebar-candidates").within(() => {
         cy.exists("Test One")
       })
@@ -185,24 +185,12 @@ describe("setlists", () => {
     })
 
     it("can add songs to setlist positions", () => {
-      cy.get("@prep.setlist").then((id) => {
-        cy.visit(`/setlists/${id}`)
-        cy.exists("Test Title")
-      })
-      cy.contains("Make Active").click()
-
-      cy.contains("Find songs").click()
-      cy.contains("Test One").click()
-
-      cy.contains("Chord (C)").click()
-      cy.contains("Add as Candidate").click()
-
       cy.contains("Find songs").click()
       cy.contains("Test Two").click()
       cy.contains("From Cypress").click()
 
       cy.contains("Lead (C)").click()
-      cy.contains("Add as Candidate").click()
+      cy.contains("Add to Set List").click()
 
       cy.dataCy("sidebar-candidates").within(() => {
         cy.sidebarSong("Test One", () => {
@@ -234,6 +222,37 @@ describe("setlists", () => {
 
       cy.contains("First").parents("tr").contains("Test One")
       cy.contains("Last").parents("tr").contains("Test Two")
+    })
+
+    it.only("can replace a setlist sheet", () => {
+      cy.dataCy("sidebar-candidates").within(() => {
+        cy.sidebarSong("Test One", () => {
+          cy.dataCy("drop").click()
+          cy.contains("First").click()
+        })
+      })
+
+      cy.contains("Test One").click()
+
+      cy.contains("Lead (C)").click()
+      cy.contains("Add to Set List").click()
+
+      cy.contains("Replace Existing").click()
+
+      cy.dataCy("sidebar").within(() => {
+        cy.sidebarSong("Test One", () => {
+          cy.exists("Lead")
+          cy.dataCy("state").should("have.prop", "title", "primary")
+        })
+      })
+
+      // now add the Chord sheet as a secondary
+      cy.contains("Chord (C)").click()
+      cy.contains("Add to Set List").click()
+      cy.contains("Add as Secondary").click()
+
+      cy.contains('[data-cy="sidebar-song"]', "Lead").should("exist")
+      cy.contains('[data-cy="sidebar-song"]', "Chord").should("exist")
     })
   })
 

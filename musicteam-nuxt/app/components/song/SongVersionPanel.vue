@@ -49,20 +49,41 @@
         <Icon name="ri:add-large-line" class="show-lg" />
         <span class="hide-lg">Add Sheet...</span>
       </button>
-      <button
-        v-if="canLead && activeSetlistStore.setlist"
-        :disabled="selectedSheet === '!lyrics'"
-        class="btn-gray max-sm:h-8"
-        @click="addToCandidates"
-      >
-        <Icon name="ri:play-list-add-line" class="show-lg" />
-        <span class="hide-lg">Add as Candidate</span>
-        <Icon
-          v-if="addCandidateStatus === 'pending'"
-          name="svg-spinners:3-dots-fade"
-          class="ml-2"
-        />
-      </button>
+      <template v-if="canLead && activeSetlistStore.setlist">
+        <button
+          v-if="existingSongSetlistSheet === undefined"
+          :disabled="selectedSheet === '!lyrics'"
+          :title="
+            selectedSheet === '!lyrics'
+              ? 'Choose a music sheet to add to the set list'
+              : ''
+          "
+          class="btn-gray max-sm:h-8"
+          @click="() => addToPosition('candidate')"
+        >
+          <Icon name="ri:play-list-add-line" class="show-lg" />
+          <span class="hide-lg">Add to Set List</span>
+          <Icon
+            v-if="addSetlistStatus === 'pending'"
+            name="svg-spinners:3-dots-fade"
+            class="ml-2"
+          />
+        </button>
+        <MtDropdown v-else button-class="btn-gray">
+          <template #dropdown-button>
+            <Icon name="ri:play-list-add-line" class="show-lg" />
+            <span class="hide-lg">Add to Set List</span>
+            <Icon
+              v-if="addSetlistStatus === 'pending'"
+              name="svg-spinners:3-dots-fade"
+              class="ml-2"
+            />
+          </template>
+          <button @click="() => addToPosition('replace')">Replace Existing</button>
+          <button @click="() => addToPosition('secondary')">Add as Secondary</button>
+          <button @click="() => addToPosition('candidate')">Add as Candidate</button>
+        </MtDropdown>
+      </template>
     </MtTabPanel>
 
     <SongTextPanel
@@ -107,7 +128,7 @@
 <script setup lang="ts">
 import { useModal } from "tailvue"
 
-import type { SongVersion, SongSheet } from "@/services/api"
+import type { SongVersion, SongSheet, NewSetlistSheet } from "@/services/api"
 import { api } from "@/services"
 import { useSongSheetlistStore } from "@/stores/songs"
 import { useActiveSetlistStore, useSetlistSheetlistStore } from "@/stores/setlists"
@@ -190,24 +211,52 @@ async function addSheet() {
   })
 }
 
-const addCandidateStatus = ref<ToasterStatus>()
+const addSetlistStatus = ref<ToasterStatus>()
 
-async function addToCandidates() {
+const existingSongSetlistSheet = computed(() => {
+  const setlist = activeSetlistStore.setlist
+  if (!setlist) return undefined
+
+  const setlistSheetlist = setlistSheetlistStore.get({ setlistId: setlist.id }).data
+    .value
+  if (!setlistSheetlist) return undefined
+  return setlistSheetlist.sheets
+    .sort((a, b) => a.type.localeCompare(b.type))
+    .find((sheet) => sheet.song_id === props.version.song_id)
+})
+
+async function addToPosition(mode: "replace" | "secondary" | "candidate") {
   const setlist = activeSetlistStore.setlist
   if (!setlist) return
+  if (selectedSheet.value === "!lyrics") return
+
+  const req: NewSetlistSheet = {
+    type: "5:candidate",
+    song_sheet_id: selected.value,
+  }
+
+  const exSheet = existingSongSetlistSheet.value
+  if (exSheet) {
+    if (mode === "replace") {
+      req.setlist_position_id = exSheet.setlist_position_id
+      req.type = exSheet.type
+    } else if (mode === "secondary") {
+      req.setlist_position_id = exSheet.setlist_position_id
+      req.type = exSheet.setlist_position_id ? "2:secondary" : "5:candidate"
+    }
+  }
 
   await useToaster(
     async () => {
-      if (selectedSheet.value === "!lyrics") return
+      await api.setlists.newSetlistSheet(setlist.id, req)
 
-      await api.setlists.newSetlistSheet(setlist.id, {
-        type: "5:candidate",
-        song_sheet_id: selected.value,
-      })
+      if (mode === "replace" && exSheet) {
+        await api.setlists.deleteSetlistSheet(setlist.id, exSheet.id)
+      }
 
       await setlistSheetlistStore.refresh({ setlistId: setlist.id })
     },
-    { status: addCandidateStatus },
+    { status: addSetlistStatus },
   )
 }
 
