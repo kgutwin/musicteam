@@ -4,6 +4,7 @@ from chalice.app import Chalice
 from chalicelib import _deployed_at
 from chalicelib import _version
 from chalicelib import middleware
+from chalicelib import semantic
 from chalicelib.blueprints import auth
 from chalicelib.blueprints import comments
 from chalicelib.blueprints import history
@@ -43,8 +44,13 @@ def ping() -> NoContent:
     return NoContent()
 
 
-# Semantic similarity encoder
 @app.lambda_function()
 def semantic_similarity_encoder(event: dict[str, Any], context: Any) -> None:
-    print(event)
-    pass
+    if "song_version_id" in event:
+        semantic.compute_lyrics_vector(event["song_version_id"])
+    else:
+        for song_version_id in semantic.get_missing_lyrics_vectors():
+            semantic.compute_lyrics_vector(song_version_id)
+            if context.get_remaining_time_in_millis() < 2000:
+                print("Not enough time left...")
+                break

@@ -5,7 +5,9 @@ import pytest
 from psycopg.errors import UndefinedTable
 
 
-def test_upgrade_db(db, tmp_path, snapshot):
+def test_upgrade_db(monkeypatch, db, tmp_path, snapshot):
+    monkeypatch.setattr(db, "INSTANCE_DIR", str(tmp_path))
+
     with db.connect() as conn:
         with pytest.raises(UndefinedTable):
             conn.execute("SELECT * FROM _version")

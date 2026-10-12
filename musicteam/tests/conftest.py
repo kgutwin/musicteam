@@ -14,7 +14,7 @@ from syrupy.extensions.single_file import SingleFileSnapshotExtension
 @pytest.fixture
 def db(monkeypatch, tmp_path):
     monkeypatch.setattr(app_db, "PGLITE_MANAGER", None)
-    monkeypatch.setattr(app_db, "INSTANCE_DIR", str(tmp_path))
+    monkeypatch.setattr(app_db, "INSTANCE_DIR", None)
     yield app_db
 
     app_db.PGLITE_MANAGER.stop()

@@ -1,6 +1,7 @@
 import atexit
 import contextlib
 import json
+import logging
 import os.path
 import random
 import re
@@ -23,6 +24,8 @@ from chalicelib.config import AURORA_CLUSTER_ARN
 from chalicelib.config import AURORA_SECRET_ARN
 from chalicelib.config import INSTANCE_DIR
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 ###
 ### increment this whenever a new db schema update is added
@@ -270,19 +273,23 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
             atexit.register(PGLITE_MANAGER.stop)
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
-    last_exception: Exception
-    for i in (0, 1, 2):
-        try:
-            with cast(
-                aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)
-            ) as conn:
-                yield Interface(conn, transaction)
-                return
-        except psycopg.OperationalError as ex:
-            last_exception = ex
-            time.sleep(0.5)
-    else:
-        raise last_exception
+    try:
+        with cast(
+            aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)
+        ) as conn:
+            yield Interface(conn, transaction)
+            return
+    except psycopg.InternalError as ex:
+        # Ignoring psycopg InternalErrors that are coming from bad
+        # behavior by pglite. The best reference I have is this:
+        # https://github.com/psycopg/psycopg/pull/1344 The linked
+        # issue 1337 triggers a similar "no results from ROLLBACK
+        # command" condition; this was identified as a probable pglite
+        # bug. The actual error condition from the database ought to
+        # have already been handled upstream, but we will warn on this
+        # exception anyway.
+        logger.warning(f"ignoring psycopg InternalError, probable pglite bug: {ex}")
+        return
 
 
 class VersionRow(BaseModel):
@@ -328,11 +335,6 @@ def ping() -> bool:
     check_upgrade = False
     with connect() as conn:
         try:
-            # without this, the next query causes a psycopg InternalError because
-            # the COMMIT returns 0 results
-            if isinstance(conn.conn, psycopg.Connection):
-                conn.conn.autocommit = True
-
             result = conn.execute(
                 "SELECT 1 FROM _version WHERE pk = 'db_version' AND ver = :ver",
                 {"ver": DB_VERSION},
