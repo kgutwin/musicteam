@@ -1,41 +1,42 @@
 from chalice.app import Blueprint
 from chalicelib import db
-from chalicelib.middleware import session_role
-from chalicelib.middleware import session_user
+from chalicelib.middleware import session_role, session_user
 from chalicelib.storage import get_download
-from chalicelib.types import _Object
-from chalicelib.types import _SearchSongRow
-from chalicelib.types import BadRequest
-from chalicelib.types import Download
-from chalicelib.types import Forbidden
-from chalicelib.types import Found
-from chalicelib.types import ListSongParams
-from chalicelib.types import NewSong
-from chalicelib.types import NewSongMedia
-from chalicelib.types import NewSongSheet
-from chalicelib.types import NewSongVersion
-from chalicelib.types import NoContent
-from chalicelib.types import NotFound
-from chalicelib.types import PartialDownload
-from chalicelib.types import SearchSongList
-from chalicelib.types import SearchSongParams
-from chalicelib.types import Song
-from chalicelib.types import SongList
-from chalicelib.types import SongMedia
-from chalicelib.types import SongMediaList
-from chalicelib.types import SongRevision
-from chalicelib.types import SongRevisionList
-from chalicelib.types import SongRevisionSong
-from chalicelib.types import SongRevisionSongSheet
-from chalicelib.types import SongRevisionSongVersion
-from chalicelib.types import SongSheet
-from chalicelib.types import SongSheetList
-from chalicelib.types import SongVersion
-from chalicelib.types import SongVersionList
-from chalicelib.types import UpdateSong
-from chalicelib.types import UpdateSongMedia
-from chalicelib.types import UpdateSongSheet
-from chalicelib.types import UpdateSongVersion
+from chalicelib.types import (
+    BadRequest,
+    Download,
+    Forbidden,
+    Found,
+    ListSongParams,
+    NewSong,
+    NewSongMedia,
+    NewSongSheet,
+    NewSongVersion,
+    NoContent,
+    NotFound,
+    PartialDownload,
+    SearchSongList,
+    SearchSongParams,
+    Song,
+    SongList,
+    SongMedia,
+    SongMediaList,
+    SongRevision,
+    SongRevisionList,
+    SongRevisionSong,
+    SongRevisionSongSheet,
+    SongRevisionSongVersion,
+    SongSheet,
+    SongSheetList,
+    SongVersion,
+    SongVersionList,
+    UpdateSong,
+    UpdateSongMedia,
+    UpdateSongSheet,
+    UpdateSongVersion,
+    _Object,
+    _SearchSongRow,
+)
 
 bp = Blueprint(__name__)
 
