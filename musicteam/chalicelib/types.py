@@ -1,19 +1,11 @@
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
-from typing import Annotated
-from typing import Any
-from typing import Literal
-from typing import Self
+from datetime import UTC, date, datetime, timedelta
+from typing import Annotated, Any, Literal, Self
 
 import jwt
-from chalice.app import HeadersType
-from chalice.app import Response
+from chalice.app import HeadersType, Response
+from pydantic import BaseModel, Field, field_validator
+
 from chalicelib.config import SITE_SECRET
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import field_validator
 
 
 class _ReplacementModel(BaseModel):
@@ -80,8 +72,8 @@ class User(BaseModel):
     def to_token(self) -> str:
         return jwt.encode(
             {
-                "nbf": datetime.now(tz=timezone.utc),
-                "exp": datetime.now(tz=timezone.utc) + timedelta(days=14),
+                "nbf": datetime.now(tz=UTC),
+                "exp": datetime.now(tz=UTC) + timedelta(days=14),
             }
             | self.model_dump(),
             SITE_SECRET,

@@ -6,9 +6,8 @@ from psycopg.errors import UndefinedTable
 
 
 def test_upgrade_db(db, tmp_path, snapshot):
-    with db.connect() as conn:
-        with pytest.raises(UndefinedTable):
-            conn.execute("SELECT * FROM _version")
+    with db.connect() as conn, pytest.raises(UndefinedTable):
+        conn.execute("SELECT * FROM _version")
 
     db.upgrade_db()
 
