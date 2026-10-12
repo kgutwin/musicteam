@@ -32,7 +32,11 @@ class PGliteManager:
         "uuid_ossp": {
             "module": "@electric-sql/pglite/contrib/uuid_ossp",
             "name": "uuid_ossp",
-        }
+        },
+        "vector": {
+            "module": "@electric-sql/pglite-pgvector",
+            "name": "vector",
+        },
     }
 
     def __init__(self, work_dir: str | Path | None = None):
@@ -77,8 +81,9 @@ class PGliteManager:
                 "description": "PGlite test environment for py-pglite",
                 "scripts": {"start": "node pglite_manager.js"},
                 "dependencies": {
-                    "@electric-sql/pglite": "^0.3.15",
-                    "@electric-sql/pglite-socket": "^0.0.20",
+                    "@electric-sql/pglite": "0.5.8",
+                    "@electric-sql/pglite-socket": "0.2.11",
+                    "@electric-sql/pglite-pgvector": "0.0.9",
                 },
             }
             with open(package_json, "w") as f:
@@ -319,12 +324,16 @@ class PGliteManager:
 
                     # Test basic connectivity to ensure it's really ready
                     try:
-                        import socket
+                        # It appears that this is currently causing
+                        # pglite to freak out and randomly drop the
+                        # next connection to the socket
 
-                        test_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                        test_socket.settimeout(1)
-                        test_socket.connect(str(self.socket_path))
-                        test_socket.close()
+                        # import socket
+                        #
+                        # test_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                        # test_socket.settimeout(1)
+                        # test_socket.connect(str(self.socket_path))
+                        # test_socket.close()
                         self.logger.info("PGlite server started successfully")
                         break
                     except (ImportError, OSError):

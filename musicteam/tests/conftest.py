@@ -17,9 +17,12 @@ def db(monkeypatch, tmp_path):
     monkeypatch.setattr(app_db, "INSTANCE_DIR", str(tmp_path))
     yield app_db
 
+    app_db.PGLITE_MANAGER.stop()
+
 
 @pytest.fixture
-def client(monkeypatch, db):
+def client(monkeypatch, db, caplog):
+    caplog.set_level(0)
     token = User(
         id="u:41c95da1-7eaf-4d0f-8669-6df165204d6c",
         name="Pytest",

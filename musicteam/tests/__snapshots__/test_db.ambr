@@ -5,8 +5,9 @@
   -- PostgreSQL database dump
   --
   
-  -- Dumped from database version 17.5
-  -- Dumped by pg_dump version 17.5
+  
+  -- Dumped from database version 18.3
+  -- Dumped by pg_dump version 18.3
   
   SET statement_timeout = 0;
   SET lock_timeout = 0;
@@ -32,6 +33,20 @@
   --
   
   COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+  
+  
+  --
+  -- Name: vector; Type: EXTENSION; Schema: -; Owner: -
+  --
+  
+  CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+  
+  
+  --
+  -- Name: EXTENSION vector; Type: COMMENT; Schema: -; Owner: -
+  --
+  
+  COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access methods';
   
   
   --
@@ -286,7 +301,8 @@
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
       creator_id text NOT NULL,
       lyrics_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english'::regconfig, COALESCE(lyrics, ''::text))) STORED,
-      last_modified timestamp without time zone DEFAULT LOCALTIMESTAMP(4)
+      last_modified timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      lyrics_embedding public.vector(384)
   );
   
   
@@ -471,7 +487,7 @@
   -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
   --
   
-  INSERT INTO public._version VALUES ('db_version', 8);
+  INSERT INTO public._version VALUES ('db_version', 9);
   
   
   --
@@ -868,6 +884,7 @@
   --
   -- PostgreSQL database dump complete
   --
+  
   
   
   

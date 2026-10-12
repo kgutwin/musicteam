@@ -1,3 +1,5 @@
+from typing import Any
+
 from chalice.app import Chalice
 from chalicelib import _deployed_at
 from chalicelib import _version
@@ -39,3 +41,10 @@ def index() -> IndexResponse:
 def ping() -> NoContent:
     """Wake the backend database"""
     return NoContent()
+
+
+# Semantic similarity encoder
+@app.lambda_function()
+def semantic_similarity_encoder(event: dict[str, Any], context: Any) -> None:
+    print(event)
+    pass

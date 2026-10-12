@@ -1,3 +1,4 @@
+import atexit
 import contextlib
 import json
 import os.path
@@ -25,7 +26,7 @@ from pydantic import BaseModel
 
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 8
+DB_VERSION = 9
 
 DatabaseResumingException = boto3.client(
     "rds-data"
@@ -266,10 +267,22 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
         if PGLITE_MANAGER is None:
             PGLITE_MANAGER = PGliteManager(INSTANCE_DIR)
             PGLITE_MANAGER.start()
+            atexit.register(PGLITE_MANAGER.stop)
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
-    with cast(aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)) as conn:
-        yield Interface(conn, transaction)
+    last_exception: Exception
+    for i in (0, 1, 2):
+        try:
+            with cast(
+                aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)
+            ) as conn:
+                yield Interface(conn, transaction)
+                return
+        except psycopg.OperationalError as ex:
+            last_exception = ex
+            time.sleep(0.5)
+    else:
+        raise last_exception
 
 
 class VersionRow(BaseModel):
@@ -315,6 +328,11 @@ def ping() -> bool:
     check_upgrade = False
     with connect() as conn:
         try:
+            # without this, the next query causes a psycopg InternalError because
+            # the COMMIT returns 0 results
+            if isinstance(conn.conn, psycopg.Connection):
+                conn.conn.autocommit = True
+
             result = conn.execute(
                 "SELECT 1 FROM _version WHERE pk = 'db_version' AND ver = :ver",
                 {"ver": DB_VERSION},
