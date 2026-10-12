@@ -1,11 +1,16 @@
 import os
 import subprocess
+import tempfile
+from pathlib import Path
 
 import pytest
 from psycopg.errors import UndefinedTable
 
 
-def test_upgrade_db(monkeypatch, db, tmp_path, snapshot):
+def test_upgrade_db(monkeypatch, db, snapshot):
+    # for some reason the temp dir made by the tmp_path fixture
+    # doesn't work for the pglite socket
+    tmp_path = Path(tempfile.mkdtemp(prefix="pglite-dump-"))
     monkeypatch.setattr(db, "INSTANCE_DIR", str(tmp_path))
 
     with db.connect() as conn:

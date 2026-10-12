@@ -34,19 +34,51 @@
     <template #similar-head>
       <label>Similar Songs</label>
     </template>
-    <template #similar> Coming soon... </template>
+    <template #similar>
+      <div class="similar-bin">
+        <div
+          v-for="songVersion in similar?.song_versions ?? []"
+          :key="songVersion.id"
+          class="similar-card"
+        >
+          <NuxtLink :to="`/songs/${songVersion.song_id}?version=${songVersion.id}`">
+            <div class="flex flex-row items-baseline">
+              <h2 class="grow">
+                {{ songs.get({ songId: songVersion.song_id }).data.value?.title }}
+              </h2>
+              <h3>{{ songVersion.label }}</h3>
+            </div>
+          </NuxtLink>
+          <div class="whitespace-pre overflow-x-hidden overflow-y-auto max-h-72">
+            {{ songVersion.lyrics }}
+          </div>
+        </div>
+      </div>
+    </template>
   </MtCollapsingTabPanel>
 </template>
 
 <script setup lang="ts">
 import { useSetlistSheetStore } from "@/stores/setlists"
 import { useSongHistorySetlistsStore } from "@/stores/history"
+import { useSongStore, useSongVersionSimilarlistStore } from "@/stores/songs"
 import { localdate } from "@/utils"
 
-const props = defineProps<{ id: string }>()
+const props = defineProps<{
+  id: string
+  versionId: string
+}>()
 
+const songs = useSongStore()
 const ss = useSetlistSheetStore()
 const historySetlists = useSongHistorySetlistsStore().get({ songId: props.id }).data
+const similar = computed(
+  () =>
+    useSongVersionSimilarlistStore().get({
+      songId: props.id,
+      versionId: props.versionId,
+    }).data.value,
+)
 
 function setlistSheets(setlistId: string, sheetIds: string[]) {
   const rv = []

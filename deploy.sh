@@ -68,6 +68,9 @@ unzip $TMPD/pymupdf*.whl
 popd
 rm -rf $TMPD
 
+# get the semantic search model
+python -m chalicelib.semantic fetch
+
 chalice package \
         --template-format yaml \
         --merge-template ../cfn.yaml \

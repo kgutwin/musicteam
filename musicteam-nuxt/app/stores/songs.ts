@@ -29,6 +29,14 @@ export const useSongVersionStore = defineStore(
   ),
 )
 
+export const useSongVersionSimilarlistStore = defineStore(
+  "songversionsimilarlist",
+  createParamStoreState(
+    async (params: { songId: string; versionId: string }) =>
+      await api.songs.listSongVersionsSimilar(params.songId, params.versionId),
+  ),
+)
+
 export const useSongSheetlistStore = defineStore(
   "songsheetlist",
   createParamStoreState(

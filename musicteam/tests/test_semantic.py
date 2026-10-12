@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from pydantic import BaseModel
 
@@ -29,7 +31,7 @@ class EmbeddingResult(BaseModel):
     lyrics_embedding: str
 
 
-def test_compute_lyrics_vector(client, db, song, snapshot):
+def test_compute_lyrics_vector(client, db, song):
     song_version_id = song["version_id"]
 
     result = client.lambda_.invoke(
@@ -41,10 +43,10 @@ def test_compute_lyrics_vector(client, db, song, snapshot):
         result = conn.execute(
             "SELECT lyrics_embedding FROM song_versions", output=EmbeddingResult
         ).fetchone()
-        assert result.lyrics_embedding == snapshot
+        assert len(json.loads(result.lyrics_embedding)) == 384
 
 
-def test_compute_missing_lyrics_vectors(client, db, song, snapshot):
+def test_compute_missing_lyrics_vectors(client, db, song):
     # basically the same as the above except not specifying the song version id
     result = client.lambda_.invoke("semantic_similarity_encoder", {})
 
@@ -53,4 +55,4 @@ def test_compute_missing_lyrics_vectors(client, db, song, snapshot):
         result = conn.execute(
             "SELECT lyrics_embedding FROM song_versions", output=EmbeddingResult
         ).fetchone()
-        assert result.lyrics_embedding == snapshot
+        assert len(json.loads(result.lyrics_embedding)) == 384

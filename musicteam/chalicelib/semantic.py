@@ -1,11 +1,15 @@
+import json
 import logging
+import os
+import subprocess
+import sys
+from pathlib import Path
 from typing import Any
 from typing import Iterator
 from typing import TYPE_CHECKING
 
+from chalicelib import db
 from pydantic import BaseModel
-
-from . import db
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
@@ -16,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 MODEL_NAME = "LoveJesus/biblical-topical-search-chirho"
+MODEL_FILE_NAME = MODEL_NAME.replace("/", "--")
 MODEL: SentenceTransformer | None = None
 
 
@@ -24,7 +29,17 @@ def _load_model() -> SentenceTransformer:
     if MODEL is None:
         from sentence_transformers import SentenceTransformer
 
-        MODEL = SentenceTransformer(MODEL_NAME)
+        # look in the lambda layer location
+        lambda_loc = (
+            Path("/opt/python/lib")
+            / f"python{sys.version_info[0]}.{sys.version_info[1]}"
+            / "site-packages"
+            / MODEL_FILE_NAME
+        )
+        if lambda_loc.exists():
+            MODEL = SentenceTransformer(str(lambda_loc), local_files_only=True)
+        else:
+            MODEL = SentenceTransformer(MODEL_NAME)
 
     return MODEL
 
@@ -73,6 +88,37 @@ def get_missing_lyrics_vectors() -> Iterator[str]:
             break
         else:
             yield result.id
+
+
+def invoke(event: dict[str, str]) -> None:
+    """Invoke the Lambda function, whether deployed or local testing."""
+    lambda_arn = os.environ.get("LAMBDA_ARN_SEMANTIC_SIMILARITY_ENCODER")
+    if lambda_arn:
+        raise NotImplementedError()
+
+    else:
+        subprocess.Popen(
+            [
+                "python",
+                "-m",
+                "app",
+                "invoke-lambda",
+                "semantic_similarity_encoder",
+                json.dumps(event),
+            ]
+        )
+
+
+def reindex_song_lyrics(song_version_id: str) -> None:
+    return invoke({"compute_lyrics_vector": song_version_id})
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "fetch":
+        print("Loading", MODEL_NAME, "...")
+        model = _load_model()
+        print("Saving to", MODEL_FILE_NAME, "...")
+        model.save(f"vendor/{MODEL_FILE_NAME}")
 
 
 # notes:

@@ -89,7 +89,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id012
+              schema: &id013
                 $ref: '#/components/schemas/User'
         '204':
           $ref: '#/components/responses/NoContent'
@@ -1263,7 +1263,7 @@ paths:
         '200':
           content:
             application/json:
-              schema:
+              schema: &id012
                 $ref: '#/components/schemas/SongVersionList'
       tags:
       - Songs
@@ -1708,6 +1708,34 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/versions/{version_id}/similar:
+    get:
+      operationId: songs.list_song_versions_similar
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: *id012
+      tags:
+      - Songs
+      summary: List song versions similar to the given version
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
   /users:
     get:
       operationId: users.list_users
@@ -1740,7 +1768,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id012
+              schema: *id013
       tags:
       - Users
     put:

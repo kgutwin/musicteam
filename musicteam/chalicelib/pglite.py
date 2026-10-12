@@ -38,11 +38,14 @@ class PGliteManager:
         """Initialize PGlite manager."""
 
         if isinstance(work_dir, str):
-            work_dir = Path(work_dir)
+            work_dir = Path(work_dir).resolve()
 
         self.process: subprocess.Popen[str] | None = None
-        self.socket_path = self._get_secure_socket_path()
         self.work_dir = self._setup_work_dir(work_dir)
+        if work_dir:
+            self.socket_path = self._get_work_dir_socket()
+        else:
+            self.socket_path = self._get_secure_socket_path()
 
         # Set up logging
         self.logger = logging.getLogger(__name__)
@@ -100,10 +103,20 @@ class PGliteManager:
         work_dir.mkdir(parents=True, exist_ok=True)
         return work_dir
 
+    def _get_work_dir_socket(self) -> Path:
+        assert isinstance(self.work_dir, Path)
+        return self.work_dir / ".s.PGSQL.5432"
+
     def start(self) -> None:
         """Start the PGlite server."""
         if self.process is not None:
             self.logger.warning("PGlite process already running")
+            return
+
+        if self.socket_path.exists():
+            self.logger.warning(
+                "Found existing socket -- PGlite may already be running"
+            )
             return
 
         # Install dependencies
@@ -225,9 +238,6 @@ class PGliteManager:
         Raises:
             RuntimeError: If PGlite server is not running
         """
-        if not self.is_running():
-            raise RuntimeError("PGlite server is not running. Call start() first.")
-
         socket_dir = self.socket_path.parent
 
         return f"postgresql+psycopg://postgres:postgres@/postgres?host={socket_dir}"
@@ -238,9 +248,6 @@ class PGliteManager:
         Returns:
             PostgreSQL DSN string
         """
-        if not self.is_running():
-            raise RuntimeError("PGlite server is not running. Call start() first.")
-
         socket_dir = self.socket_path.parent
 
         return f"host={socket_dir} dbname=postgres user=postgres password=postgres"
@@ -254,9 +261,6 @@ class PGliteManager:
         Raises:
             RuntimeError: If PGlite server is not running
         """
-        if not self.is_running():
-            raise RuntimeError("PGlite server is not running. Call start() first.")
-
         socket_dir = self.socket_path.parent
 
         return f"postgresql://postgres:postgres@/postgres?host={socket_dir}"

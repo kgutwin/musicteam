@@ -54,3 +54,20 @@ def semantic_similarity_encoder(event: dict[str, Any], context: Any) -> None:
             if context.get_remaining_time_in_millis() < 2000:
                 print("Not enough time left...")
                 break
+
+
+if __name__ == "__main__":
+    import sys
+    import json
+
+    if sys.argv[1] == "invoke-lambda":
+        func = locals()[sys.argv[2]]
+        event = json.loads(sys.argv[3])
+
+        class MockLambdaContext:
+            def get_remaining_time_in_millis(self) -> int:
+                return 5000
+
+        result = func(event, MockLambdaContext())
+
+        print(json.dumps(result))
