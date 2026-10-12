@@ -5,6 +5,8 @@ from chalicelib.types import _SparkLineHistoryRow
 from chalicelib.types import Forbidden
 from chalicelib.types import NotFound
 from chalicelib.types import SongHistory
+from chalicelib.types import SongHistorySetlist
+from chalicelib.types import SongHistorySetlists
 from chalicelib.types import SparkLineHistory
 from chalicelib.types import SparkLineHistoryPoint
 from chalicelib.types import TopSong
@@ -41,6 +43,40 @@ def get_song_history(song_id: str) -> Forbidden | NotFound | SongHistory:
             output=SongHistory,
         ).fetchone()
         return row if row is not None else NotFound()
+
+
+@bp.route("/history/song/{song_id}/setlists", methods=["GET"])
+def get_song_history_setlists(
+    song_id: str,
+) -> Forbidden | SongHistorySetlists:
+    """Get historical setlists that included this song"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  song_history.setlist_id AS id,"
+            "  first(setlists.leader_name) AS leader_name,"
+            "  song_history.setlist_service_date AS service_date,"
+            "  array_agg("
+            "    setlist_sheets.id ORDER BY setlist_positions.index ASC"
+            "  ) AS sheet_ids "
+            "FROM song_history "
+            "INNER JOIN setlists ON song_history.setlist_id = setlists.id "
+            "INNER JOIN setlist_positions"
+            "   ON song_history.setlist_id = setlist_positions.setlist_id "
+            "INNER JOIN setlist_sheets"
+            "   ON setlist_positions.id = setlist_sheets.setlist_position_id "
+            "WHERE song_history.song_id = :song_id"
+            "  AND setlist_sheets.type = :sheet_type "
+            "GROUP BY song_history.setlist_id,"
+            "  song_history.setlist_service_date "
+            "ORDER BY song_history.setlist_service_date DESC",
+            {"song_id": song_id, "sheet_type": "1:primary"},
+            output=SongHistorySetlist,
+        )
+        return SongHistorySetlists(setlists=curs.fetchall())
 
 
 @bp.route("/history/sparkline", methods=["GET"])

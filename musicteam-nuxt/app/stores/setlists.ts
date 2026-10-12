@@ -32,6 +32,14 @@ export const useSetlistPositionlistStore = defineStore(
   ),
 )
 
+export const useSetlistSheetStore = defineStore(
+  "setlistsheet",
+  createParamStoreState(
+    async (params: { setlistId: string; sheetId: string }) =>
+      await api.setlists.getSetlistSheet(params.setlistId, params.sheetId),
+  ),
+)
+
 export const useSetlistSheetlistStore = defineStore(
   "setlistsheetlist",
   createParamStoreState(

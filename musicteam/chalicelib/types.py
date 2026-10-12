@@ -503,6 +503,17 @@ class SongHistory(BaseModel):
     num_played_past_year: int
 
 
+class SongHistorySetlist(BaseModel):
+    id: str
+    leader_name: str
+    service_date: date | None
+    sheet_ids: list[str]
+
+
+class SongHistorySetlists(BaseModel):
+    setlists: list[SongHistorySetlist]
+
+
 class SparkLineHistoryPoint(BaseModel):
     mo_yr: date
     count: int

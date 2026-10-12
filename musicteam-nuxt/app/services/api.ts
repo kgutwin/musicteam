@@ -532,6 +532,24 @@ export interface SongHistory {
   num_played_past_year: number;
 }
 
+/** SongHistorySetlist */
+export interface SongHistorySetlist {
+  /** Id */
+  id: string;
+  /** Leader Name */
+  leader_name: string;
+  /** Service Date */
+  service_date: string | null;
+  /** Sheet Ids */
+  sheet_ids: string[];
+}
+
+/** SongHistorySetlists */
+export interface SongHistorySetlists {
+  /** Setlists */
+  setlists: SongHistorySetlist[];
+}
+
 /** SongList */
 export interface SongList {
   /** Songs */
@@ -1664,6 +1682,24 @@ export class Api<
     getSongHistory: (songId: string, params: RequestParams = {}) =>
       this.request<SongHistory, ServerError>({
         path: `/history/song/${songId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags History
+     * @name GetSongHistorySetlists
+     * @summary Get historical setlists that included this song
+     * @request GET:/history/song/{song_id}/setlists
+     * @secure
+     */
+    getSongHistorySetlists: (songId: string, params: RequestParams = {}) =>
+      this.request<SongHistorySetlists, ServerError>({
+        path: `/history/song/${songId}/setlists`,
         method: "GET",
         secure: true,
         format: "json",

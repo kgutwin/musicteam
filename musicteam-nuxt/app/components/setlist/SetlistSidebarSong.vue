@@ -1,7 +1,11 @@
 <template>
   <div class="sidebar-song" data-cy="sidebar-song">
     <div>
-      <button @click="rotateType" :title="sheet.type.slice(2)" data-cy="state">
+      <button
+        @click="() => readOnly || rotateType()"
+        :title="sheet.type.slice(2)"
+        data-cy="state"
+      >
         <Icon :name="typeIcon[sheet.type]" />
       </button>
     </div>
@@ -16,7 +20,7 @@
         <MtText is="span" loading="w-24 sm:w-48" :text="song?.title" />
       </NuxtLink>
     </div>
-    <MtDropdown>
+    <MtDropdown v-if="!readOnly">
       <div class="italic">Move to ...</div>
       <button
         v-for="position in songPositions"
@@ -80,6 +84,7 @@ const props = defineProps<{
   draggable?: boolean
   sheet: SetlistSheet
   currentPositionId?: string
+  readOnly?: boolean
 }>()
 
 type SetlistSheetType = SetlistSheet["type"]

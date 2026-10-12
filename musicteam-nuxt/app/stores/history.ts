@@ -9,6 +9,14 @@ export const useSongHistoryStore = defineStore(
   ),
 )
 
+export const useSongHistorySetlistsStore = defineStore(
+  "songhistorysetlists",
+  createParamStoreState(
+    async (params: { songId: string }) =>
+      await api.history.getSongHistorySetlists(params.songId),
+  ),
+)
+
 export const useHistorySparklineStore = defineStore(
   "historysparkline",
   createStoreState(async () => await api.history.getHistorySparkline()),

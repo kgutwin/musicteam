@@ -229,6 +229,30 @@ paths:
       required: true
       schema:
         type: string
+  /history/song/{song_id}/setlists:
+    get:
+      operationId: history.get_song_history_setlists
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SongHistorySetlists'
+      tags:
+      - History
+      summary: Get historical setlists that included this song
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
   /history/sparkline:
     get:
       operationId: history.get_history_sparkline
@@ -2587,6 +2611,43 @@ components:
       - num_played
       - num_played_past_year
       title: SongHistory
+      type: object
+    SongHistorySetlist:
+      properties:
+        id:
+          title: Id
+          type: string
+        leader_name:
+          title: Leader Name
+          type: string
+        service_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Service Date
+        sheet_ids:
+          items:
+            type: string
+          title: Sheet Ids
+          type: array
+      required:
+      - id
+      - leader_name
+      - service_date
+      - sheet_ids
+      title: SongHistorySetlist
+      type: object
+    SongHistorySetlists:
+      properties:
+        setlists:
+          items:
+            $ref: '#/components/schemas/SongHistorySetlist'
+          title: Setlists
+          type: array
+      required:
+      - setlists
+      title: SongHistorySetlists
       type: object
     SongList:
       properties:
