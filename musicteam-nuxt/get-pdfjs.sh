@@ -1,5 +1,6 @@
 #!/bin/sh
 
+mkdir -p public
 cd public
 curl -L -o pdfjs-5.zip \
      https://github.com/mozilla/pdf.js/releases/download/v5.4.530/pdfjs-5.4.530-legacy-dist.zip

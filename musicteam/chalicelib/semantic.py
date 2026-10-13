@@ -94,8 +94,6 @@ def get_missing_lyrics_vectors() -> Iterator[str]:
 def invoke(event: dict[str, str]) -> None:
     """Invoke the Lambda function, whether deployed or local testing."""
 
-    return  # out of curiosity, does this help?
-
     lambda_arn = os.environ.get("LAMBDA_ARN_SEMANTIC_SIMILARITY_ENCODER")
     if lambda_arn:
         client.invoke(
