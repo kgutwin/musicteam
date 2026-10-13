@@ -81,7 +81,7 @@ class PGliteManager:
             "name": "py-pglite-env",
             "version": "1.0.0",
             "description": "PGlite test environment for py-pglite",
-            "scripts": {"db": f"pglite-server -m 8 --extensions={extensions}"},
+            "scripts": {"db": f"pglite-server -m 16 --extensions={extensions}"},
             "dependencies": self.DEPENDENCIES,
         }
         with open(package_json, "w") as f:
