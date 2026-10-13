@@ -8,6 +8,7 @@ from typing import Any
 from typing import Iterator
 from typing import TYPE_CHECKING
 
+import boto3
 from chalicelib import db
 from pydantic import BaseModel
 
@@ -17,7 +18,7 @@ else:
     SentenceTransformer = Any
 
 logger = logging.getLogger(__name__)
-
+client = boto3.client("lambda")
 
 MODEL_NAME = "LoveJesus/biblical-topical-search-chirho"
 MODEL_FILE_NAME = MODEL_NAME.replace("/", "--")
@@ -92,9 +93,14 @@ def get_missing_lyrics_vectors() -> Iterator[str]:
 
 def invoke(event: dict[str, str]) -> None:
     """Invoke the Lambda function, whether deployed or local testing."""
+
     lambda_arn = os.environ.get("LAMBDA_ARN_SEMANTIC_SIMILARITY_ENCODER")
     if lambda_arn:
-        raise NotImplementedError()
+        client.invoke(
+            FunctionName=lambda_arn,
+            InvokationType="Event",
+            Payload=json.dumps(event).encode(),
+        )
 
     else:
         subprocess.Popen(
@@ -119,17 +125,3 @@ if __name__ == "__main__":
         model = _load_model()
         print("Saving to", MODEL_FILE_NAME, "...")
         model.save(f"vendor/{MODEL_FILE_NAME}")
-
-
-# notes:
-# - I don't think chalice local will help us run our pure lambda function.
-#   Therefore, I think instead we just need to have a function which:
-#   - if the right env var is set, invokes boto3 to call the real Lambda
-#   - otherwise, does a subprocess/fork so that we call self in such a way
-#     that the function runs with the right args but in the background
-#
-# - we still need to figure out how to pre-download the model and then make
-#   sure that when called from the function, it works fine
-#
-# - looks like Torch can't work inside an Alpine container, so our Dockerfile
-#   will need to switch to base python:3.13

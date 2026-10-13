@@ -9,12 +9,15 @@ RUN apt update \
         && apt autoremove -y \
         && apt autoclean -y
 
-COPY . /srv/musicteam
+COPY --parents ./requirements-dev.txt ./musicteam/requirements.txt /srv/musicteam/
 WORKDIR /srv/musicteam
 
 RUN pip install -r requirements-dev.txt -r musicteam/requirements.txt
 
+COPY --parents ./musicteam-nuxt/package.json ./musicteam-nuxt/get-pdfjs.sh /srv/musicteam/
 RUN cd musicteam-nuxt && npm install
+
+COPY . /srv/musicteam
 
 ENV AWS_DEFAULT_REGION=us-east-1
 

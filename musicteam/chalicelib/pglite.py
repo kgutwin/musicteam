@@ -43,9 +43,12 @@ class PGliteManager:
         self.process: subprocess.Popen[str] | None = None
         self.work_dir = self._setup_work_dir(work_dir)
         if work_dir:
-            self.socket_path = self._get_work_dir_socket()
+            assert isinstance(self.work_dir, Path)  # type narrowing
+            self.socket_path = None
+            self.ready_flag = self.work_dir / "server-ready"
         else:
             self.socket_path = self._get_secure_socket_path()
+            self.ready_flag = self.socket_path.parent / "server-ready"
 
         # Set up logging
         self.logger = logging.getLogger(__name__)
@@ -103,17 +106,13 @@ class PGliteManager:
         work_dir.mkdir(parents=True, exist_ok=True)
         return work_dir
 
-    def _get_work_dir_socket(self) -> Path:
-        assert isinstance(self.work_dir, Path)
-        return self.work_dir / ".s.PGSQL.5432"
-
     def start(self) -> None:
         """Start the PGlite server."""
         if self.process is not None:
             self.logger.warning("PGlite process already running")
             return
 
-        if self.socket_path.exists():
+        if (self.socket_path and self.socket_path.exists()) or self.ready_flag.exists():
             self.logger.warning(
                 "Found existing socket -- PGlite may already be running"
             )
@@ -122,7 +121,8 @@ class PGliteManager:
         # Install dependencies
         self.app_dir = self._install_pglite()
 
-        ready = self.socket_path.parent / "server-ready"
+        # Reset the ready flag
+        self.ready_flag.unlink(missing_ok=True)
 
         # Start PGlite process with limited output buffering
         self.logger.info("Starting PGlite server...")
@@ -133,9 +133,9 @@ class PGliteManager:
                 "db",
                 "--",
                 f"--db={self.work_dir}",
-                f"--path={self.socket_path}",
-                f"--run=touch {ready}",
-            ],
+                f"--run=touch {self.ready_flag}",
+            ]
+            + ([f"--path={self.socket_path}"] if self.socket_path else []),
             cwd=self.app_dir,
             text=True,
             preexec_fn=(
@@ -152,7 +152,7 @@ class PGliteManager:
                 raise RuntimeError("PGlite process died during startup")
 
             # Unix socket readiness check
-            if self.socket_path.exists() and ready.exists():
+            if self.ready_flag.exists():
                 self.logger.info("PGlite socket created, server should be ready...")
                 break
 
@@ -170,6 +170,8 @@ class PGliteManager:
         """Stop the PGlite server."""
         if self.process is None:
             return
+
+        self.ready_flag.unlink(missing_ok=True)
 
         try:
             # Send SIGTERM first for graceful shutdown
@@ -229,29 +231,6 @@ class PGliteManager:
             self.stop()
         self.start()
 
-    def get_connection_string(self) -> str:
-        """Get the database connection string for framework-agnostic usage.
-
-        Returns:
-            PostgreSQL connection string
-
-        Raises:
-            RuntimeError: If PGlite server is not running
-        """
-        socket_dir = self.socket_path.parent
-
-        return f"postgresql+psycopg://postgres:postgres@/postgres?host={socket_dir}"
-
-    def get_dsn(self) -> str:
-        """Get the database DSN string for framework-agnostic usage.
-
-        Returns:
-            PostgreSQL DSN string
-        """
-        socket_dir = self.socket_path.parent
-
-        return f"host={socket_dir} dbname=postgres user=postgres password=postgres"
-
     def get_psycopg_uri(self) -> str:
         """Get the database URI for psycopg usage.
 
@@ -261,6 +240,9 @@ class PGliteManager:
         Raises:
             RuntimeError: If PGlite server is not running
         """
-        socket_dir = self.socket_path.parent
+        if self.socket_path:
+            socket_dir = self.socket_path.parent
+            return f"postgresql://postgres:postgres@/postgres?host={socket_dir}"
 
-        return f"postgresql://postgres:postgres@/postgres?host={socket_dir}"
+        else:
+            return "postgresql://postgres:postgres@localhost:5432/postgres"

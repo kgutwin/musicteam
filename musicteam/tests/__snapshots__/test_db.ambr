@@ -727,7 +727,7 @@
   -- Name: song_versions revision_track_song_versions; Type: TRIGGER; Schema: public; Owner: -
   --
   
-  CREATE TRIGGER revision_track_song_versions BEFORE DELETE OR UPDATE ON public.song_versions FOR EACH ROW EXECUTE FUNCTION public.revision_track_song_versions();
+  CREATE TRIGGER revision_track_song_versions BEFORE DELETE OR UPDATE OF label, verse_order, lyrics, tags ON public.song_versions FOR EACH ROW EXECUTE FUNCTION public.revision_track_song_versions();
   
   
   --

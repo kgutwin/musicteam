@@ -4,3 +4,5 @@ instance/
 .env
 
 musicteam/vendor/
+
+musicteam-nuxt/cypress/screenshots/
