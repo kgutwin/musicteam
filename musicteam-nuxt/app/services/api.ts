@@ -3013,6 +3013,28 @@ export class Api<
         secure: true,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name ListSongVersionsSimilar
+     * @summary List song versions similar to the given version
+     * @request GET:/songs/{song_id}/versions/{version_id}/similar
+     * @secure
+     */
+    listSongVersionsSimilar: (
+      songId: string,
+      versionId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SongVersionList, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/similar`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   users = {
     /**

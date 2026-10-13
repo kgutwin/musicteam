@@ -6,6 +6,8 @@ deploy/
 instance/
 .env
 
+musicteam/vendor/
+
 musicteam-nuxt/.output
 musicteam-nuxt/.data
 musicteam-nuxt/.nuxt

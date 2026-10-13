@@ -1,5 +1,6 @@
 from chalice.app import Blueprint
 from chalicelib import db
+from chalicelib import semantic
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
 from chalicelib.storage import get_download
@@ -246,6 +247,8 @@ def new_song_version(
         song_version = curs.fetchone()
         assert song_version is not None
 
+    semantic.reindex_song_lyrics(song_version.id)
+
     return song_version
 
 
@@ -288,7 +291,13 @@ def update_song_version(
             {"version_id": version_id, "song_id": song_id}
             | request_body.replacement_params,
         )
-        return NoContent() if result else NotFound()
+
+    if result:
+        semantic.reindex_song_lyrics(version_id)
+        return NoContent()
+
+    else:
+        return NotFound()
 
 
 @bp.route("/songs/{song_id}/versions/{version_id}", methods=["DELETE"])
@@ -683,3 +692,36 @@ def search_songs(query_params: SearchSongParams) -> Forbidden | SearchSongList:
             output=_SearchSongRow,
         )
         return SearchSongList(hits=[row.hit for row in curs.fetchall()])
+
+
+@bp.route("/songs/{song_id}/versions/{version_id}/similar", methods=["GET"])
+def list_song_versions_similar(
+    song_id: str, version_id: str
+) -> Forbidden | SongVersionList:
+    """List song versions similar to the given version"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "WITH all_versions AS ("
+            "  SELECT first("
+            "    id"
+            "    ORDER BY lyrics_embedding <-> ("
+            "      SELECT lyrics_embedding FROM song_versions"
+            "      WHERE song_id = :song_id AND id = :version_id"
+            "    )"
+            "  ) AS id"
+            "  FROM song_versions"
+            "  WHERE song_id != :song_id"
+            "  GROUP BY song_id"
+            ") "
+            "SELECT song_versions.id, song_id, label, verse_order, lyrics, tags,"
+            "  created_on, creator_id "
+            "FROM song_versions "
+            "INNER JOIN all_versions ON song_versions.id = all_versions.id "
+            "LIMIT 20",
+            {"song_id": song_id, "version_id": version_id},
+            output=SongVersion,
+        )
+        return SongVersionList(song_versions=curs.fetchall())

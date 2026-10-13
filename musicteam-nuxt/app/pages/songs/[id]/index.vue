@@ -191,7 +191,12 @@
       @selected="(sheet) => (selectedSheet = sheet)"
     />
 
-    <SongSimilarPanel v-if="id" :id="id as string" class="mt-4" />
+    <SongSimilarPanel
+      v-if="id"
+      :id="id as string"
+      :version-id="selectedVersion ?? 'unknown'"
+      class="mt-4"
+    />
   </div>
 </template>
 

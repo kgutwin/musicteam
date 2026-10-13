@@ -275,3 +275,20 @@ Resources:
                 Resource:
                   - !GetAtt ObjectBucket.Arn
                   - !Sub "${ObjectBucket.Arn}/*"
+
+  # this is split off to avoid a dependency cycle -
+  # SemanticSimilarityEncoder uses DefaultRole
+  LambdaAccessRolePolicy:
+    Type: AWS::IAM::RolePolicy
+    Properties:
+      RoleName: !Ref DefaultRole
+      PolicyName: LambdaAccess
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: LambdaInvoke
+            Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              - !GetAtt SemanticSimilarityEncoder.Arn

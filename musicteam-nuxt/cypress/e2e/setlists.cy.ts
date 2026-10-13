@@ -224,7 +224,7 @@ describe("setlists", () => {
       cy.contains("Last").parents("tr").contains("Test Two")
     })
 
-    it.only("can replace a setlist sheet", () => {
+    it("can replace a setlist sheet", () => {
       cy.dataCy("sidebar-candidates").within(() => {
         cy.sidebarSong("Test One", () => {
           cy.dataCy("drop").click()

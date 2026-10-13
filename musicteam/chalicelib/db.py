@@ -1,5 +1,7 @@
+import atexit
 import contextlib
 import json
+import logging
 import os.path
 import random
 import re
@@ -23,9 +25,11 @@ from chalicelib.config import AURORA_SECRET_ARN
 from chalicelib.config import INSTANCE_DIR
 from pydantic import BaseModel
 
+logger = logging.getLogger(__name__)
+
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 8
+DB_VERSION = 9
 
 DatabaseResumingException = boto3.client(
     "rds-data"
@@ -266,10 +270,26 @@ def connect(transaction: bool = False) -> Iterator[Interface]:
         if PGLITE_MANAGER is None:
             PGLITE_MANAGER = PGliteManager(INSTANCE_DIR)
             PGLITE_MANAGER.start()
+            atexit.register(PGLITE_MANAGER.stop)
 
     connstr = PGLITE_MANAGER.get_psycopg_uri()
-    with cast(aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)) as conn:
-        yield Interface(conn, transaction)
+    try:
+        with cast(
+            aurora_data_api.AuroraDataAPIClient, psycopg.connect(connstr)
+        ) as conn:
+            yield Interface(conn, transaction)
+            return
+    except psycopg.InternalError as ex:
+        # Ignoring psycopg InternalErrors that are coming from bad
+        # behavior by pglite. The best reference I have is this:
+        # https://github.com/psycopg/psycopg/pull/1344 The linked
+        # issue 1337 triggers a similar "no results from ROLLBACK
+        # command" condition; this was identified as a probable pglite
+        # bug. The actual error condition from the database ought to
+        # have already been handled upstream, but we will warn on this
+        # exception anyway.
+        logger.warning(f"ignoring psycopg InternalError, probable pglite bug: {ex}")
+        return
 
 
 class VersionRow(BaseModel):

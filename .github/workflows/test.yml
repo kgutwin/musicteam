@@ -128,7 +128,7 @@ jobs:
         uses: cypress-io/github-action@v7
         with:
           working-directory: musicteam-nuxt
-          start: docker run -d --rm -p 3000:3000 -p 9000:9000 musicteam
+          start: docker run --rm -p 3000:3000 -p 9000:9000 musicteam
           wait-on: http://localhost:3000/api/
 
       - name: Record Cypress run if necessary
@@ -142,8 +142,8 @@ jobs:
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
-      - name: Save container as artifact
-        uses: ishworkh/container-image-artifact-upload@v2.0.0
-        with:
-          image: musicteam
-          retention_days: 7
+      # - name: Save container as artifact
+      #   uses: ishworkh/container-image-artifact-upload@v2.0.0
+      #   with:
+      #     image: musicteam
+      #     retention_days: 7

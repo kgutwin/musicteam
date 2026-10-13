@@ -498,4 +498,34 @@ describe("songs", () => {
       cy.contains("Test Attach").should("not.exist")
     })
   })
+
+  context("similarity", () => {
+    it("can look at similar songs", () => {
+      cy.prep("song")
+      cy.prep("songMultiVersion")
+
+      cy.get("@prep.song").then((id) => {
+        cy.visit(`/songs/${id}`)
+        cy.contains("Test Two").should("exist")
+      })
+
+      cy.contains("Similar Songs").scrollIntoView().click()
+      cy.exists(["Test One", "This has some basic lyrics"])
+    })
+
+    it("can find songs in set lists", () => {
+      cy.prep("setlistComplete")
+      cy.get("@prep.songA").then((id) => {
+        cy.visit(`/songs/${id}`)
+      })
+
+      cy.contains("Previous Set Lists").scrollIntoView().click()
+      cy.get(".similar-bin").within(() => {
+        cy.exists(["1/4/2026", "Song One", "Lead", "Song Two", "Chord"])
+        cy.contains("Song Two").click()
+      })
+
+      cy.exists(["654321", "Song Two"])
+    })
+  })
 })
