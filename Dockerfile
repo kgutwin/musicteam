@@ -9,12 +9,15 @@ RUN apt update \
         && apt autoremove -y \
         && apt autoclean -y
 
-COPY --parents ./requirements-dev.txt ./musicteam/requirements.txt /srv/musicteam/
+COPY ./requirements-dev.txt /srv/musicteam/
+COPY ./musicteam/requirements.txt /srv/musicteam/musicteam/
+
 WORKDIR /srv/musicteam
 
 RUN pip install -r requirements-dev.txt -r musicteam/requirements.txt
 
-COPY --parents ./musicteam-nuxt/package.json ./musicteam-nuxt/get-pdfjs.sh /srv/musicteam/
+COPY ./musicteam-nuxt/package.json ./musicteam-nuxt/get-pdfjs.sh /srv/musicteam/musicteam-nuxt/
+
 RUN cd musicteam-nuxt && npm install
 
 COPY . /srv/musicteam
