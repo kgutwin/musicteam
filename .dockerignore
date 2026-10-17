@@ -6,6 +6,7 @@ deploy/
 instance/
 .env
 
+musicteam/.chalice/deployments/
 musicteam/vendor/
 
 musicteam-nuxt/.output
