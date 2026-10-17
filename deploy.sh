@@ -44,7 +44,7 @@ if [[ -z $GIT_REVISION ]]; then
     exit 1
 fi
 
-if [[ -n $FORCE ]]; then
+if [[ -z $FORCE ]]; then
     CI_STATUS=$(gh run list --commit $GIT_REVISION \
                    --json status,conclusion,workflowName \
                    --jq '(.[] | select(.workflowName == "Test")) | .status, .conclusion')
@@ -107,8 +107,6 @@ chalice package \
         --merge-template ../cfn.yaml \
         ../deploy
 popd
-
-exit 1
 
 # Deploy
 
