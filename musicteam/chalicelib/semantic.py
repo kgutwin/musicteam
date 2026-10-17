@@ -98,7 +98,7 @@ def invoke(event: dict[str, str]) -> None:
     if lambda_arn:
         client.invoke(
             FunctionName=lambda_arn,
-            InvokationType="Event",
+            InvocationType="Event",
             Payload=json.dumps(event).encode(),
         )
 
