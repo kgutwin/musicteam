@@ -10,11 +10,11 @@ RUN apt update \
         && apt autoclean -y
 
 COPY ./requirements-dev.txt /srv/musicteam/
-COPY ./musicteam/requirements.txt /srv/musicteam/musicteam/
+COPY ./musicteam/requirements.txt ./musicteam/requirements-semantic.txt /srv/musicteam/musicteam/
 
 WORKDIR /srv/musicteam
 
-RUN pip install -r requirements-dev.txt -r musicteam/requirements.txt
+RUN pip install -r requirements-dev.txt -r musicteam/requirements.txt -r musicteam/requirements-semantic.txt
 
 COPY ./musicteam-nuxt/package.json ./musicteam-nuxt/get-pdfjs.sh /srv/musicteam/musicteam-nuxt/
 

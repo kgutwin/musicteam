@@ -19,6 +19,8 @@ Parameters:
     Type: String
   DeployedAt:
     Type: String
+  SemanticSimilarityEncoderRepo:
+    Type: String
 
 Resources:
   # Aurora PostgreSQL Database
@@ -221,6 +223,7 @@ Resources:
           OAUTH_CLIENT_SECRET: !Ref ClientSecret
           GIT_REVISION: !Ref GitRevision
           DEPLOYED_AT: !Ref DeployedAt
+          LAMBDA_ARN_SEMANTIC_SIMILARITY_ENCODER: !GetAtt SemanticSimilarityEncoder.Arn
 
   DefaultRole:
     Properties:
@@ -292,3 +295,19 @@ Resources:
               - lambda:InvokeFunction
             Resource:
               - !GetAtt SemanticSimilarityEncoder.Arn
+
+  SemanticSimilarityEncoder:
+    Type: AWS::Lambda::Function
+    Properties:
+      PackageType: Image
+      Role: !GetAtt DefaultRole.Arn
+      MemorySize: 1024
+      Timeout: 300
+      Code:
+        ImageUri: !Ref SemanticSimilarityEncoderRepo
+      Environment:
+        Variables:
+          AURORA_CLUSTER_ARN: !GetAtt BackendDatabaseCluster.DBClusterArn
+          AURORA_SECRET_ARN: !GetAtt BackendDatabaseCluster.MasterUserSecret.SecretArn
+          GIT_REVISION: !Ref GitRevision
+          DEPLOYED_AT: !Ref DeployedAt

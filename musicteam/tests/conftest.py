@@ -2,7 +2,9 @@ import re
 from io import BytesIO
 from json import dumps
 from typing import Any
+from unittest.mock import Mock
 
+import chalicelib.semantic
 import pytest
 from app import app
 from chalice.test import Client
@@ -42,6 +44,9 @@ def client(monkeypatch, db, caplog):
 
     # without this, the setlist lyric packet test fails
     monkeypatch.setattr(app.api, "binary_types", app.api.binary_types + ["text/plain"])
+
+    # don't invoke the semantic encoder
+    monkeypatch.setattr(chalicelib.semantic, "invoke", Mock())
 
     with Client(app) as client:
         # add a json kwarg to client request

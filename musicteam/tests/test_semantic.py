@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from chalicelib import semantic
 from pydantic import BaseModel
 
 
@@ -34,9 +35,7 @@ class EmbeddingResult(BaseModel):
 def test_compute_lyrics_vector(client, db, song):
     song_version_id = song["version_id"]
 
-    result = client.lambda_.invoke(
-        "semantic_similarity_encoder", {"song_version_id": song_version_id}
-    )
+    semantic.handler({"compute_lyrics_vector": song_version_id}, None)
 
     # check that the vector is in the database
     with db.connect() as conn:
@@ -48,7 +47,7 @@ def test_compute_lyrics_vector(client, db, song):
 
 def test_compute_missing_lyrics_vectors(client, db, song):
     # basically the same as the above except not specifying the song version id
-    result = client.lambda_.invoke("semantic_similarity_encoder", {})
+    semantic.handler({}, None)
 
     # check that the vector is in the database
     with db.connect() as conn:

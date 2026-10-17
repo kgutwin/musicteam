@@ -60,8 +60,10 @@ repos:
           - "requirements-dev.txt"
           - "-r"
           - "musicteam/requirements.txt"
+          - "-r"
+          - "musicteam/requirements-semantic.txt"
           - "--in-place"
-        files: "requirements-dev.txt|musicteam/requirements.txt"
+        files: "requirements-dev.txt|musicteam/requirements.txt|musicteam/requirements-semantic.txt"
 
   - repo: local
     hooks:

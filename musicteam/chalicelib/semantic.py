@@ -3,7 +3,6 @@ import logging
 import os
 import subprocess
 import sys
-from pathlib import Path
 from typing import Any
 from typing import Iterator
 from typing import TYPE_CHECKING
@@ -30,17 +29,7 @@ def _load_model() -> SentenceTransformer:
     if MODEL is None:
         from sentence_transformers import SentenceTransformer
 
-        # look in the lambda layer location
-        lambda_loc = (
-            Path("/opt/python/lib")
-            / f"python{sys.version_info[0]}.{sys.version_info[1]}"
-            / "site-packages"
-            / MODEL_FILE_NAME
-        )
-        if lambda_loc.exists():
-            MODEL = SentenceTransformer(str(lambda_loc), local_files_only=True)
-        else:
-            MODEL = SentenceTransformer(MODEL_NAME)
+        MODEL = SentenceTransformer(MODEL_NAME)
 
     return MODEL
 
@@ -91,6 +80,17 @@ def get_missing_lyrics_vectors() -> Iterator[str]:
             yield result.id
 
 
+def handler(event: dict[str, str], context: Any) -> None:
+    if "song_version_id" in event:
+        compute_lyrics_vector(event["song_version_id"])
+    else:
+        for song_version_id in get_missing_lyrics_vectors():
+            compute_lyrics_vector(song_version_id)
+            if context and context.get_remaining_time_in_millis() < 2000:
+                print("not enough time left...")
+                break
+
+
 def invoke(event: dict[str, str]) -> None:
     """Invoke the Lambda function, whether deployed or local testing."""
 
@@ -102,17 +102,19 @@ def invoke(event: dict[str, str]) -> None:
             Payload=json.dumps(event).encode(),
         )
 
-    else:
+    elif os.environ.get("AWS_CHALICE_CLI_MODE"):
         subprocess.Popen(
             [
                 "python",
                 "-m",
-                "app",
-                "invoke-lambda",
-                "semantic_similarity_encoder",
+                "chalicelib.semantic",
+                "invoke",
                 json.dumps(event),
             ]
         )
+
+    else:
+        logger.warning("Must define LAMBDA_ARN_SEMANTIC_SIMILARITY_ENCODER")
 
 
 def reindex_song_lyrics(song_version_id: str) -> None:
@@ -123,5 +125,7 @@ if __name__ == "__main__":
     if sys.argv[1] == "fetch":
         print("Loading", MODEL_NAME, "...")
         model = _load_model()
-        print("Saving to", MODEL_FILE_NAME, "...")
-        model.save(f"vendor/{MODEL_FILE_NAME}")
+
+    elif sys.argv[1] == "invoke":
+        event = json.loads(sys.argv[2])
+        handler(event, None)

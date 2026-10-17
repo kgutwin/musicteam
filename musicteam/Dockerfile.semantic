@@ -1,0 +1,11 @@
+FROM public.ecr.aws/lambda/python:3.13
+
+COPY requirements.txt requirements-semantic.txt ${LAMBDA_TASK_ROOT}
+
+RUN pip install -r requirements.txt -r requirements-semantic.txt
+
+COPY . ${LAMBDA_TASK_ROOT}
+
+RUN cd ${LAMBDA_TASK_ROOT} && AWS_DEFAULT_REGION=us-east-1 python -m chalicelib.semantic fetch
+
+CMD ["chalicelib.semantic.handler"]

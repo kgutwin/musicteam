@@ -13,6 +13,22 @@ fi
 
 if [[ -f .env ]]; then . .env; fi
 
+usage() {
+    cat <<EOF
+usage: ./deploy.sh [--force] [--build-container]
+EOF
+    exit 1
+}
+
+while [[ -n $1 ]]; do
+    case $1 in
+        ( --force ) FORCE=t ;;
+        ( --build-container ) BUILD_CONTAINER=t;;
+        ( * ) usage ;;
+    esac
+    shift
+done
+
 # check git status
 if ! git diff-files --quiet; then
     echo "Unstaged changes detected, please commit and push"
@@ -28,7 +44,7 @@ if [[ -z $GIT_REVISION ]]; then
     exit 1
 fi
 
-if [[ $1 != "--force" ]]; then
+if [[ -n $FORCE ]]; then
     CI_STATUS=$(gh run list --commit $GIT_REVISION \
                    --json status,conclusion,workflowName \
                    --jq '(.[] | select(.workflowName == "Test")) | .status, .conclusion')
@@ -68,8 +84,23 @@ unzip $TMPD/pymupdf*.whl
 popd
 rm -rf $TMPD
 
-# get the semantic search model
-python -m chalicelib.semantic fetch
+if [[ -n $BUILD_CONTAINER ]]; then
+    REGISTRY_ID=$(aws ecr describe-registry --query registryId --output text)
+    ECR_URI=${REGISTRY_ID}.dkr.ecr.us-east-1.amazonaws.com
+    ECR_SEMANTIC_URI=${ECR_URI}/musicteam/semantic
+
+    # build the semantic search Lambda container
+    docker buildx build \
+           --platform linux/amd64 \
+           --provenance=false \
+           -f Dockerfile.semantic \
+           -t ${ECR_SEMANTIC_URI}:${GIT_REVISION} \
+           .
+
+    aws ecr get-login-password --region us-east-1 \
+        | docker login --username AWS --password-stdin $ECR_URI
+    docker push ${ECR_SEMANTIC_URI}:${GIT_REVISION}
+fi
 
 chalice package \
         --template-format yaml \
@@ -77,12 +108,15 @@ chalice package \
         ../deploy
 popd
 
+exit 1
+
 # Deploy
 
 aws cloudformation package \
     --template-file deploy/sam.yaml \
     --s3-bucket $AWS_DEPLOY_S3_BUCKET \
     --output-template-file deploy/packaged.yaml
+
 
 aws cloudformation deploy \
     --template-file deploy/packaged.yaml \
@@ -97,6 +131,7 @@ aws cloudformation deploy \
     OAuthClientSecret=$OAUTH_CLIENT_SECRET \
     GitRevision=$GIT_REVISION \
     DeployedAt=$(date -Iseconds -u) \
+    $(if [[ -n $BUILD_CONTAINER ]]; then echo SemanticSimilarityEncoderRepo=$ECR_SEMANTIC_URI:$GIT_REVISION; fi) \
     --capabilities CAPABILITY_IAM
 
 # Upload frontend package
