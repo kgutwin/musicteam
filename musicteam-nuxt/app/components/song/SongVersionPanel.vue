@@ -86,19 +86,16 @@
       </template>
     </MtTabPanel>
 
-    <SongTextPanel
-      v-if="selectedSheet === '!lyrics'"
-      :verse-order="version.verse_order"
-    >
-      <template #copy>
+    <SongTextPanel v-if="selectedSheet === '!lyrics'" :verse-order="version.verse_order"
+      ><template #copy>
         <MtCopyToClipboard
           class="pr-4 pb-2 btn-icon text-blue-500 hover:text-blue-700"
           :content="lyricsToClipboard"
-        />
-      </template>
-
-      {{ version.lyrics ?? "Lyrics are missing, use the Edit button to add them!" }}
-    </SongTextPanel>
+        /> </template
+      >{{
+        version.lyrics ?? "Lyrics are missing, use the Edit button to add them!"
+      }}</SongTextPanel
+    >
     <SongTextPanel
       v-else-if="selectedSheet.object_type === 'text/plain'"
       :verse-order="selectedSheet.auto_verse_order ? version.verse_order : null"
