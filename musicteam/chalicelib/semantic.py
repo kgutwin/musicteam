@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import sys
+from pathlib import Path
 from typing import Any
 from typing import Iterator
 from typing import TYPE_CHECKING
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 client = boto3.client("lambda")
 
 MODEL_NAME = "LoveJesus/biblical-topical-search-chirho"
-MODEL_FILE_NAME = MODEL_NAME.replace("/", "--")
+MODEL_FILE_NAME = Path("/var/cache") / MODEL_NAME.replace("/", "--")
 MODEL: SentenceTransformer | None = None
 
 
@@ -29,7 +30,11 @@ def _load_model() -> SentenceTransformer:
     if MODEL is None:
         from sentence_transformers import SentenceTransformer
 
-        MODEL = SentenceTransformer(MODEL_NAME)
+        # look in the lambda cache location
+        if MODEL_FILE_NAME.exists():
+            MODEL = SentenceTransformer(str(MODEL_FILE_NAME), local_files_only=True)
+        else:
+            MODEL = SentenceTransformer(MODEL_NAME)
 
     return MODEL
 
@@ -125,6 +130,8 @@ if __name__ == "__main__":
     if sys.argv[1] == "fetch":
         print("Loading", MODEL_NAME, "...")
         model = _load_model()
+        print("Saving to", MODEL_FILE_NAME, "...")
+        model.save(str(MODEL_FILE_NAME))
 
     elif sys.argv[1] == "invoke":
         event = json.loads(sys.argv[2])
