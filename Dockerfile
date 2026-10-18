@@ -24,6 +24,8 @@ COPY . /srv/musicteam
 
 ENV AWS_DEFAULT_REGION=us-east-1
 
+RUN cd musicteam && python -m chalicelib.semantic fetch
+
 EXPOSE 8000 3000
 
 CMD ["./start-dev.sh"]

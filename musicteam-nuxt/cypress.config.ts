@@ -4,7 +4,7 @@ export default defineConfig({
   projectId: "j42dji",
   viewportWidth: 1025,
   video: true,
-  defaultCommandTimeout: 6000,
+  defaultCommandTimeout: 8000,
 
   retries: {
     runMode: 1,
