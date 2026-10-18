@@ -3,7 +3,7 @@
     <textarea
       v-model="textContent"
       class="txt-panel with-size-guide"
-      :class="short ? 'h-[30rem]' : 'h-[48rem]'"
+      :class="small ? 'h-[30rem] !mx-0' : 'h-[48rem]'"
       data-cy="song-text-editor"
     >
     </textarea>
@@ -17,7 +17,7 @@ const props = defineProps<{
   songId?: string
   versionId?: string
   sheetId?: string
-  short?: boolean
+  small?: boolean
 }>()
 
 const emit = defineEmits<{ hasSave: [() => Promise<Blob>] }>()

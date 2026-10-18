@@ -111,7 +111,7 @@
       class="grid gap-x-4"
       :class="{
         'grid-cols-1': inputSheets.length <= 1,
-        'grid-cols-2': inputSheets.length > 1,
+        'grid-cols-1 lg:grid-cols-2': inputSheets.length > 1,
       }"
     >
       <SongNewSheetForm

@@ -41,30 +41,34 @@
           size="24"
           class="text-green-500"
         />
-	<span class="mr-4">or</span>
-	<button type="button" class="btn-gray" @click="useTextEditor = true">
-	  Use Text Editor
-	</button>
+        <span class="mr-4">or</span>
+        <button type="button" class="btn-gray" @click="useTextEditor = true">
+          Use Text Editor
+        </button>
       </div>
     </label>
 
     <label v-else>
       <span>Text Sheet Contents</span>
-      <div class="flex flex-row gap-4 items-start">
-        <SongTextEditor :short="true" class="grow" @has-save="(save) => (saveTextFile = save)" />
-	<div class="flex flex-col gap-4">
-	  <button type="button" class="btn-blue" @click="addFile()">
-	    Save Sheet
+      <div>
+        <SongTextEditor
+          small
+          class="grow"
+          @has-save="(save) => (saveTextFile = save)"
+        />
+        <div class="flex flex-row gap-4 mt-4">
+          <button type="button" class="btn-blue" @click="addFile()">
+            Save
             <Icon
               v-if="inputObjectId"
               name="ri:file-check-line"
               class="ml-2 text-green-600"
             />
-	  </button>
-  	  <button type="button" class="btn-gray" @click="useTextEditor = false">
- 	    Upload File
-	  </button>
-	</div>
+          </button>
+          <button type="button" class="btn-gray" @click="useTextEditor = false">
+            Upload File
+          </button>
+        </div>
       </div>
     </label>
 
@@ -101,9 +105,10 @@ const saveTextFile = ref<() => Promise<Blob>>()
 const fileStatus = ref<ToasterStatus>()
 
 async function addFile(event?: any) {
-  const file = useTextEditor.value && saveTextFile.value
-    ? await saveTextFile.value()
-    : event?.target?.files?.[0] as File | undefined
+  const file =
+    useTextEditor.value && saveTextFile.value
+      ? await saveTextFile.value()
+      : (event?.target?.files?.[0] as File | undefined)
 
   if (file) {
     inputObjectType.value = file.type
