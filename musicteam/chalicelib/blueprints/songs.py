@@ -705,21 +705,25 @@ def list_song_versions_similar(
     with db.connect() as conn:
         curs = conn.execute(
             "WITH all_versions AS ("
-            "  SELECT first("
-            "    id"
-            "    ORDER BY lyrics_embedding <-> ("
+            "  SELECT id, song_id, ("
+            "    lyrics_embedding <-> ("
             "      SELECT lyrics_embedding FROM song_versions"
             "      WHERE song_id = :song_id AND id = :version_id"
             "    )"
-            "  ) AS id"
+            "  ) AS embed_rank"
             "  FROM song_versions"
-            "  WHERE song_id != :song_id"
+            "  WHERE song_id != :song_id AND lyrics_embedding IS NOT NULL"
+            "), "
+            "distinct_versions AS ("
+            "  SELECT first(id) AS id, first(embed_rank) AS embed_rank"
+            "  FROM all_versions"
             "  GROUP BY song_id"
             ") "
             "SELECT song_versions.id, song_id, label, verse_order, lyrics, tags,"
             "  created_on, creator_id "
             "FROM song_versions "
-            "INNER JOIN all_versions ON song_versions.id = all_versions.id "
+            "INNER JOIN distinct_versions ON song_versions.id = distinct_versions.id "
+            "ORDER BY distinct_versions.embed_rank ASC "
             "LIMIT 20",
             {"song_id": song_id, "version_id": version_id},
             output=SongVersion,
