@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 client = boto3.client("lambda")
 
 MODEL_NAME = "LoveJesus/biblical-topical-search-chirho"
-MODEL_FILE_NAME = Path("/var/cache") / MODEL_NAME.replace("/", "--")
+MODEL_DIR_NAME = Path("/var/cache") / MODEL_NAME.replace("/", "--")
 MODEL: SentenceTransformer | None = None
 
 
@@ -31,8 +31,8 @@ def _load_model() -> SentenceTransformer:
         from sentence_transformers import SentenceTransformer
 
         # look in the lambda cache location
-        if MODEL_FILE_NAME.exists():
-            MODEL = SentenceTransformer(str(MODEL_FILE_NAME), local_files_only=True)
+        if MODEL_DIR_NAME.exists():
+            MODEL = SentenceTransformer(str(MODEL_DIR_NAME), local_files_only=True)
         else:
             MODEL = SentenceTransformer(MODEL_NAME)
 
@@ -130,8 +130,11 @@ if __name__ == "__main__":
     if sys.argv[1] == "fetch":
         print("Loading", MODEL_NAME, "...")
         model = _load_model()
-        print("Saving to", MODEL_FILE_NAME, "...")
-        model.save(str(MODEL_FILE_NAME))
+        print("Saving to", MODEL_DIR_NAME, "...")
+        model.save(str(MODEL_DIR_NAME))
+        # for some reason, the safetensors file is being saved mod 600
+        # but it needs to be mod 644
+        (MODEL_DIR_NAME / "model.safetensors").chmod(0o644)
 
     elif sys.argv[1] == "invoke":
         event = json.loads(sys.argv[2])
