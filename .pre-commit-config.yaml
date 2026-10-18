@@ -32,7 +32,6 @@ repos:
           - "apispec-pydantic-plugin==0.8.2"
           - "boto3-stubs==1.43.106"
           - "pymupdf-stubs==1.28.2"
-          - "sentence-transformers==6.1.0"
 
   - repo: https://github.com/wimglenn/reorder-python-imports-black
     rev: v3.14.0
@@ -60,10 +59,8 @@ repos:
           - "requirements-dev.txt"
           - "-r"
           - "musicteam/requirements.txt"
-          - "-r"
-          - "musicteam/requirements-semantic.txt"
           - "--in-place"
-        files: "requirements-dev.txt|musicteam/requirements.txt|musicteam/requirements-semantic.txt"
+        files: "requirements-dev.txt|musicteam/requirements.txt"
 
   - repo: local
     hooks:
