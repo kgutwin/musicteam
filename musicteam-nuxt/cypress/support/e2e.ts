@@ -13,5 +13,21 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
+import "cypress-recurse/commands"
+
+declare global {
+  namespace Cypress {
+    type RecurseOptions<T> = import("cypress-recurse").RecurseOptions<T>
+
+    interface Chainable {
+      recurse<T>(
+        commandsFn: () => Chainable<T>,
+        checkFn: (x: T, reducedValue?: any) => boolean | void | Chai.Assertion,
+        options?: Partial<RecurseOptions<T>>,
+      ): Chainable<T>
+    }
+  }
+}
+
 // Import commands.js using ES2015 syntax:
 import "./commands.js"

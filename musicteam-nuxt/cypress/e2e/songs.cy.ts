@@ -504,13 +504,25 @@ describe("songs", () => {
       cy.prep("song")
       cy.prep("songMultiVersion")
 
-      cy.get("@prep.song").then((id) => {
-        cy.visit(`/songs/${id}`)
-        cy.contains("Test Two").should("exist")
-      })
+      // reload the page until the similarity hit is present
+      cy.recurse(
+        () => {
+          cy.get("@prep.song").then((id) => {
+            cy.visit(`/songs/${id}`)
+            cy.contains("Test Two").should("exist")
+          })
 
-      cy.contains("Similar Songs").scrollIntoView().click()
-      cy.exists(["Test One", "This has some basic lyrics"])
+          cy.contains("Similar Songs").scrollIntoView().click()
+          return cy.contains("Test One").should(Cypress._.noop)
+        },
+        ($el: JQuery<HTMLElement>) => $el.length === 1,
+        {
+          log: true,
+          timeout: 15000,
+          delay: 1000,
+        },
+      )
+      cy.exists(["This has some basic lyrics"])
     })
 
     it("can find songs in set lists", () => {

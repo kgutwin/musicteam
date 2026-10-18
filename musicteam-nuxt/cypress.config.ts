@@ -1,9 +1,10 @@
-import { defineConfig } from "cypress";
+import { defineConfig } from "cypress"
 
 export default defineConfig({
   projectId: "j42dji",
   viewportWidth: 1025,
   video: true,
+  defaultCommandTimeout: 6000,
 
   retries: {
     runMode: 1,
@@ -22,4 +23,4 @@ export default defineConfig({
       bundler: "vite",
     },
   },
-});
+})
