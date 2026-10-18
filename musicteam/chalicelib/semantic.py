@@ -61,7 +61,7 @@ def compute_lyrics_vector(song_version_id: str) -> None:
 
     with db.connect() as conn:
         conn.execute(
-            "UPDATE song_versions SET lyrics_embedding = :vector "
+            "UPDATE song_versions SET lyrics_embedding = cast(:vector AS VECTOR)"
             "WHERE id = :version_id",
             {"version_id": song_version_id, "vector": str(embeddings.tolist())},
         )
