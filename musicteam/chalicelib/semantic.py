@@ -75,7 +75,9 @@ def get_missing_lyrics_vectors() -> Iterator[str]:
     while True:
         with db.connect() as conn:
             result = conn.execute(
-                "SELECT id FROM song_versions WHERE lyrics_embedding IS NULL LIMIT 1",
+                "SELECT id FROM song_versions "
+                "WHERE lyrics IS NOT NULL and lyrics_embedding IS NULL "
+                "LIMIT 1",
                 output=SongVersionId,
             ).fetchone()
 
@@ -86,8 +88,8 @@ def get_missing_lyrics_vectors() -> Iterator[str]:
 
 
 def handler(event: dict[str, str], context: Any) -> None:
-    if "song_version_id" in event:
-        compute_lyrics_vector(event["song_version_id"])
+    if "compute_lyrics_vector" in event:
+        compute_lyrics_vector(event["compute_lyrics_vector"])
     else:
         for song_version_id in get_missing_lyrics_vectors():
             compute_lyrics_vector(song_version_id)
