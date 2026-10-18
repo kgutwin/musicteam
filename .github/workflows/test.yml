@@ -124,13 +124,14 @@ jobs:
           context: .
           tags: musicteam
 
+      - name: Start Docker
+        run: docker run -d --rm --name mt -p 3000:3000 -p 9000:9000 musicteam && docker logs --follow mt &> /tmp/server-log.txt
+
       - name: Run Cypress
         id: cypress
         uses: cypress-io/github-action@v7
         with:
           working-directory: musicteam-nuxt
-          start: |
-            sh -c "/usr/bin/docker run -d --rm --name mt -p 3000:3000 -p 9000:9000 musicteam && /usr/bin/docker logs --follow mt &> /tmp/server-log.txt"
           wait-on: http://localhost:3000/api/
 
       - name: Save server log as artifact
