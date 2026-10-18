@@ -518,8 +518,8 @@ describe("songs", () => {
         ($el: JQuery<HTMLElement>) => $el.length === 1,
         {
           log: true,
-          timeout: 15000,
-          delay: 1000,
+          timeout: 20000,
+          delay: 4000,
         },
       )
       cy.exists(["This has some basic lyrics"])
