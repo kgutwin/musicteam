@@ -125,7 +125,7 @@ jobs:
           tags: musicteam
 
       - name: Start Docker
-        run: docker run -d --rm --name mt -p 3000:3000 -p 9000:9000 musicteam && docker logs --follow mt &> /tmp/server-log.txt
+        run: docker run -d --rm --name mt -p 3000:3000 -p 9000:9000 musicteam && docker logs --follow mt &> /tmp/server-log.txt &
 
       - name: Run Cypress
         id: cypress
