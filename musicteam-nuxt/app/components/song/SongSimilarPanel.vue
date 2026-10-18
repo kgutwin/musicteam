@@ -49,9 +49,16 @@
               <h3>{{ songVersion.label }}</h3>
             </div>
           </NuxtLink>
-          <div class="whitespace-pre overflow-x-hidden overflow-y-auto max-h-72">
-            {{ songVersion.lyrics }}
+          <div class="whitespace-pre overflow-x-hidden overflow-y-auto max-h-72 mt-2">
+            {{ trimTitle(songVersion.lyrics ?? "", showMore[songVersion.id]) }}
           </div>
+          <button
+            v-if="!showMore[songVersion.id]"
+            class="text-blue-500 italic"
+            @click="showMore[songVersion.id] = true"
+          >
+            show more...
+          </button>
         </div>
       </div>
     </template>
@@ -87,6 +94,13 @@ function setlistSheets(setlistId: string, sheetIds: string[]) {
     if (sheet) rv.push(sheet)
   }
   return rv
+}
+
+const showMore = ref<Record<string, boolean>>({})
+
+function trimTitle(lyrics: string, showAll?: boolean) {
+  lyrics = lyrics.replace(/^.*\n/, "").trim()
+  return showAll ? lyrics : lyrics.split("\n").slice(0, 13).join("\n")
 }
 </script>
 
