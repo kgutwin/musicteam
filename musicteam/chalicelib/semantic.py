@@ -47,7 +47,7 @@ class SongVersionLyrics(BaseModel):
 
 
 def compute_lyrics_vector(song_version_id: str) -> None:
-    print(f"======== computing vector for {song_version_id=}")
+    logger.info(f"======== computing vector for {song_version_id=}")
     with db.connect() as conn:
         result = conn.execute(
             "SELECT lyrics FROM song_versions WHERE id = :version_id",
@@ -56,7 +56,7 @@ def compute_lyrics_vector(song_version_id: str) -> None:
         ).fetchone()
 
         if result is None or result.lyrics is None:
-            print(f"======== could not find lyrics for {song_version_id=}")
+            logger.warning(f"======== could not find lyrics for {song_version_id=}")
             return
 
     model = _load_model()
@@ -69,7 +69,7 @@ def compute_lyrics_vector(song_version_id: str) -> None:
             "WHERE id = :version_id",
             {"version_id": song_version_id, "vector": str(embeddings.tolist())},
         )
-    print(f"======== completed vector for {song_version_id=}")
+    logger.info(f"======== completed vector for {song_version_id=}")
 
 
 class SongVersionId(BaseModel):
@@ -99,7 +99,7 @@ def handler(event: dict[str, str], context: Any) -> None:
         for song_version_id in get_missing_lyrics_vectors():
             compute_lyrics_vector(song_version_id)
             if context and context.get_remaining_time_in_millis() < 2000:
-                print("not enough time left...")
+                logger.warning("not enough time left...")
                 break
 
 
@@ -146,16 +146,20 @@ class InvokeServer(socketserver.TCPServer):
 
     def service_actions(self) -> None:
         if time.monotonic() > self.watchdog + 60.0:
-            print("-------- invoke server shutting down")
+            logger.warning("-------- invoke server shutting down")
             sys.exit(0)
 
     def verify_request(self, *args: Any) -> bool:
-        print("-------- invoke server incoming request")
+        logger.info("-------- invoke server incoming request")
         self.watchdog = time.monotonic()
         return True
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.DEBUG, format="[%(asctime)s] %(name)s %(levelname)s %(message)s"
+    )
+
     if sys.argv[1] == "fetch":
         print("Loading", MODEL_NAME, "...")
         model = _load_model()
@@ -175,7 +179,7 @@ if __name__ == "__main__":
                 handler(event, None)
 
                 # start the server to handle future events
-                print("-------- invoke server startup")
+                logger.info("-------- invoke server startup")
                 server.serve_forever()
             sys.exit(0)
 
@@ -188,3 +192,5 @@ if __name__ == "__main__":
                 sock.connect((HOST, PORT))
                 sock.sendall(sys.argv[2].encode())
                 sock.sendall(b"\n")
+
+            logger.info(f"------>> sent request {sys.argv[2]}")
