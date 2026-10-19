@@ -6,14 +6,14 @@ import socketserver
 import subprocess
 import sys
 import time
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
-from typing import Iterator
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import boto3
-from chalicelib import db
 from pydantic import BaseModel
+
+from chalicelib import db
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
