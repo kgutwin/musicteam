@@ -39,8 +39,6 @@
         </button>
       </div>
     </div>
-
-    <div v-if="false">{{ setlistInfo.data }}</div>
   </div>
   <div v-else-if="setlistInfo.isError" class="lyrics-loading">
     <h1>Whoops!</h1>
