@@ -56,7 +56,7 @@ def compute_lyrics_vector(song_version_id: str) -> None:
         ).fetchone()
 
         if result is None or result.lyrics is None:
-            logger.warning(f"could not find lyrics for {song_version_id=}")
+            print(f"======== could not find lyrics for {song_version_id=}")
             return
 
     model = _load_model()
@@ -145,11 +145,12 @@ class InvokeServer(socketserver.TCPServer):
         self.watchdog = time.monotonic()
 
     def service_actions(self) -> None:
-        if time.monotonic() > self.watchdog + 10.0:
+        if time.monotonic() > self.watchdog + 60.0:
             print("-------- invoke server shutting down")
             sys.exit(0)
 
     def verify_request(self, *args: Any) -> bool:
+        print("-------- invoke server incoming request")
         self.watchdog = time.monotonic()
         return True
 

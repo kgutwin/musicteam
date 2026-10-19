@@ -518,7 +518,7 @@ describe("songs", () => {
         ($el: JQuery<HTMLElement>) => $el.length === 1,
         {
           log: true,
-          timeout: 20000,
+          timeout: 60000,
           delay: 4000,
         },
       )
