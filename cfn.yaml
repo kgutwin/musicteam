@@ -51,6 +51,7 @@ Resources:
       EnableHttpEndpoint: true
       MasterUsername: musicteam
       ManageMasterUserPassword: true
+      BackupRetentionPeriod: 14
   BackendDatabaseDefaultInstance:
     Type: AWS::RDS::DBInstance
     Properties:
