@@ -44,12 +44,17 @@
           <NuxtLink :to="`/songs/${songVersion.song_id}?version=${songVersion.id}`">
             <div class="flex flex-row items-baseline">
               <h2 class="grow">
-                {{ songs.get({ songId: songVersion.song_id }).data.value?.title }}
+                <MtText
+                  :text="songs.get({ songId: songVersion.song_id }).data.value?.title"
+                />
               </h2>
               <h3>{{ songVersion.label }}</h3>
             </div>
           </NuxtLink>
-          <div class="whitespace-pre overflow-x-hidden overflow-y-auto max-h-72 mt-2">
+          <div
+            class="whitespace-pre max-h-72 mt-2"
+            :class="{ 'overflow-x-hidden overflow-y-auto': showMore[songVersion.id] }"
+          >
             {{ trimTitle(songVersion.lyrics ?? "", showMore[songVersion.id]) }}
           </div>
           <button
