@@ -44,6 +44,7 @@ class SongVersionLyrics(BaseModel):
 
 
 def compute_lyrics_vector(song_version_id: str) -> None:
+    print(f"======== computing vector for {song_version_id=}")
     with db.connect() as conn:
         result = conn.execute(
             "SELECT lyrics FROM song_versions WHERE id = :version_id",
@@ -65,6 +66,7 @@ def compute_lyrics_vector(song_version_id: str) -> None:
             "WHERE id = :version_id",
             {"version_id": song_version_id, "vector": str(embeddings.tolist())},
         )
+    print(f"======== completed vector for {song_version_id=}")
 
 
 class SongVersionId(BaseModel):
