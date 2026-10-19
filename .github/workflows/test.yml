@@ -142,12 +142,14 @@ jobs:
           archive: false
 
       - uses: actions/upload-artifact@v7
+        if: failure()
         with:
           name: cypress-screenshots
           path: musicteam-nuxt/cypress/screenshots
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v7
+        if: failure()
         with:
           name: cypress-videos
           path: musicteam-nuxt/cypress/videos
