@@ -21,7 +21,7 @@ repos:
           - "aurora-data-api==0.5.0"
           - "pydantic==2.13.5"
           - "requests-oauthlib==2.0.0"
-          - "google-auth==2.61.0"
+          - "google-auth==2.62.0"
           - "PyJWT==2.15.1"
           - "chalice==1.33.0"
           - "psycopg==3.3.6"
