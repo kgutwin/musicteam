@@ -1,10 +1,10 @@
 aurora-data-api==0.5.0
 pydantic==2.13.5
 requests-oauthlib==2.0.0
-google-auth==2.61.0
+google-auth==2.62.0
 PyJWT==2.15.1
 psutil==7.2.2
-boto3==1.43.109
+boto3==1.43.114
 # kgutwin 2025-11-12  having trouble installing pymupdf this way; chalice cannot find
 #                     a wheel that it thinks is compatible with the Lambda runtime.
 # PyMuPDF

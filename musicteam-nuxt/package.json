@@ -25,11 +25,11 @@
     "next-auth": "~4.21.1",
     "nuxt": "^4.5.2",
     "pdfjs-viewer-element": "^2.7.4",
-    "pinia": "^4.0.3",
+    "pinia": "^4.1.0",
     "pinia-plugin-persistedstate": "^4.7.1",
     "randomcolor": "^0.6.2",
     "tailvue": "^1.0.0",
-    "vue": "^3.5.43",
+    "vue": "^3.5.44",
     "vue-draggable-next": "^2.3.0",
     "vue-router": "^5.3.1"
   },
