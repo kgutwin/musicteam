@@ -1,8 +1,11 @@
 import json
 import logging
 import os
+import socket
+import socketserver
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 from typing import Iterator
@@ -130,6 +133,27 @@ def reindex_song_lyrics(song_version_id: str) -> None:
     return invoke({"compute_lyrics_vector": song_version_id})
 
 
+class InvokeHandler(socketserver.StreamRequestHandler):
+    def handle(self) -> None:
+        event = json.load(self.rfile)
+        handler(event, None)
+
+
+class InvokeServer(socketserver.TCPServer):
+    def __init__(self, server_address: tuple[str, int]) -> None:
+        super().__init__(server_address, InvokeHandler)
+        self.watchdog = time.monotonic()
+
+    def service_actions(self) -> None:
+        if time.monotonic() > self.watchdog + 10.0:
+            print("-------- invoke server shutting down")
+            sys.exit(0)
+
+    def verify_request(self, *args: Any) -> bool:
+        self.watchdog = time.monotonic()
+        return True
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "fetch":
         print("Loading", MODEL_NAME, "...")
@@ -141,5 +165,25 @@ if __name__ == "__main__":
         (MODEL_DIR_NAME / "model.safetensors").chmod(0o644)
 
     elif sys.argv[1] == "invoke":
-        event = json.loads(sys.argv[2])
-        handler(event, None)
+        HOST, PORT = "localhost", 9999
+
+        try:
+            with InvokeServer((HOST, PORT)) as server:
+                # first handle the proximal event
+                event = json.loads(sys.argv[2])
+                handler(event, None)
+
+                # start the server to handle future events
+                print("-------- invoke server startup")
+                server.serve_forever()
+            sys.exit(0)
+
+        except OSError as ex:
+            if "Address already in use" not in str(ex):
+                raise
+
+            # send the event to the running server
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((HOST, PORT))
+                sock.sendall(sys.argv[2].encode())
+                sock.sendall(b"\n")

@@ -138,8 +138,6 @@ Cypress.Commands.add("prep", (fixture) => {
 })
 
 Cypress.Commands.add("wipe", () => {
-  cy.task("killSemanticTasks")
-
   cy.request({ url: "/api/setlists" })
     .then((response) =>
       response.body.setlists.filter((setlist: HasTags) =>
