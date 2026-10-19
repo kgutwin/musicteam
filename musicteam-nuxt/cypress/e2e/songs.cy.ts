@@ -513,12 +513,13 @@ describe("songs", () => {
           })
 
           cy.contains("Similar Songs").scrollIntoView().click()
+          cy.wait(750)
           return cy.contains("Test One").should(Cypress._.noop)
         },
         ($el: JQuery<HTMLElement>) => $el.length === 1,
         {
           log: true,
-          timeout: 60000,
+          timeout: 16000,
           delay: 4000,
         },
       )
