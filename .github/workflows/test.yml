@@ -141,6 +141,18 @@ jobs:
           path: /tmp/server-log.txt
           archive: false
 
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cypress-screenshots
+          path: musicteam-nuxt/cypress/screenshots
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cypress-videos
+          path: musicteam-nuxt/cypress/videos
+          if-no-files-found: ignore
+
       # - name: Record Cypress run if necessary
       #   if: failure() && steps.cypress.outcome == 'failure'
       #   uses: cypress-io/github-action@v7
