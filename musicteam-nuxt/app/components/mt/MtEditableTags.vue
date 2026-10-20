@@ -15,6 +15,7 @@
         :modelValue="modelValue"
         @update:modelValue="updateModelValue"
         allow-space
+        :get-suggestions="useTagSuggestions()"
       />
     </template>
   </MtEditable>

@@ -106,4 +106,52 @@ describe("<MtArrayInput />", () => {
       cy.get(".remove").should("not.exist")
     })
   })
+
+  context("with suggestions", () => {
+    it("shows the suggestion menu", () => {
+      cy.mountVModel(MtArrayInput, [], {
+        getSuggestions: () => ["one", "two", "three"],
+      })
+      cy.get(".inp-array-newtag").type("on")
+      cy.contains("one").should("exist")
+      cy.contains("two").should("exist")
+      cy.contains("three").should("exist")
+    })
+
+    it("filters suggestions based on input", () => {
+      cy.mountVModel(MtArrayInput, [], {
+        getSuggestions: (q) => ["one", "two", "three"].filter((i) => i.startsWith(q)),
+      })
+      cy.get(".inp-array-newtag").type("on")
+      cy.contains("one").should("exist")
+      cy.contains("two").should("not.exist")
+      cy.contains("button", "one").click()
+      cy.getModel().should("deep.eq", ["one"])
+    })
+
+    it("can insert suggestions at each position", () => {
+      cy.mountVModel(MtArrayInput, [], {
+        getSuggestions: (q) => ["one", "two", "three"].filter((i) => i.startsWith(q)),
+      })
+      cy.get(".inp-array-newtag").type("xyz", { force: true })
+      cy.get(".inp-array-suggestion-box").should("not.exist")
+      cy.get(".inp-array-newtag").type("{enter}", { force: true })
+      cy.getModel().should("deep.eq", ["xyz"])
+
+      // at the beginning
+      cy.get(".inp-array-inserttag").first().type("on", { force: true })
+      cy.contains("button", "one").click()
+      cy.getModel().should("deep.eq", ["one", "xyz"])
+
+      // at the end
+      cy.get(".inp-array-newtag").type("tw", { force: true })
+      cy.contains("button", "two").click()
+      cy.getModel().should("deep.eq", ["one", "xyz", "two"])
+
+      // in the middle
+      cy.get(".inp-array-inserttag").last().type("thr", { force: true })
+      cy.contains("button", "three").click()
+      cy.getModel().should("deep.eq", ["one", "xyz", "three", "two"])
+    })
+  })
 })

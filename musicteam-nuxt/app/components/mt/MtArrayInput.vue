@@ -1,70 +1,95 @@
 <template>
-  <div class="inp-text inp-array">
-    <template v-for="(tag, index) in tags">
-      <div
-        class="inp-array-inserttag"
-        :contenteditable="disabled ? 'false' : 'plaintext-only'"
-        @keydown.enter="(ev) => addTag(ev, index)"
-        @keydown.space="(ev) => sepKey(ev, allowSpace, index)"
-        @keydown.,="(ev) => sepKey(ev, allowComma, index)"
-        @keydown.left="focusLeft"
-        @keydown.right="focusRight"
-        @keydown.delete="(ev) => delTag(ev, index - 1)"
-        @blur="(ev) => addTag(ev, index)"
-      ></div>
-      <div
-        class="inp-array-el group"
-        :disabled="disabled"
-        contenteditable="false"
-        tabindex="0"
-        @keydown.left="focusLeft"
-        @keydown.right="focusRight"
-        @keydown.delete="(ev) => delTag(ev, index)"
-      >
-        {{ tag }}
+  <div>
+    <div class="inp-text inp-array">
+      <template v-for="(tag, index) in tags">
         <div
-          v-if="!disabled"
-          class="remove hidden group-hover:inline cursor-pointer"
-          @click="
-            () => {
-              tags = tags.toSpliced(index, 1)
-            }
-          "
+          class="inp-array-inserttag"
+          :contenteditable="disabled ? 'false' : 'plaintext-only'"
+          @keydown.enter="(ev) => addTag(ev, index)"
+          @keydown.space="(ev) => sepKey(ev, allowSpace, index)"
+          @keydown.,="(ev) => sepKey(ev, allowComma, index)"
+          @keydown.left="focusLeft"
+          @keydown.right="focusRight"
+          @keydown.delete="(ev) => delTag(ev, index - 1)"
+          @keyup="(ev) => suggest(ev, index)"
+          @blur="(ev) => addTag(ev, index)"
+        ></div>
+        <div
+          class="inp-array-el group"
+          :disabled="disabled"
+          contenteditable="false"
+          tabindex="0"
+          @keydown.left="focusLeft"
+          @keydown.right="focusRight"
+          @keydown.delete="(ev) => delTag(ev, index)"
         >
-          X
+          {{ tag }}
+          <div
+            v-if="!disabled"
+            class="remove hidden group-hover:inline cursor-pointer"
+            @click="
+              () => {
+                tags = tags.toSpliced(index, 1)
+              }
+            "
+          >
+            X
+          </div>
         </div>
+      </template>
+      <div
+        class="inp-array-newtag"
+        :contenteditable="disabled ? 'false' : 'plaintext-only'"
+        @keydown.enter="(ev) => sepKey(ev)"
+        @keydown.space="(ev) => sepKey(ev, allowSpace)"
+        @keydown.,="(ev) => sepKey(ev, allowComma)"
+        @keydown.delete="delTag"
+        @keydown.left="focusLeft"
+        @keyup="suggest"
+        @blur="addTag"
+      >
+        {{ disabled ? "&nbsp;" : "" }}
       </div>
-    </template>
+    </div>
     <div
-      class="inp-array-newtag"
-      :contenteditable="disabled ? 'false' : 'plaintext-only'"
-      @keydown.enter="(ev) => sepKey(ev)"
-      @keydown.space="(ev) => sepKey(ev, allowSpace)"
-      @keydown.,="(ev) => sepKey(ev, allowComma)"
-      @keydown.delete="delTag"
-      @keydown.left="focusLeft"
-      @blur="addTag"
+      v-if="
+        suggestion && getSuggestions && getSuggestions(suggestion.prefix).length > 0
+      "
+      class="inp-array-suggestion-box"
     >
-      {{ disabled ? "&nbsp;" : "" }}
+      <button
+        v-for="suggested in getSuggestions(suggestion.prefix)"
+        @mousedown="(ev) => ev.preventDefault?.()"
+        @click="pickSuggestion(suggested)"
+      >
+        {{ suggested }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // vue imports are needed for Cypress component testing
-import { nextTick } from "vue"
+import { nextTick, ref } from "vue"
 
 const props = defineProps<{
   allowSpace?: boolean
   allowComma?: boolean
   disabled?: boolean
+  getSuggestions?: (q: string) => string[]
 }>()
 
 const tags = defineModel<string[]>({ default: () => [] })
 
-function addTag(ev: Event, index?: number) {
+const suggestion = ref<{
+  prefix: string
+  element: HTMLElement
+  index?: number
+} | null>(null)
+
+function addTag(ev: Event | HTMLElement, index?: number) {
   if (props.disabled) return
-  const target = ev.target as HTMLElement | null
+  const target = "target" in ev ? (ev.target as HTMLElement | null) : ev
   if (target && target.textContent.trim()) {
     if (index === undefined) {
       tags.value = [...tags.value, target.textContent.trim()]
@@ -74,9 +99,10 @@ function addTag(ev: Event, index?: number) {
         const refocus = target.nextElementSibling?.nextElementSibling
         if (refocus) (refocus as HTMLElement).focus()
       })
-      ev.preventDefault()
+      if ("preventDefault" in ev) ev.preventDefault()
     }
     target.textContent = ""
+    suggestion.value = null
   }
 }
 
@@ -129,6 +155,27 @@ function focusRight(ev: Event) {
     if (target?.nextElementSibling) (target.nextElementSibling as HTMLElement).focus()
   }
 }
+
+function suggest(ev: Event, index?: number) {
+  if (props.disabled) return
+  const target = ev.target as HTMLElement | null
+  if (target && target.textContent.trim().length >= 2) {
+    suggestion.value = {
+      prefix: target.textContent.trim(),
+      element: target,
+      index,
+    }
+  } else {
+    suggestion.value = null
+  }
+}
+
+function pickSuggestion(value: string) {
+  if (!suggestion.value) return
+  suggestion.value.element.textContent = value
+  addTag(suggestion.value.element, suggestion.value.index ?? undefined)
+  suggestion.value = null
+}
 </script>
 
 <style>
@@ -157,5 +204,14 @@ function focusRight(ev: Event) {
 }
 .inp-array-inserttag {
   @apply focus:min-w-px;
+}
+
+.inp-array-suggestion-box {
+  @apply rounded-lg bg-slate-300 px-2 -mt-px mx-2 py-1 shadow-lg;
+  @apply flex flex-wrap flex-row gap-2;
+
+  & button {
+    @apply block rounded-lg bg-slate-100 px-2 py-px my-1 hover:underline;
+  }
 }
 </style>

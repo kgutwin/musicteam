@@ -87,7 +87,11 @@
 
         <label>
           <span>Music Sheet Tags</span>
-          <MtArrayInput v-model="inputSheetTags" allow-space />
+          <MtArrayInput
+            v-model="inputSheetTags"
+            allow-space
+            :get-suggestions="useTagSuggestions()"
+          />
         </label>
       </form>
 

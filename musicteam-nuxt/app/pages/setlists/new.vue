@@ -27,7 +27,11 @@
 
       <label>
         <span>Tags</span>
-        <MtArrayInput v-model="inputTags" allow-space />
+        <MtArrayInput
+          v-model="inputTags"
+          allow-space
+          :get-suggestions="useTagSuggestions()"
+        />
       </label>
     </form>
 

@@ -42,7 +42,12 @@
 
       <label>
         <span>Tags</span>
-        <MtArrayInput v-model="inputTags" :disabled="!!existingSongId" allow-space />
+        <MtArrayInput
+          v-model="inputTags"
+          :disabled="!!existingSongId"
+          allow-space
+          :get-suggestions="useTagSuggestions()"
+        />
       </label>
     </form>
 
@@ -151,6 +156,7 @@
 <script setup lang="ts">
 import { api } from "@/services"
 import { useSongStore, useSongVersionStore, useSongRefreshStore } from "@/stores/songs"
+import { useTaglistStore } from "@/stores/info"
 import { fileToBase64String, chordRatio } from "@/utils"
 
 import type { NewSongSheet } from "@/services/api"
