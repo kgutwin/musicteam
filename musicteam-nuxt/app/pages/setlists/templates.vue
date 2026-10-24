@@ -19,9 +19,6 @@
       "
       :selected="(row) => row.id === selectedTemplate?.id"
     >
-      <template #created="{ row }">
-        <Created :data="row" />
-      </template>
       <template #title="{ row }">
         <MtEditable :model="row" prop="title" @save="saveTemplate(row, 'title')" />
       </template>
@@ -63,7 +60,6 @@ const refreshStore = useSetlistTemplateRefreshStore()
 const { canLead } = useRole()
 
 const templatesColumns: TableColumn[] = [
-  { name: "created", title: "Created" },
   { name: "title", title: "Title" },
   { name: "tags", title: "Tags" },
   { name: "controls", title: "", cls: "w-24" },
