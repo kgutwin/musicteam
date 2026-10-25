@@ -1,5 +1,5 @@
 chalice==1.33.0
-black==26.10.0
+black==26.10.1
 mypy==2.4.0
 pytest==9.1.1
 syrupy==6.1.1
