@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 ###
 ### increment this whenever a new db schema update is added
-DB_VERSION = 9
+DB_VERSION = 10
 
 DatabaseResumingException = boto3.client(
     "rds-data"

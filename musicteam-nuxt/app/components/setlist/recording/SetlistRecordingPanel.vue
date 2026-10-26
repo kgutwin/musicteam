@@ -1,7 +1,10 @@
 <template>
   <div>
     <input type="file" accept="audio/*" @change="selectFile" />
-    <div class="overflow-auto max-w-full">
+    <div>{{ progress }} - {{ objectId }}</div>
+
+    <!--
+    <div v-if="false" class="overflow-auto max-w-full">
       <AVWaveform
         v-if="audioUrl"
         :src="audioUrl"
@@ -9,19 +12,26 @@
         noplayed-line-color="blue"
       />
     </div>
+    -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { AVWaveform } from "vue-audio-visual"
+import { flacEncode } from "./ingest"
 
-const audioUrl = ref<string>()
+// const audioUrl = ref<string>()
+const objectId = ref<string>()
+const progress = ref<number>()
 
 async function selectFile(event: any) {
   const file = event.target?.files?.[0] as File | undefined
   if (file) {
-    const fileURL = window.URL.createObjectURL(file)
-    audioUrl.value = fileURL
+    // const fileURL = window.URL.createObjectURL(file)
+    // audioUrl.value = fileURL
+    objectId.value = await flacEncode(file, (p) => {
+      progress.value = p
+    })
   }
 }
 
