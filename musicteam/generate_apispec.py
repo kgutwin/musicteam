@@ -2,17 +2,13 @@
 import inspect
 import re
 import sys
-from types import GenericAlias
-from types import UnionType
-from typing import Any
-from typing import get_args
-from typing import get_origin
+from types import GenericAlias, UnionType
+from typing import Any, get_args, get_origin
 
 import app
 from apispec import APISpec
 from apispec.exceptions import DuplicateComponentNameError
-from apispec_pydantic_plugin import PydanticPlugin
-from apispec_pydantic_plugin import Registry
+from apispec_pydantic_plugin import PydanticPlugin, Registry
 from chalicelib import types
 from pydantic import BaseModel
 
