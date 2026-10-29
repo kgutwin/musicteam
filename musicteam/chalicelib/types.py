@@ -414,11 +414,13 @@ class SetlistInfo(BaseModel):
 class NewSetlistRecording(BaseModel):
     tags: list[str] = []
     audio_object_id: str
+    audio_object_type: str
 
 
 class UpdateSetlistRecording(_ReplacementModel):
     tags: list[str] | None = None
     audio_object_id: str | None = None
+    audio_object_type: str | None = None
 
 
 class SetlistRecording(_CoreModel, NewSetlistRecording):

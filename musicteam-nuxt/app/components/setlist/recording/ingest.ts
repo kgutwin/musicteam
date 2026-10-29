@@ -4,21 +4,14 @@ import {
   BlobSource,
   Output,
   BufferTarget,
-  FlacOutputFormat,
   canEncodeAudio,
   Conversion,
   AudioSample,
+  Mp4OutputFormat,
 } from "mediabunny"
-import { registerFlacEncoder } from "@mediabunny/flac-encoder"
 import { api } from "@/services"
 
-export async function flacEncode(file: Blob, progress: (progress: number) => void) {
-  const contentType = "audio/flac"
-
-  if (!(await canEncodeAudio("flac"))) {
-    registerFlacEncoder()
-  }
-
+export async function audioEncode(file: Blob, progress: (progress: number) => void) {
   const input = new Input({
     source: new BlobSource(file),
     formats: ALL_FORMATS,
@@ -26,15 +19,20 @@ export async function flacEncode(file: Blob, progress: (progress: number) => voi
 
   // const { readable, writable } = new TransformStream()
 
-  const direct = await api.objects.uploadFileDirectPut({ content_type: contentType })
+  const outputFormat = new Mp4OutputFormat()
+  const outputMimeType = "audio/mp4" // force audio mime type
+
+  const direct = await api.objects.uploadFileDirectPut({
+    content_type: outputMimeType,
+  })
 
   const output = new Output({
-    format: new FlacOutputFormat(),
+    format: outputFormat,
     target: new BufferTarget({
       onFinalize: async (buffer) => {
         await fetch(direct.data.url, {
           method: "PUT",
-          headers: { "Content-Type": contentType },
+          headers: { "Content-Type": outputMimeType },
           body: buffer,
         })
       },
@@ -45,28 +43,18 @@ export async function flacEncode(file: Blob, progress: (progress: number) => voi
     input,
     output,
     audio: {
+      codec: "opus",
       // async process(sample: AudioSample): Promise<AudioSample> {
       // },
     },
   })
   conversion.onProgress = progress
 
-  await conversion.execute()
-  await output.finalize()
-
-  // const response =
-
-  // const direct = await api.objects.uploadFileDirect({ content_type: contentType })
-  //
-  // const formData = new FormData()
-  // for (const field in direct.data.fields) {
-  //   if (direct.data.fields[field]) formData.append(field, direct.data.fields[field])
-  // }
-  // formData.append("file", file)
-  //
-  // const response = await fetch(direct.data.url, { method: "POST", body: formData })
-
-  const mediaObjectId = direct.data.fields.key
-
-  return mediaObjectId
+  return {
+    conversion,
+    newRecording: {
+      audio_object_id: direct.data.fields.key!,
+      audio_object_type: outputMimeType,
+    },
+  }
 }

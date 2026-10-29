@@ -1087,6 +1087,42 @@ paths:
       required: true
       schema:
         type: string
+  /setlists/{setlist_id}/recordings/{recording_id}/audio:
+    get:
+      operationId: setlists.get_setlist_recording_audio
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          $ref: '#/components/responses/Download'
+        '206':
+          $ref: '#/components/responses/PartialDownload'
+        '302':
+          $ref: '#/components/responses/Found'
+      tags:
+      - Setlists
+      summary: Retrieve the audio attached to the setlist recording
+      description: 'This method supports range requests.
+
+
+        For large responses, this method returns a 302 Found temporary redirect.'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: recording_id
+      in: path
+      required: true
+      schema:
+        type: string
   /setlists/{setlist_id}/recordings/{recording_id}/marks:
     get:
       operationId: setlists.list_setlist_recording_marks
@@ -2274,8 +2310,12 @@ components:
         audio_object_id:
           title: Audio Object Id
           type: string
+        audio_object_type:
+          title: Audio Object Type
+          type: string
       required:
       - audio_object_id
+      - audio_object_type
       title: NewSetlistRecording
       type: object
     NewSetlistRecordingMark:
@@ -2766,6 +2806,9 @@ components:
         audio_object_id:
           title: Audio Object Id
           type: string
+        audio_object_type:
+          title: Audio Object Type
+          type: string
         id:
           title: Id
           type: string
@@ -2781,6 +2824,7 @@ components:
           type: string
       required:
       - audio_object_id
+      - audio_object_type
       - id
       - created_on
       - creator_id
@@ -3649,6 +3693,12 @@ components:
           - type: 'null'
           default: null
           title: Audio Object Id
+        audio_object_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Audio Object Type
       title: UpdateSetlistRecording
       type: object
     UpdateSetlistRecordingMark:

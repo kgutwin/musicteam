@@ -7,6 +7,7 @@ from chalicelib import pdf
 from chalicelib import storage
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
+from chalicelib.types import _Object
 from chalicelib.types import _PositionSheetDetails
 from chalicelib.types import Conflict
 from chalicelib.types import Download
@@ -673,7 +674,8 @@ def list_setlist_recordings(setlist_id: str) -> Forbidden | SetlistRecordingList
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "    id, setlist_id, tags, audio_object_id, created_on, creator_id "
+            "    id, setlist_id, tags, audio_object_id, audio_object_type, created_on,"
+            "    creator_id "
             "FROM setlist_recordings "
             "WHERE setlist_id = :setlist_id "
             "ORDER BY created_on ASC",
@@ -693,12 +695,17 @@ def new_setlist_recording(
     with db.connect() as conn:
         curs = conn.execute(
             "INSERT INTO setlist_recordings ("
-            "  setlist_id, tags, audio_object_id, creator_id"
+            "  setlist_id, tags, audio_object_id, audio_object_type, creator_id"
             ") VALUES ("
-            "  :setlist_id, :tags, :audio_object_id, :creator_id"
+            "  :setlist_id, :tags, :audio_object_id, :audio_object_type, :creator_id"
             ") "
-            "RETURNING id, setlist_id, tags, audio_object_id, created_on, creator_id",
-            request_body.model_dump() | {"setlist_id": setlist_id},
+            "RETURNING id, setlist_id, tags, audio_object_id, audio_object_type,"
+            "  created_on, creator_id",
+            request_body.model_dump()
+            | {
+                "setlist_id": setlist_id,
+                "creator_id": session_user(bp.current_request).id,
+            },
             output=SetlistRecording,
         )
         setlist_recording = curs.fetchone()
@@ -717,7 +724,8 @@ def get_setlist_recording(
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "  id, setlist_id, tags, audio_object_id, created_on, creator_id "
+            "  id, setlist_id, tags, audio_object_id, audio_object_type, created_on,"
+            "  creator_id "
             "FROM setlist_recordings "
             "WHERE id = :recording_id AND setlist_id = :setlist_id",
             {"recording_id": recording_id, "setlist_id": setlist_id},
@@ -725,6 +733,41 @@ def get_setlist_recording(
         )
         setlist_recording = curs.fetchone()
         return setlist_recording if setlist_recording is not None else NotFound()
+
+
+@bp.route(
+    "/setlists/{setlist_id}/recordings/{recording_id}/audio", methods=["HEAD", "GET"]
+)
+def get_setlist_recording_audio(
+    setlist_id: str, recording_id: str
+) -> Forbidden | NotFound | Download | PartialDownload | Found:
+    """Retrieve the audio attached to the setlist recording
+
+    This method supports range requests.
+
+    For large responses, this method returns a 302 Found temporary redirect.
+    """
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT audio_object_type AS object_type, audio_object_id AS object_id "
+            "FROM setlist_recordings "
+            "WHERE id = :recording_id AND setlist_id = :setlist_id",
+            {"recording_id": recording_id, "setlist_id": setlist_id},
+            output=_Object,
+        )
+        media_obj = curs.fetchone()
+        if media_obj is None:
+            return NotFound()
+
+    return storage.get_download(
+        media_obj.object_id,
+        media_obj.object_type,
+        bp.current_request.method == "HEAD",
+        bp.current_request.headers.get("Range"),
+    )
 
 
 @bp.route("/setlists/{setlist_id}/recordings/{recording_id}", methods=["PUT"])
@@ -758,7 +801,7 @@ def delete_setlist_recording(
         result = conn.execute(
             "DELETE FROM setlist_recordings "
             "WHERE id = :recording_id AND setlist_id = :setlist_id",
-            {"recording_id": setlist_id, "setlist_id": setlist_id},
+            {"recording_id": recording_id, "setlist_id": setlist_id},
         )
         return NoContent() if result else NotFound()
 

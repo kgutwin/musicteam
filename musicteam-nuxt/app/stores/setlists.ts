@@ -48,6 +48,33 @@ export const useSetlistSheetlistStore = defineStore(
   ),
 )
 
+export const useSetlistRecordinglistStore = defineStore(
+  "setlistrecordinglist",
+  createParamStoreState(
+    async (params: { setlistId: string }) =>
+      await api.setlists.listSetlistRecordings(params.setlistId),
+  ),
+)
+
+export const useSetlistRecordingStore = defineStore(
+  "setlistrecording",
+  createParamStoreState(
+    async (params: { setlistId: string; recordingId: string }) =>
+      await api.setlists.getSetlistRecording(params.setlistId, params.recordingId),
+  ),
+)
+
+export const useSetlistRecordingMarklistStore = defineStore(
+  "setlistrecordingmarklist",
+  createParamStoreState(
+    async (params: { setlistId: string; recordingId: string }) =>
+      await api.setlists.listSetlistRecordingMarks(
+        params.setlistId,
+        params.recordingId,
+      ),
+  ),
+)
+
 export const useSetlistInfoLatestStore = defineStore(
   "setlistinfolatest",
   createStoreState(async () => await api.setlists.getSetlistInfo("LATEST")),
@@ -60,6 +87,9 @@ export const useSetlistRefreshStore = defineStore(
     useSetlistStore,
     useSetlistPositionlistStore,
     useSetlistSheetlistStore,
+    useSetlistRecordinglistStore,
+    useSetlistRecordingStore,
+    useSetlistRecordingMarklistStore,
     useSetlistInfoLatestStore,
   ]),
 )

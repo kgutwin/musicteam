@@ -147,6 +147,8 @@ export interface NewSetlistRecording {
   tags?: string[];
   /** Audio Object Id */
   audio_object_id: string;
+  /** Audio Object Type */
+  audio_object_type: string;
 }
 
 /** NewSetlistRecordingMark */
@@ -464,6 +466,8 @@ export interface SetlistRecording {
   tags?: string[];
   /** Audio Object Id */
   audio_object_id: string;
+  /** Audio Object Type */
+  audio_object_type: string;
   /** Id */
   id: string;
   /**
@@ -1024,6 +1028,11 @@ export interface UpdateSetlistRecording {
    * @default null
    */
   audio_object_id?: string | null;
+  /**
+   * Audio Object Type
+   * @default null
+   */
+  audio_object_type?: string | null;
 }
 
 /** UpdateSetlistRecordingMark */
@@ -2602,6 +2611,27 @@ export class Api<
       this.request<any, ServerError>({
         path: `/setlists/${setlistId}/recordings/${recordingId}`,
         method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description This method supports range requests. For large responses, this method returns a 302 Found temporary redirect.
+     *
+     * @tags Setlists
+     * @name GetSetlistRecordingAudio
+     * @summary Retrieve the audio attached to the setlist recording
+     * @request GET:/setlists/{setlist_id}/recordings/{recording_id}/audio
+     * @secure
+     */
+    getSetlistRecordingAudio: (
+      setlistId: string,
+      recordingId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/audio`,
+        method: "GET",
         secure: true,
         ...params,
       }),

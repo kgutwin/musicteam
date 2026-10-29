@@ -1,80 +1,88 @@
 <template>
-  <div>
-    <input type="file" accept="audio/*" @change="selectFile" />
-    <div>{{ progress }} - {{ objectId }}</div>
-
-    <!--
-    <div v-if="false" class="overflow-auto max-w-full">
-      <AVWaveform
-        v-if="audioUrl"
-        :src="audioUrl"
-        :canv-width="1400"
-        noplayed-line-color="blue"
-      />
+  <div v-if="canEdit" class="mb-4">
+    <button v-if="!adding" class="btn-gray" @click="adding = true">
+      Upload Recording
+    </button>
+    <div v-else class="upload-panel">
+      <div class="font-bold mr-8">Upload Recording</div>
+      <input type="file" accept="audio/*" @change="selectFile" />
+      <div class="grow" :class="{ 'border rounded': !!progress }">
+        <div
+          v-if="progress"
+          :style="`width: ${progress * 100}%`"
+          class="h-full bg-blue-500 rounded px-2"
+        >
+          {{ `${Math.round(progress * 100)}%` }}
+        </div>
+      </div>
+      <button class="btn-gray" @click="cancel">Cancel</button>
     </div>
-    -->
+  </div>
+
+  <div>
+    <SetlistRecordingEntry
+      v-for="recording in recordings?.recordings ?? []"
+      :key="recording.id"
+      :recording="recording"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { AVWaveform } from "vue-audio-visual"
-import { flacEncode } from "./ingest"
+import { api } from "@/services"
+import { useSetlistRecordinglistStore, useSetlistRefreshStore } from "@/stores/setlists"
+import { audioEncode } from "./ingest"
+import { ConversionCanceledError } from "mediabunny"
 
-// const audioUrl = ref<string>()
-const objectId = ref<string>()
+import type { Conversion } from "mediabunny"
+
+const props = defineProps<{ setlistId: string }>()
+
+const { canEdit } = useRole()
+
+const refreshStore = useSetlistRefreshStore()
+const recordings = useSetlistRecordinglistStore().get({
+  setlistId: props.setlistId,
+}).data
+
+const adding = ref(false)
 const progress = ref<number>()
+const conversion = ref<Conversion | null>(null)
 
 async function selectFile(event: any) {
   const file = event.target?.files?.[0] as File | undefined
   if (file) {
-    // const fileURL = window.URL.createObjectURL(file)
-    // audioUrl.value = fileURL
-    objectId.value = await flacEncode(file, (p) => {
-      progress.value = p
+    await useToaster(async () => {
+      const control = await audioEncode(file, (p) => {
+        progress.value = p
+      })
+      conversion.value = control.conversion
+      try {
+        await control.conversion.execute()
+      } catch (err: any) {
+        if (err instanceof ConversionCanceledError) {
+          return
+        }
+        throw err
+      }
+
+      await api.setlists.newSetlistRecording(props.setlistId, control.newRecording)
+      await refreshStore.refresh({ setlistId: props.setlistId })
+      adding.value = false
     })
   }
 }
 
-// plan
-// - upload file as above
-// - Set start and end points
-// - Pick what song you want to assign it to
-// - Read WAV data (somehow)
-//   - Feed to FLAC encoder
-//   - save as object
-//   - create media reference ...
-// - repeat
-
-// need
-// - waveform view
-//   - select start and end
-//   - get wav data between points
-
-// alternate plan
-// - select file, load into player
-// - use player audio interface to do FLAC conversion
-// - upload entire FLAC file directly as a media attachment to the setlist
-// - then, with the file reloaded, interface now allows setting 'bookmarks'
-//   - a bookmark gets saved as a media attachment on the associated song version
-//   - that is rendered as loading the whole recording inside the song media list,
-//     then skipping to the bookmark
-//     - a dedicated button is needed to restore the position to the original bookmark
-//   - why not just link them over to the setlist? because they need to easily be
-//     able to see the lyrics/chords/etc... after all, that's why they're there in
-//     the first place
-
-// tradeoffs
-// - alternate plan is..
-//   - easier on end users (just set bookmarks, or no bookmarks :shrug:)
-//   - doesn't concern itself with excess recording (so what, who cares)
-//   - doesn't auto-stop at the end of listening to a song
-//   - probably puts excess load on users who innocently open the media panel
-//   - also makes subsequent setlist media more confusing (how many 2+hr recordings
-//     can we fit into one tiny media panel??)
-// - original plan is..
-//   - trimmer -- only keep what we care about, individual song recordings
-//   - easier to navigate long-term
-//   - more effort in the short term (where does this song end, exactly?)
-//   - if we don't save the full recording, then maybe we're losing something that we
-//     wanted to save ?
+async function cancel() {
+  if (conversion.value) {
+    await conversion.value.cancel()
+  }
+  adding.value = false
+}
 </script>
+
+<style>
+.upload-panel {
+  @apply p-4 border rounded shadow-lg bg-slate-100 flex flex-row gap-2 items-baseline;
+}
+</style>

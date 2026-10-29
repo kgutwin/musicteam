@@ -151,7 +151,10 @@
 
       <object :data="`/api/setlists/${id}/packet/lyrics`" class="w-full h-screen" />
     </SongTextPanel>
-    <SetlistRecordingPanel v-else-if="selectedTab === 'recording'" />
+    <SetlistRecordingPanel
+      v-else-if="selectedTab === 'recording'"
+      :setlist-id="id as string"
+    />
   </div>
 </template>
 

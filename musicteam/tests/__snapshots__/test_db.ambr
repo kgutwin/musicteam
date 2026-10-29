@@ -425,6 +425,35 @@
   
   
   --
+  -- Name: setlist_recording_marks; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlist_recording_marks (
+      id text DEFAULT ('rm:'::text || public.uuid_generate_v4()) NOT NULL,
+      recording_id text NOT NULL,
+      offset_sec numeric NOT NULL,
+      setlist_position_id text,
+      song_version_id text,
+      cue_title text
+  );
+  
+  
+  --
+  -- Name: setlist_recordings; Type: TABLE; Schema: public; Owner: -
+  --
+  
+  CREATE TABLE public.setlist_recordings (
+      id text DEFAULT ('r:'::text || public.uuid_generate_v4()) NOT NULL,
+      setlist_id text NOT NULL,
+      tags text[],
+      audio_object_id text NOT NULL,
+      audio_object_type text NOT NULL,
+      created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
+      creator_id text NOT NULL
+  );
+  
+  
+  --
   -- Name: setlist_sheets; Type: TABLE; Schema: public; Owner: -
   --
   
@@ -487,7 +516,7 @@
   -- Data for Name: _version; Type: TABLE DATA; Schema: public; Owner: -
   --
   
-  INSERT INTO public._version VALUES ('db_version', 9);
+  INSERT INTO public._version VALUES ('db_version', 10);
   
   
   --
@@ -516,6 +545,18 @@
   
   --
   -- Data for Name: setlist_positions; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlist_recording_marks; Type: TABLE DATA; Schema: public; Owner: -
+  --
+  
+  
+  
+  --
+  -- Data for Name: setlist_recordings; Type: TABLE DATA; Schema: public; Owner: -
   --
   
   
@@ -620,6 +661,22 @@
   
   ALTER TABLE ONLY public.setlist_positions
       ADD CONSTRAINT setlist_positions_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlist_recording_marks setlist_recording_marks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recording_marks
+      ADD CONSTRAINT setlist_recording_marks_pkey PRIMARY KEY (id);
+  
+  
+  --
+  -- Name: setlist_recordings setlist_recordings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recordings
+      ADD CONSTRAINT setlist_recordings_pkey PRIMARY KEY (id);
   
   
   --
@@ -775,6 +832,46 @@
   
   ALTER TABLE ONLY public.setlist_positions
       ADD CONSTRAINT setlist_positions_setlist_id_fkey FOREIGN KEY (setlist_id) REFERENCES public.setlists(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: setlist_recording_marks setlist_recording_marks_recording_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recording_marks
+      ADD CONSTRAINT setlist_recording_marks_recording_id_fkey FOREIGN KEY (recording_id) REFERENCES public.setlist_recordings(id) ON DELETE CASCADE;
+  
+  
+  --
+  -- Name: setlist_recording_marks setlist_recording_marks_setlist_position_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recording_marks
+      ADD CONSTRAINT setlist_recording_marks_setlist_position_id_fkey FOREIGN KEY (setlist_position_id) REFERENCES public.setlist_positions(id);
+  
+  
+  --
+  -- Name: setlist_recording_marks setlist_recording_marks_song_version_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recording_marks
+      ADD CONSTRAINT setlist_recording_marks_song_version_id_fkey FOREIGN KEY (song_version_id) REFERENCES public.song_versions(id) ON DELETE SET NULL;
+  
+  
+  --
+  -- Name: setlist_recordings setlist_recordings_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recordings
+      ADD CONSTRAINT setlist_recordings_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id);
+  
+  
+  --
+  -- Name: setlist_recordings setlist_recordings_setlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+  --
+  
+  ALTER TABLE ONLY public.setlist_recordings
+      ADD CONSTRAINT setlist_recordings_setlist_id_fkey FOREIGN KEY (setlist_id) REFERENCES public.setlists(id) ON DELETE CASCADE;
   
   
   --
