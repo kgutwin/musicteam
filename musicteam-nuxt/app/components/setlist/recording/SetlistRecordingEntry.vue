@@ -4,7 +4,6 @@
       <div>Uploaded: {{ recording.created_on }}</div>
       <button class="btn-gray" @click="deleteEntry">Delete</button>
       <button class="btn-gray" @click="download">Download</button>
-      <button class="btn-gray" @click="load">Load</button>
     </div>
     <audio :src="url" controls class="w-full" />
     <div class="recording-scroller">
@@ -31,7 +30,10 @@ const url = computed(
 )
 
 const canvas = useTemplateRef("canvas")
-const waveform = new WaveformViewer(url.value)
+const waveform = new WaveformViewer(
+  props.recording.duration,
+  JSON.parse(props.recording.waveform ?? "[]"),
+)
 watchEffect(() => {
   if (canvas.value) {
     waveform.setCanvas(canvas.value)
@@ -47,7 +49,7 @@ async function deleteEntry() {
 }
 
 async function download() {
-  let ext = mime.extension(props.recording.audio_object_type)
+  let ext = mime.extension(props.recording.object_type)
 
   const link = document.createElement("a")
   link.href = url.value
@@ -59,11 +61,6 @@ async function download() {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-}
-
-async function load() {
-  await waveform.load()
-  waveform.draw()
 }
 </script>
 

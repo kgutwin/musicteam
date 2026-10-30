@@ -145,10 +145,17 @@ export interface NewSetlistRecording {
    * @default []
    */
   tags?: string[];
-  /** Audio Object Id */
-  audio_object_id: string;
-  /** Audio Object Type */
-  audio_object_type: string;
+  /** Object Id */
+  object_id: string;
+  /** Object Type */
+  object_type: string;
+  /** Duration */
+  duration: number;
+  /**
+   * Waveform
+   * @default null
+   */
+  waveform?: string | null;
 }
 
 /** NewSetlistRecordingMark */
@@ -464,10 +471,17 @@ export interface SetlistRecording {
    * @default []
    */
   tags?: string[];
-  /** Audio Object Id */
-  audio_object_id: string;
-  /** Audio Object Type */
-  audio_object_type: string;
+  /** Object Id */
+  object_id: string;
+  /** Object Type */
+  object_type: string;
+  /** Duration */
+  duration: number;
+  /**
+   * Waveform
+   * @default null
+   */
+  waveform?: string | null;
   /** Id */
   id: string;
   /**
@@ -1024,15 +1038,25 @@ export interface UpdateSetlistRecording {
    */
   tags?: string[] | null;
   /**
-   * Audio Object Id
+   * Object Id
    * @default null
    */
-  audio_object_id?: string | null;
+  object_id?: string | null;
   /**
-   * Audio Object Type
+   * Object Type
    * @default null
    */
-  audio_object_type?: string | null;
+  object_type?: string | null;
+  /**
+   * Duration
+   * @default null
+   */
+  duration?: number | null;
+  /**
+   * Waveform
+   * @default null
+   */
+  waveform?: string | null;
 }
 
 /** UpdateSetlistRecordingMark */

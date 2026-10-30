@@ -2307,15 +2307,25 @@ components:
             type: string
           title: Tags
           type: array
-        audio_object_id:
-          title: Audio Object Id
+        object_id:
+          title: Object Id
           type: string
-        audio_object_type:
-          title: Audio Object Type
+        object_type:
+          title: Object Type
           type: string
+        duration:
+          title: Duration
+          type: number
+        waveform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Waveform
       required:
-      - audio_object_id
-      - audio_object_type
+      - object_id
+      - object_type
+      - duration
       title: NewSetlistRecording
       type: object
     NewSetlistRecordingMark:
@@ -2803,12 +2813,21 @@ components:
             type: string
           title: Tags
           type: array
-        audio_object_id:
-          title: Audio Object Id
+        object_id:
+          title: Object Id
           type: string
-        audio_object_type:
-          title: Audio Object Type
+        object_type:
+          title: Object Type
           type: string
+        duration:
+          title: Duration
+          type: number
+        waveform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Waveform
         id:
           title: Id
           type: string
@@ -2823,8 +2842,9 @@ components:
           title: Setlist Id
           type: string
       required:
-      - audio_object_id
-      - audio_object_type
+      - object_id
+      - object_type
+      - duration
       - id
       - created_on
       - creator_id
@@ -3687,18 +3707,30 @@ components:
           - type: 'null'
           default: null
           title: Tags
-        audio_object_id:
+        object_id:
           anyOf:
           - type: string
           - type: 'null'
           default: null
-          title: Audio Object Id
-        audio_object_type:
+          title: Object Id
+        object_type:
           anyOf:
           - type: string
           - type: 'null'
           default: null
-          title: Audio Object Type
+          title: Object Type
+        duration:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: null
+          title: Duration
+        waveform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Waveform
       title: UpdateSetlistRecording
       type: object
     UpdateSetlistRecordingMark:

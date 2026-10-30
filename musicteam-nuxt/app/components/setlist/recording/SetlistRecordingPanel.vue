@@ -5,8 +5,8 @@
     </button>
     <div v-else class="upload-panel">
       <div class="font-bold mr-8">Upload Recording</div>
-      <input type="file" accept="audio/*" @change="selectFile" />
-      <div class="grow" :class="{ 'border rounded': !!progress }">
+      <input type="file" accept="audio/*" @change="selectFile" :disabled="!!phase" />
+      <div class="grow relative" :class="{ 'border rounded': !!phase }">
         <div
           v-if="progress"
           :style="`width: ${progress * 100}%`"
@@ -14,6 +14,7 @@
         >
           {{ `${Math.round(progress * 100)}%` }}
         </div>
+        <div class="absolute italic top-0 right-4">{{ phase ?? "" }}</div>
       </div>
       <button class="btn-gray" @click="cancel">Cancel</button>
     </div>
@@ -46,18 +47,23 @@ const recordings = useSetlistRecordinglistStore().get({
 }).data
 
 const adding = ref(false)
-const progress = ref<number>()
+const progress = ref<number>(0)
+const phase = ref<string | null>(null)
 const conversion = ref<Conversion | null>(null)
 
 async function selectFile(event: any) {
   const file = event.target?.files?.[0] as File | undefined
   if (file) {
     await useToaster(async () => {
-      const control = await audioEncode(file, (p) => {
+      const control = await audioEncode(file, (p, u) => {
+        if (u < 0) {
+          phase.value = "Uploading..."
+        }
         progress.value = p
       })
       conversion.value = control.conversion
       try {
+        phase.value = "Converting..."
         await control.conversion.execute()
       } catch (err: any) {
         if (err instanceof ConversionCanceledError) {
@@ -66,8 +72,13 @@ async function selectFile(event: any) {
         throw err
       }
 
-      await api.setlists.newSetlistRecording(props.setlistId, control.newRecording)
+      const newRecording = {
+        ...control.newRecording,
+        waveform: JSON.stringify(control.peaks),
+      }
+      await api.setlists.newSetlistRecording(props.setlistId, newRecording)
       await refreshStore.refresh({ setlistId: props.setlistId })
+      phase.value = null
       adding.value = false
     })
   }
@@ -77,6 +88,8 @@ async function cancel() {
   if (conversion.value) {
     await conversion.value.cancel()
   }
+  phase.value = null
+  progress.value = 0
   adding.value = false
 }
 </script>

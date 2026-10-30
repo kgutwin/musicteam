@@ -413,14 +413,18 @@ class SetlistInfo(BaseModel):
 
 class NewSetlistRecording(BaseModel):
     tags: list[str] = []
-    audio_object_id: str
-    audio_object_type: str
+    object_id: str
+    object_type: str
+    duration: float
+    waveform: str | None = None
 
 
 class UpdateSetlistRecording(_ReplacementModel):
     tags: list[str] | None = None
-    audio_object_id: str | None = None
-    audio_object_type: str | None = None
+    object_id: str | None = None
+    object_type: str | None = None
+    duration: float | None = None
+    waveform: str | None = None
 
 
 class SetlistRecording(_CoreModel, NewSetlistRecording):

@@ -674,8 +674,8 @@ def list_setlist_recordings(setlist_id: str) -> Forbidden | SetlistRecordingList
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "    id, setlist_id, tags, audio_object_id, audio_object_type, created_on,"
-            "    creator_id "
+            "    id, setlist_id, tags, object_id, object_type, duration, waveform,"
+            "    created_on, creator_id "
             "FROM setlist_recordings "
             "WHERE setlist_id = :setlist_id "
             "ORDER BY created_on ASC",
@@ -695,12 +695,14 @@ def new_setlist_recording(
     with db.connect() as conn:
         curs = conn.execute(
             "INSERT INTO setlist_recordings ("
-            "  setlist_id, tags, audio_object_id, audio_object_type, creator_id"
+            "  setlist_id, tags, object_id, object_type, duration, waveform,"
+            "  creator_id"
             ") VALUES ("
-            "  :setlist_id, :tags, :audio_object_id, :audio_object_type, :creator_id"
+            "  :setlist_id, :tags, :object_id, :object_type, :duration, :waveform,"
+            "  :creator_id"
             ") "
-            "RETURNING id, setlist_id, tags, audio_object_id, audio_object_type,"
-            "  created_on, creator_id",
+            "RETURNING id, setlist_id, tags, object_id, object_type, duration,"
+            "  waveform, created_on, creator_id",
             request_body.model_dump()
             | {
                 "setlist_id": setlist_id,
@@ -724,8 +726,8 @@ def get_setlist_recording(
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "  id, setlist_id, tags, audio_object_id, audio_object_type, created_on,"
-            "  creator_id "
+            "  id, setlist_id, tags, object_id, object_type, duration, waveform,"
+            "  created_on, creator_id "
             "FROM setlist_recordings "
             "WHERE id = :recording_id AND setlist_id = :setlist_id",
             {"recording_id": recording_id, "setlist_id": setlist_id},
@@ -752,7 +754,7 @@ def get_setlist_recording_audio(
 
     with db.connect() as conn:
         curs = conn.execute(
-            "SELECT audio_object_type AS object_type, audio_object_id AS object_id "
+            "SELECT object_type, object_id "
             "FROM setlist_recordings "
             "WHERE id = :recording_id AND setlist_id = :setlist_id",
             {"recording_id": recording_id, "setlist_id": setlist_id},

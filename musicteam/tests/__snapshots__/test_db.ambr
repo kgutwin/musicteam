@@ -446,8 +446,10 @@
       id text DEFAULT ('r:'::text || public.uuid_generate_v4()) NOT NULL,
       setlist_id text NOT NULL,
       tags text[],
-      audio_object_id text NOT NULL,
-      audio_object_type text NOT NULL,
+      object_id text NOT NULL,
+      object_type text NOT NULL,
+      duration numeric NOT NULL,
+      waveform text,
       created_on timestamp without time zone DEFAULT LOCALTIMESTAMP(4),
       creator_id text NOT NULL
   );
