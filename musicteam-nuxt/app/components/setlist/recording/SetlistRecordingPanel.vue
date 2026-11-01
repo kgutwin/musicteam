@@ -1,23 +1,18 @@
 <template>
-  <div v-if="canEdit" class="mb-4">
-    <button v-if="!adding" class="btn-gray" @click="adding = true">
-      Upload Recording
-    </button>
-    <div v-else class="upload-panel">
-      <div class="font-bold mr-8">Upload Recording</div>
-      <input type="file" accept="audio/*" @change="selectFile" :disabled="!!phase" />
-      <div class="grow relative" :class="{ 'border rounded': !!phase }">
-        <div
-          v-if="progress"
-          :style="`width: ${progress * 100}%`"
-          class="h-full bg-blue-500 rounded px-2"
-        >
-          {{ `${Math.round(progress * 100)}%` }}
-        </div>
-        <div class="absolute italic top-0 right-4">{{ phase ?? "" }}</div>
+  <div v-if="openUpload && canEdit" class="upload-panel">
+    <div class="font-bold mr-8">Upload Recording</div>
+    <input type="file" accept="audio/*" @change="selectFile" :disabled="!!phase" />
+    <div class="grow relative" :class="{ 'border rounded': !!phase }">
+      <div
+        v-if="progress"
+        :style="`width: ${progress * 100}%`"
+        class="h-full bg-blue-500 rounded px-2"
+      >
+        {{ `${Math.round(progress * 100)}%` }}
       </div>
-      <button class="btn-gray" @click="cancel">Cancel</button>
+      <div class="absolute italic top-0 right-4">{{ phase ?? "" }}</div>
     </div>
+    <button class="btn-gray" @click="cancel">Cancel</button>
   </div>
 
   <div>
@@ -37,7 +32,12 @@ import { ConversionCanceledError } from "mediabunny"
 
 import type { Conversion } from "mediabunny"
 
-const props = defineProps<{ setlistId: string }>()
+const props = defineProps<{
+  setlistId: string
+  openUpload: boolean
+}>()
+
+const emit = defineEmits<{ closeUpload: [] }>()
 
 const { canEdit } = useRole()
 
@@ -46,7 +46,6 @@ const recordings = useSetlistRecordinglistStore().get({
   setlistId: props.setlistId,
 }).data
 
-const adding = ref(false)
 const progress = ref<number>(0)
 const phase = ref<string | null>(null)
 const conversion = ref<Conversion | null>(null)
@@ -79,7 +78,7 @@ async function selectFile(event: any) {
       await api.setlists.newSetlistRecording(props.setlistId, newRecording)
       await refreshStore.refresh({ setlistId: props.setlistId })
       phase.value = null
-      adding.value = false
+      emit("closeUpload")
     })
   }
 }
@@ -90,12 +89,13 @@ async function cancel() {
   }
   phase.value = null
   progress.value = 0
-  adding.value = false
+  emit("closeUpload")
 }
 </script>
 
 <style>
 .upload-panel {
-  @apply p-4 border rounded shadow-lg bg-slate-100 flex flex-row gap-2 items-baseline;
+  @apply mb-4 p-4 border rounded-lg shadow-lg bg-slate-100;
+  @apply flex flex-row gap-2 items-baseline;
 }
 </style>

@@ -68,7 +68,10 @@
 
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
-        <MtCopyToClipboard class="btn-icon" :content="copySetlistToClipboard" />
+        <MtCopyToClipboard
+          class="btn-icon self-end"
+          :content="copySetlistToClipboard"
+        />
         <button
           v-if="canLead"
           class="btn-gray"
@@ -116,6 +119,22 @@
           <Icon name="solar:notebook-minimalistic-outline" size="28" />
         </button>
       </template>
+      <template v-else>
+        <button
+          class="self-end"
+          title="Upload Recording"
+          @click="uploadRecording = !uploadRecording"
+        >
+          <Icon
+            :name="
+              uploadRecording
+                ? 'solar:upload-track-2-bold'
+                : 'solar:upload-track-2-outline'
+            "
+            size="28"
+          />
+        </button>
+      </template>
     </MtTabPanel>
 
     <SetlistOrder
@@ -154,6 +173,8 @@
     <SetlistRecordingPanel
       v-else-if="selectedTab === 'recording'"
       :setlist-id="id as string"
+      :open-upload="uploadRecording"
+      @close-upload="uploadRecording = false"
     />
   </div>
 </template>
@@ -201,11 +222,11 @@ const editOrder = ref(false)
 async function deleteSetlist() {
   if (!window.confirm("Are you sure you want to delete this set list?")) return
 
-  await api.setlists.deleteSetlist(id as string)
-
-  await refreshStore.refresh()
-
-  await navigateTo({ path: "/setlists" })
+  await useToaster(async () => {
+    await api.setlists.deleteSetlist(id as string)
+    await refreshStore.refresh()
+    await navigateTo({ path: "/setlists" })
+  })
 }
 
 function makeActive() {
@@ -305,4 +326,6 @@ const pdfPacketSrc = computed(() => {
   if (twoPageAlign.value) rv += "?two_page_align=true"
   return rv
 })
+
+const uploadRecording = ref(false)
 </script>

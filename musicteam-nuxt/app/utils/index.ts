@@ -83,3 +83,14 @@ export function isMobileSafari() {
   var webkit = !!ua.match(/WebKit/i)
   return iOS && webkit && !ua.match(/CriOS/i)
 }
+
+export function timeString(t: number) {
+  const h = Math.trunc(t / 3600)
+  const m = Math.trunc((t % 3600) / 60)
+    .toString()
+    .padStart(2, "0")
+  const s = Math.trunc(t % 60)
+    .toString()
+    .padStart(2, "0")
+  return `${h}:${m}:${s}`
+}

@@ -1,4 +1,5 @@
 import { Input, ALL_FORMATS, UrlSource, AudioSampleSink } from "mediabunny"
+import { timeString } from "@/utils"
 
 export interface AudioPeak {
   time: number
@@ -10,6 +11,7 @@ export interface AudioPeak {
 export class WaveformViewer {
   duration: number
   peaks: AudioPeak[]
+  cursor: number
 
   canvas: HTMLCanvasElement | null
   ctx: CanvasRenderingContext2D | null
@@ -17,6 +19,7 @@ export class WaveformViewer {
   constructor(duration: number, peaks: AudioPeak[]) {
     this.duration = duration
     this.peaks = peaks
+    this.cursor = -1
     this.canvas = null
     this.ctx = null
   }
@@ -34,23 +37,42 @@ export class WaveformViewer {
 
     const height = this.canvas.clientHeight
     const width = this.canvas.clientWidth
+    const ruler = 18
     const hscale = width / this.duration!
 
-    ctx.clearRect(0, 0, height, width)
+    ctx.fillStyle = "white"
+    ctx.fillRect(0, 0, width, height)
 
-    // draw time ticks
-    // ctx.strokeStyle = "gray"
-    // const tick = 600.0 // ten minutes
-    // for (let x = tick; x < this.duration; x += tick) {
-    //   ctx.strokeRect(x * hscale, 0, 0, height)
-    // }
+    // todo: auto scale tick rate based on duration
+    const tick = 600.0 // ten minutes
+
+    // draw ruler
+    ctx.fillStyle = "rgb(148 163 184)" // bg-slate-400
+    ctx.fillRect(0, 0, width, ruler)
+    ctx.fillStyle = "white"
+    ctx.font = "13px monospace"
+    ctx.textAlign = "start"
+    ctx.strokeStyle = "rgb(71 85 105)" // bg-slate-600
+    ctx.setLineDash([3, 2])
+    ctx.lineWidth = 1
+    for (let x = 0; x < this.duration; x += tick) {
+      const offset = Math.round(x * hscale) - 0.5
+      ctx.fillText(timeString(x), offset + 3, 12)
+      if (x > 0) {
+        ctx.beginPath()
+        ctx.moveTo(offset, 1)
+        ctx.lineTo(offset, height)
+        ctx.stroke()
+      }
+    }
+    ctx.setLineDash([])
 
     // draw waveform
     const wave = (peaks: { time: number; v: number }[], maxV: number) => {
       ctx.beginPath()
-      const center = height / 2
+      const center = height / 2 + ruler / 2
       ctx.moveTo(0, center)
-      const vscale = height / 2 / maxV
+      const vscale = (height - ruler) / 2 / maxV
 
       // starting at the left center, draw peaks going upwards
       for (const peak of peaks) {
@@ -77,5 +99,20 @@ export class WaveformViewer {
       this.peaks.map((p) => ({ time: p.time, v: p.rms * 2 })),
       max,
     )
+
+    // draw cursor
+    if (this.cursor >= 0 && this.cursor <= this.duration) {
+      ctx.fillStyle = "red"
+      const offset = Math.round(this.cursor * hscale)
+      ctx.beginPath()
+      ctx.moveTo(offset - 3, ruler)
+      ctx.lineTo(offset + 3, ruler)
+      ctx.lineTo(offset + 0.5, ruler + 3)
+      ctx.lineTo(offset + 0.5, height)
+      ctx.lineTo(offset - 0.5, height)
+      ctx.lineTo(offset - 0.5, ruler + 3)
+      ctx.lineTo(offset - 3, ruler)
+      ctx.fill()
+    }
   }
 }
