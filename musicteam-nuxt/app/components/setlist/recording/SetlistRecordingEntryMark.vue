@@ -1,5 +1,9 @@
 <template>
-  <div class="recording-mark" :class="{ music: mark.song_version_id }">
+  <div
+    class="recording-mark"
+    :class="{ music: mark.song_version_id }"
+    @click.self="emit('play')"
+  >
     <div class="" @click="emit('play')">
       <Icon name="solar:tag-horizontal-outline" />
     </div>
@@ -11,6 +15,7 @@
       :class="{ grow: !position }"
       :model="mark"
       prop="cue_title"
+      @click="emit('play')"
       @save="saveMark('cue_title')"
     />
     <SetlistSidebarSong
@@ -19,6 +24,9 @@
       :sheet="setlistSheet"
       class="grow"
     />
+    <div v-else-if="mark.song_version_id">
+      {{ mark.song_version_id }}
+    </div>
     <button v-if="canEdit" class="hover:text-red-500" @click="deleteMark">
       <Icon name="solar:trash-bin-minimalistic-outline" />
     </button>
@@ -27,6 +35,7 @@
 
 <script setup lang="ts">
 import { api } from "@/services"
+import { useSongVersionStore, useSongStore } from "@/stores/songs"
 import { useSetlistPositionStore, useSetlistRefreshStore } from "@/stores/setlists"
 import { timeString } from "@/utils"
 
@@ -97,22 +106,21 @@ async function deleteMark() {
 
 // todo
 // - add edit/'nudge' buttons on the mark time
-// - add marks to waveform view
-// - add titles to icon buttons
-// - add non-setlist sheet hyperlink here
-// - try to get the waveform to scroll
+// - when we can't find the setlist sheet, show a hyperlink to the song version
 // - figure out why it takes two clicks to focus the waveform view
+// - MtEditable cue_title won't accept an empty string
 // - comments on recordings ...
 // - then... add player to song media listing
+// - slicing out sections for download?
 </script>
 
 <style>
 .recording-mark {
-  @apply border shadow rounded bg-slate-50 px-2 py-1 my-2;
+  @apply border shadow rounded bg-blue-100 px-2 py-1 my-2;
   @apply flex flex-row gap-2 items-baseline;
   @apply hover:bg-white cursor-pointer;
 }
 .recording-mark.music {
-  @apply border-2 border-blue-200 bg-blue-50;
+  @apply border-2 border-green-600 bg-green-100 hover:bg-white;
 }
 </style>

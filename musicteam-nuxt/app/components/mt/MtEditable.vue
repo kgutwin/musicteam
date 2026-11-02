@@ -1,6 +1,9 @@
 <template>
   <div class="inline-block group/edit" :data-cy="`editable-${prop.toString()}`">
-    <div class="flex flex-row items-baseline">
+    <div
+      class="flex flex-row items-baseline"
+      @click.self="(ev: Event) => emit('click', ev)"
+    >
       <template v-if="!editing">
         <slot>
           <MtText
@@ -8,6 +11,7 @@
             :text="getText()"
             :loading="wide ? 'w-48 sm:w-72' : 'w-24 sm:w-48'"
             :placeholder="placeholder"
+            @click="(ev: Event) => emit('click', ev)"
           />
         </slot>
         <button
@@ -55,7 +59,7 @@ const props = defineProps<{
   editNeeds?: "viewer" | "leader" | "manager" | "admin"
 }>()
 
-const emit = defineEmits<{ save: [newV: T[K]] }>()
+const emit = defineEmits<{ save: [newV: T[K]]; click: [ev: Event] }>()
 
 const { hasRole } = useRole()
 const canEdit = hasRole(props.editNeeds ?? "leader")

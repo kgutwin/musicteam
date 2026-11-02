@@ -3,21 +3,6 @@
     <div class="recording-player-row">
       <UserIcon :user-id="recording.creator_id" class="w-6" />
       <div class="text-sm">{{ localdate(recording.created_on) }}</div>
-      <MtDropdown v-if="canEdit" class="self-end">
-        <template #dropdown-button>
-          <Icon name="solar:home-add-bold" class="text-slate-500 rotate-90" />
-        </template>
-
-        <i>Add Mark for...</i>
-        <button v-for="position in markCandidates" @click="newMark(position)">
-          <div :class="{ 'font-bold': position.is_music }">{{ position.label }}</div>
-          <div v-if="position.songId">
-            {{ songs.get({ songId: position.songId }).data.value?.title ?? "" }}
-          </div>
-        </button>
-        <hr />
-        <button @click="newMark()">Other</button>
-      </MtDropdown>
       <audio
         ref="player"
         :src="url"
@@ -30,26 +15,62 @@
           }
         "
       />
-      <button @click="download">
+      <button @click="download" title="Download">
         <Icon name="solar:download-minimalistic-bold" />
       </button>
-      <button v-if="canEdit" class="hover:text-red-500" @click="deleteEntry">
+      <button
+        v-if="canEdit"
+        class="hover:text-red-500"
+        title="Delete Recording"
+        @click="deleteEntry"
+      >
         <Icon name="solar:trash-bin-minimalistic-outline" />
       </button>
     </div>
-    <div class="recording-scroller">
-      <canvas
-        ref="canvas"
-        class="recording-waveform"
-        width="1470"
-        height="150"
-        tabindex="1"
-        @mousemove="canvasMouseEvent"
-        @click="canvasMouseEvent"
-        @keydown.prevent="canvasKeyEvent"
-      >
-        Recording waveform
-      </canvas>
+    <div class="flex flex-row gap-2">
+      <div v-if="canEdit" class="flex flex-col text-xl mr-1 pt-1">
+        <button @click="zoom('in')" title="Zoom In">
+          <Icon name="solar:magnifier-zoom-in-linear" />
+        </button>
+        <button @click="zoom('out')" title="Zoom Out">
+          <Icon name="solar:magnifier-zoom-out-linear" />
+        </button>
+        <MtDropdown class="self-end" title="Add Mark at Cursor">
+          <template #dropdown-button>
+            <Icon name="solar:home-add-bold" class="text-slate-500 rotate-90" />
+          </template>
+
+          <i>Add Mark for...</i>
+          <button v-for="position in markCandidates" @click="newMark(position)">
+            <div :class="{ 'font-bold': position.is_music }">{{ position.label }}</div>
+            <div v-if="position.songId">
+              {{ songs.get({ songId: position.songId }).data.value?.title ?? "" }}
+            </div>
+          </button>
+          <hr />
+          <button @click="newMark()">Other</button>
+        </MtDropdown>
+      </div>
+      <div class="recording-scroller">
+        <canvas
+          ref="canvas"
+          class="recording-waveform"
+          :width="waveformWidth"
+          height="150"
+          tabindex="1"
+          @mousemove="canvasMouseEvent"
+          @click="canvasMouseEvent"
+          @keydown.prevent="canvasKeyEvent"
+        >
+          Recording waveform
+        </canvas>
+        <div
+          v-for="mark in waveformMarks"
+          class="absolute w-8 h-8"
+          :style="`top: 22px; left: ${Math.max(0, mark.offset - 8)}px`"
+          :id="`mark-${mark.time}`"
+        />
+      </div>
     </div>
     <div class="bookmark-list">
       <SetlistRecordingEntryMark
@@ -129,6 +150,7 @@ const url = computed(
 
 const canvas = useTemplateRef("canvas")
 const player = useTemplateRef("player")
+const waveformWidth = ref(1470)
 const waveform = new WaveformViewer(
   props.recording.duration,
   JSON.parse(props.recording.waveform ?? "[]"),
@@ -137,6 +159,42 @@ watchEffect(() => {
   if (canvas.value) {
     waveform.setCanvas(canvas.value)
   }
+})
+
+const waveformMarks = computed(() => {
+  if (marks.value) {
+    return marks.value.marks.map((m, i) => {
+      let label = `${i + 1}`
+      if (m.setlist_position_id) {
+        const pos = useSetlistPositionStore().get({
+          setlistId: props.recording.setlist_id,
+          positionId: m.setlist_position_id,
+        }).data.value
+        if (pos) {
+          label = pos.label
+        }
+      } else if (m.cue_title) {
+        label = m.cue_title
+      }
+
+      return {
+        time: m.offset_sec,
+        offset: Math.round(
+          (waveformWidth.value / props.recording.duration) * m.offset_sec,
+        ),
+        label,
+        color: m.song_version_id
+          ? "rgb(22 163 74)" // bg-green-600
+          : "rgb(161 161 170)", // bg-zinc-400
+      }
+    })
+  } else {
+    return []
+  }
+})
+
+watchEffect(() => {
+  waveform.setMarks(waveformMarks.value)
 })
 
 function canvasMouseEvent(ev: MouseEvent) {
@@ -163,6 +221,15 @@ function canvasKeyEvent(ev: KeyboardEvent) {
       // console.log(ev.code)
     }
   }
+}
+
+function zoom(direction: "in" | "out") {
+  if (direction === "in") {
+    waveformWidth.value = Math.trunc(waveformWidth.value * 1.25)
+  } else {
+    waveformWidth.value = Math.trunc(waveformWidth.value * 0.8)
+  }
+  nextTick(() => waveform.draw())
 }
 
 async function newMark(position?: AnnotatedPosition) {
@@ -192,6 +259,7 @@ function playFrom(offset: number) {
     if (player.value.paused) {
       player.value.play()
     }
+    document.getElementById(`mark-${offset}`)?.scrollIntoView()
   }
 }
 
@@ -238,7 +306,7 @@ async function download() {
   }
 }
 .recording-scroller {
-  @apply overflow-auto;
+  @apply relative overflow-auto;
 }
 .recording-waveform {
   @apply mt-1 block border rounded; /* scale-x-150 origin-left; */

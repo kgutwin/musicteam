@@ -8,10 +8,17 @@ export interface AudioPeak {
   nsm: number
 }
 
+export interface WaveformMark {
+  time: number
+  label: string
+  color: string
+}
+
 export class WaveformViewer {
   duration: number
   peaks: AudioPeak[]
   cursor: number
+  marks: WaveformMark[]
 
   canvas: HTMLCanvasElement | null
   ctx: CanvasRenderingContext2D | null
@@ -20,6 +27,7 @@ export class WaveformViewer {
     this.duration = duration
     this.peaks = peaks
     this.cursor = -1
+    this.marks = []
     this.canvas = null
     this.ctx = null
   }
@@ -28,6 +36,17 @@ export class WaveformViewer {
     this.canvas = canvas
     this.ctx = canvas.getContext("2d")
     this.draw()
+  }
+
+  setMarks(marks: WaveformMark[]) {
+    this.marks = marks
+    this.draw()
+  }
+
+  offset(time: number) {
+    if (!this.canvas || !this.duration) return 0
+    const hscale = this.canvas.clientWidth / this.duration
+    return Math.round(time * hscale)
   }
 
   draw() {
@@ -99,6 +118,31 @@ export class WaveformViewer {
       this.peaks.map((p) => ({ time: p.time, v: p.rms * 2 })),
       max,
     )
+
+    // draw marks
+    let lastLabelEnd = 0
+    let lastLabelRow = 0
+    ctx.font = "14px sans-serif"
+    for (const mark of this.marks) {
+      ctx.fillStyle = mark.color
+      const offset = Math.round(mark.time * hscale)
+      ctx.fillRect(offset - 0.5, ruler, 1, height - ruler)
+    }
+    for (const mark of this.marks) {
+      ctx.fillStyle = mark.color
+      const offset = Math.round(mark.time * hscale)
+      const labelSize = ctx.measureText(mark.label)
+      const labelEnd = offset + labelSize.width + 3
+      const labelRow = offset < lastLabelEnd ? (lastLabelRow + 1) % 2 : 0
+      const labelTop = ruler + 17 * labelRow
+
+      ctx.fillRect(offset - 0.5, labelTop, labelEnd - offset, 16)
+      ctx.fillStyle = "white"
+      ctx.fillText(mark.label, offset + 1, labelTop + 12)
+
+      lastLabelEnd = labelEnd
+      lastLabelRow = labelRow
+    }
 
     // draw cursor
     if (this.cursor >= 0 && this.cursor <= this.duration) {
