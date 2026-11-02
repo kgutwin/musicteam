@@ -4,11 +4,7 @@
     class="animate-pulse rounded-full bg-slate-400 h-2 inline-block"
     :class="loading ?? ''"
   />
-  <div
-    v-else-if="!text"
-    class="inline-block"
-    :class="{ 'w-6 h-6': !placeholder, 'italic text-gray-300': placeholder }"
-  >
+  <div v-else-if="!text" class="mt-text-placeholder" :class="{ 'w-6': !placeholder }">
     {{ placeholder }}
   </div>
   <component v-else :is="is ?? 'span'">{{ text }}</component>
@@ -22,3 +18,9 @@ defineProps<{
   placeholder?: string
 }>()
 </script>
+
+<style>
+.mt-text-placeholder {
+  @apply inline-block italic text-gray-300;
+}
+</style>

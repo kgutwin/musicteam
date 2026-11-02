@@ -2888,6 +2888,11 @@ components:
         recording_id:
           title: Recording Id
           type: string
+        song_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Song Id
       required:
       - offset_sec
       - setlist_position_id
@@ -2895,6 +2900,7 @@ components:
       - cue_title
       - id
       - recording_id
+      - song_id
       title: SetlistRecordingMark
       type: object
     SetlistRecordingMarkList:

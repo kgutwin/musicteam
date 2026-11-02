@@ -818,9 +818,12 @@ def list_setlist_recording_marks(
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "    id, recording_id, offset_sec, setlist_position_id, song_version_id,"
-            "    cue_title "
+            "    setlist_recording_marks.id, recording_id, offset_sec,"
+            "    setlist_position_id, song_version_id, cue_title, songs.id AS song_id "
             "FROM setlist_recording_marks "
+            "LEFT JOIN song_versions"
+            "  ON setlist_recording_marks.song_version_id = song_versions.id "
+            "LEFT JOIN songs ON song_versions.song_id = songs.id "
             "WHERE recording_id = :recording_id "
             "ORDER BY offset_sec",
             {"recording_id": recording_id},
@@ -846,7 +849,7 @@ def new_setlist_recording_mark(
             "    :cue_title"
             ") "
             "RETURNING id, recording_id, offset_sec, setlist_position_id,"
-            "    song_version_id, cue_title",
+            "    song_version_id, NULL AS song_id, cue_title",
             request_body.model_dump() | {"recording_id": recording_id},
             output=SetlistRecordingMark,
         )
@@ -868,9 +871,12 @@ def get_setlist_recording_mark(
     with db.connect() as conn:
         curs = conn.execute(
             "SELECT"
-            "    id, recording_id, offset_sec, setlist_position_id, song_version_id,"
-            "    cue_title"
+            "    setlist_recording_marks.id, recording_id, offset_sec,"
+            "    setlist_position_id, song_version_id, cue_title, songs.id AS song_id "
             "FROM setlist_recording_marks "
+            "LEFT JOIN song_versions"
+            "  ON setlist_recording_marks.song_version_id = song_versions.id "
+            "LEFT JOIN songs ON song_versions.song_id = songs.id "
             "WHERE id = :mark_id AND recording_id = :recording_id",
             {"mark_id": mark_id, "recording_id": recording_id},
             output=SetlistRecordingMark,

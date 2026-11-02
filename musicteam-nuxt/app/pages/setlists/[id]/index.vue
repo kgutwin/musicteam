@@ -121,6 +121,7 @@
       </template>
       <template v-else>
         <button
+          v-if="canEdit"
           class="self-end"
           title="Upload Recording"
           @click="uploadRecording = !uploadRecording"
@@ -201,7 +202,7 @@ const sheetlistStore = useSetlistSheetlistStore()
 const refreshStore = useSetlistRefreshStore()
 const songStore = useSongStore()
 const songSheetStore = useSongSheetStore()
-const { canLead } = useRole()
+const { canLead, canEdit } = useRole()
 
 const { id } = useRoute().params
 

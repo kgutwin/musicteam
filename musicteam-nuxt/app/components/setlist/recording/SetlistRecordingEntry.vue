@@ -66,7 +66,7 @@
         </canvas>
         <div
           v-for="mark in waveformMarks"
-          class="absolute w-8 h-8"
+          class="absolute w-24 h-4 pointer-events-none"
           :style="`top: 22px; left: ${Math.max(0, mark.offset - 8)}px`"
           :id="`mark-${mark.time}`"
         />
@@ -77,7 +77,7 @@
         v-for="mark in marks?.marks ?? []"
         :setlist-id="recording.setlist_id"
         :mark="mark"
-        @play="playFrom(mark.offset_sec)"
+        @play="playPauseFrom(mark.offset_sec)"
       />
     </div>
   </div>
@@ -253,10 +253,15 @@ async function newMark(position?: AnnotatedPosition) {
   })
 }
 
-function playFrom(offset: number) {
+const lastPlayedFrom = ref<number>()
+function playPauseFrom(offset: number) {
   if (player.value) {
     player.value.currentTime = offset
-    if (player.value.paused) {
+    if (lastPlayedFrom.value === offset) {
+      lastPlayedFrom.value = -1
+      player.value.pause()
+    } else {
+      lastPlayedFrom.value = offset
       player.value.play()
     }
     document.getElementById(`mark-${offset}`)?.scrollIntoView()

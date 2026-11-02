@@ -515,6 +515,8 @@ export interface SetlistRecordingMark {
   id: string;
   /** Recording Id */
   recording_id: string;
+  /** Song Id */
+  song_id: string | null;
 }
 
 /** SetlistRecordingMarkList */

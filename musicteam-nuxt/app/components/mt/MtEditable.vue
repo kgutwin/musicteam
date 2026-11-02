@@ -86,7 +86,7 @@ function getText(): string | null | undefined {
 
 async function save() {
   if (!props.model) return
-  if (!editableValue.value) return
+  if (editableValue.value === undefined) return
 
   // patch model first
   props.model[props.prop] = editableValue.value as any
