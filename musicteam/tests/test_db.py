@@ -13,9 +13,8 @@ def test_upgrade_db(monkeypatch, db, snapshot):
     tmp_path = Path(tempfile.mkdtemp(prefix="pglite-dump-"))
     monkeypatch.setattr(db, "INSTANCE_DIR", str(tmp_path))
 
-    with db.connect() as conn:
-        with pytest.raises(UndefinedTable):
-            conn.execute("SELECT * FROM _version")
+    with db.connect() as conn, pytest.raises(UndefinedTable):
+        conn.execute("SELECT * FROM _version")
 
     db.upgrade_db()
 
