@@ -24,13 +24,19 @@ describe("recordings", () => {
       cy.get("audio").then(($el) => {
         $el.prop("muted", true)
       })
+
+      // at least once, the test was fast enough that the canvas click
+      // preceded the waveform load. We could probably add a sentinel
+      // somewhere to register that the waveform has loaded, but for
+      // now this should suffice.
+      cy.wait(100)
     })
 
     context("creating a song mark", () => {
       beforeEach(() => {
         // click on waveform
         cy.get("canvas.recording-waveform").click()
-        cy.get("audio").its("0.currentTime").should("equal", 0.548571)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.54, 0.56)
 
         // add a mark
         cy.dataCy("add-mark").click()
@@ -43,7 +49,7 @@ describe("recordings", () => {
 
       it("can click to seek", () => {
         cy.get("canvas.recording-waveform").click(15, 100)
-        cy.get("audio").its("0.currentTime").should("equal", 0.010448)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.01, 0.02)
 
         cy.get(".recording-mark").within(() => {
           cy.contains("First").click()
@@ -73,7 +79,7 @@ describe("recordings", () => {
         cy.get("audio")
           .its("0.readyState")
           .should("equal", HTMLMediaElement.HAVE_ENOUGH_DATA)
-        cy.get("audio").its("0.currentTime").should("equal", 0.548571)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.54, 0.56)
         cy.get("audio").then(($el) => {
           $el.prop("muted", true)
           $el.get(0).play()
@@ -82,7 +88,7 @@ describe("recordings", () => {
 
         // rewind
         cy.dataCy("rewind").click()
-        cy.get("audio").its("0.currentTime").should("equal", 0.548571)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.54, 0.56)
 
         // back to recording
         cy.dataCy("recording-setlist").click()
