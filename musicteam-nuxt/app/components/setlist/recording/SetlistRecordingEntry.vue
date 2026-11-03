@@ -15,6 +15,7 @@
           }
         "
       />
+      <CommentsButton v-model="showComments" :resource-id="recording.id" />
       <button @click="download" title="Download">
         <Icon name="solar:download-minimalistic-bold" />
       </button>
@@ -72,14 +73,15 @@
         />
       </div>
     </div>
-    <div class="bookmark-list">
-      <SetlistRecordingEntryMark
-        v-for="mark in marks?.marks ?? []"
-        :setlist-id="recording.setlist_id"
-        :mark="mark"
-        @play="playPauseFrom(mark.offset_sec)"
-      />
+    <div v-if="showComments" class="mt-2">
+      <CommentsPanel :resource-id="recording.id" />
     </div>
+    <SetlistRecordingEntryMark
+      v-for="mark in marks?.marks ?? []"
+      :setlist-id="recording.setlist_id"
+      :mark="mark"
+      @play="playPauseFrom(mark.offset_sec)"
+    />
   </div>
 </template>
 
@@ -294,6 +296,8 @@ async function download() {
   link.click()
   document.body.removeChild(link)
 }
+
+const showComments = ref(false)
 </script>
 
 <style>
@@ -314,11 +318,8 @@ async function download() {
   @apply relative overflow-auto;
 }
 .recording-waveform {
-  @apply mt-1 block border rounded; /* scale-x-150 origin-left; */
+  @apply mt-1 block border rounded;
   image-rendering: pixelated;
   outline: none;
-}
-.bookmark-list {
-  /* @apply flex flex-row gap-2 items-baseline mt-2; */
 }
 </style>
