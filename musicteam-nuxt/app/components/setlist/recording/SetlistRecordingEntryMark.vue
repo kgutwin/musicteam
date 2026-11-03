@@ -1,13 +1,10 @@
 <template>
   <div class="recording-mark group" :class="{ music: mark.song_version_id }">
-    <button class="leading-[0.5] font-mono py-2" @click="emit('play')">
+    <button class="recording-mark-timestamp" @click="emit('play')">
       <Icon name="solar:tag-horizontal-outline" />
       {{ timeString(mark.offset_sec) }}
     </button>
-    <div
-      v-if="canEdit"
-      class="self-center flex flex-col leading-[0.5] invisible group-hover:visible"
-    >
+    <div v-if="canEdit" class="recording-mark-nudge-buttons group-hover:visible">
       <button @click="nudge('up')">
         <Icon name="solar:square-alt-arrow-up-outline" />
       </button>
@@ -15,13 +12,12 @@
         <Icon name="solar:square-alt-arrow-down-outline" />
       </button>
     </div>
-    <div class="w-2" />
-    <button v-if="position" class="text-left grow font-bold" @click="emit('play')">
+    <button v-if="position" class="recording-mark-position-label" @click="emit('play')">
       {{ position.label }}
     </button>
     <MtEditable
-      class="cursor-pointer"
-      :class="{ grow: !position }"
+      class="recording-mark-cue-title"
+      :class="{ 'only-title': !position }"
       :model="mark"
       prop="cue_title"
       :placeholder="position ? '' : 'cue title'"
@@ -32,9 +28,9 @@
       v-if="setlistSheet"
       read-only
       :sheet="setlistSheet"
-      class="grow"
+      class="recording-mark-sidebar-song"
     />
-    <div v-else-if="mark.song_id" class="recording-mark-song grow">
+    <div v-else-if="mark.song_id" class="recording-mark-song">
       <NuxtLink :to="`/songs/${mark.song_id}`" class="hover:underline">
         <Icon name="solar:music-note-4-outline" />
         {{ songs.get({ songId: mark.song_id }).data.value?.title }}
@@ -42,7 +38,7 @@
     </div>
     <button
       v-if="canEdit"
-      class="invisible group-hover:visible hover:text-red-500"
+      class="recording-mark-delete invisible group-hover:visible"
       @click="deleteMark"
     >
       <Icon name="solar:trash-bin-minimalistic-outline" />
@@ -145,17 +141,48 @@ async function deleteMark() {
 <style>
 .recording-mark {
   @apply border shadow rounded bg-blue-100 px-2 py-1 my-2;
-  @apply flex flex-row gap-2 items-baseline;
+  @apply flex flex-row gap-x-0.5 sm:gap-x-2 items-baseline;
   @apply hover:bg-white;
+  @apply flex-wrap md:flex-nowrap;
 
   & .mt-text-placeholder {
     @apply text-slate-400;
+  }
+  & .mt-text-placeholder:empty {
+    @apply max-sm:!w-1;
   }
 }
 .recording-mark.music {
   @apply border-2 border-green-600 bg-green-100 hover:bg-white;
 }
+.recording-mark-timestamp {
+  @apply order-1 leading-[0.5] font-mono py-2;
+  @apply text-xs sm:text-sm md:text-base;
+}
+.recording-mark-nudge-buttons {
+  @apply order-2 self-center hidden sm:flex flex-col leading-[0.5] invisible;
+}
+.recording-mark-position-label {
+  @apply order-3 grow text-left font-bold ml-1;
+}
+.recording-mark-cue-title {
+  @apply order-4 cursor-pointer mb-1;
+}
+.recording-mark-cue-title.only-title {
+  @apply ml-1 grow;
+}
+.recording-mark-cue-title:not(.only-title):has(
+    .editable-text:not(.mt-text-placeholder)
+  ) {
+  @apply order-6 basis-full sm:basis-auto;
+}
+.recording-mark-sidebar-song {
+  @apply order-7 sm:order-6 grow;
+}
 .recording-mark-song {
-  @apply rounded-lg bg-white p-2;
+  @apply order-8 sm:order-7 grow rounded-lg bg-white p-2;
+}
+.recording-mark-delete {
+  @apply order-5 sm:order-8 hover:text-red-500;
 }
 </style>

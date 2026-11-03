@@ -1,13 +1,11 @@
 <template>
   <div class="inline-block group/edit" :data-cy="`editable-${prop.toString()}`">
-    <div
-      class="flex flex-row items-baseline"
-      @click.self="(ev: Event) => emit('click', ev)"
-    >
+    <div class="editable-flex" @click.self="(ev: Event) => emit('click', ev)">
       <template v-if="!editing">
         <slot>
           <MtText
             is="span"
+            class="editable-text"
             :text="getText()"
             :loading="wide ? 'w-48 sm:w-72' : 'w-24 sm:w-48'"
             :placeholder="placeholder"
@@ -96,3 +94,9 @@ async function save() {
   editing.value = false
 }
 </script>
+
+<style>
+.editable-flex {
+  @apply flex flex-row items-baseline;
+}
+</style>
