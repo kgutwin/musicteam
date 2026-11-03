@@ -849,7 +849,7 @@
   --
   
   ALTER TABLE ONLY public.setlist_recording_marks
-      ADD CONSTRAINT setlist_recording_marks_setlist_position_id_fkey FOREIGN KEY (setlist_position_id) REFERENCES public.setlist_positions(id);
+      ADD CONSTRAINT setlist_recording_marks_setlist_position_id_fkey FOREIGN KEY (setlist_position_id) REFERENCES public.setlist_positions(id) ON DELETE CASCADE;
   
   
   --
