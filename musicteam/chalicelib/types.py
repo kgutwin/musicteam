@@ -453,6 +453,7 @@ class SetlistRecordingMark(NewSetlistRecordingMark):
     id: str
     recording_id: str
     song_id: str | None
+    setlist_id: str | None
 
 
 class SetlistRecordingMarkList(BaseModel):

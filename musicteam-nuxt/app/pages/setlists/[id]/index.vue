@@ -204,7 +204,10 @@ const songStore = useSongStore()
 const songSheetStore = useSongSheetStore()
 const { canLead, canEdit } = useRole()
 
-const { id } = useRoute().params
+const {
+  query,
+  params: { id },
+} = useRoute()
 
 const setlist = setlistStore.get({ setlistId: id as string }).data
 const positions = setlistPositionlistStore.get({ setlistId: id as string }).data
@@ -216,7 +219,7 @@ const tabs: Tab[] = [
   { name: "lyrics", title: "Lyrics Packet" },
   { name: "recording", title: "Recording" },
 ]
-const selectedTab = ref("order")
+const selectedTab = ref(query.recording ? "recording" : "order")
 
 const editOrder = ref(false)
 

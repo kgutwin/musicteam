@@ -61,6 +61,14 @@ export const useSongMedialistStore = defineStore(
   ),
 )
 
+export const useSongRecordinglistStore = defineStore(
+  "songrecordinglist",
+  createParamStoreState(
+    async (params: { songId: string; versionId: string }) =>
+      await api.songs.listSongRecordings(params.songId, params.versionId),
+  ),
+)
+
 export const useSongRefreshStore = defineStore(
   "songRefresh",
   createRefreshStoreState([

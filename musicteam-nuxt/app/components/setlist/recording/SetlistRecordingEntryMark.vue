@@ -132,9 +132,6 @@ async function deleteMark() {
     })
   })
 }
-
-// todo
-// - then... add player to song media listing
 </script>
 
 <style>

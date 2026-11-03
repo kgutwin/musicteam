@@ -517,6 +517,8 @@ export interface SetlistRecordingMark {
   recording_id: string;
   /** Song Id */
   song_id: string | null;
+  /** Setlist Id */
+  setlist_id: string | null;
 }
 
 /** SetlistRecordingMarkList */
@@ -3278,6 +3280,28 @@ export class Api<
         path: `/songs/${songId}/versions/${versionId}/media/${mediaId}/obj`,
         method: "GET",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name ListSongRecordings
+     * @summary List recordings of this song
+     * @request GET:/songs/{song_id}/versions/{version_id}/recordings
+     * @secure
+     */
+    listSongRecordings: (
+      songId: string,
+      versionId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecordingMarkList, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/recordings`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 
