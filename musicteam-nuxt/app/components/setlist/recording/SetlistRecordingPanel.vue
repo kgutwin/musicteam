@@ -1,7 +1,13 @@
 <template>
   <div v-if="openUpload && canEdit" class="upload-panel">
     <div class="font-bold mr-8">Upload Recording</div>
-    <input type="file" accept="audio/*" @change="selectFile" :disabled="!!phase" />
+    <input
+      type="file"
+      accept="audio/*"
+      @change="selectFile"
+      :disabled="!!phase"
+      data-cy="file"
+    />
     <div class="grow relative" :class="{ 'border rounded': !!phase }">
       <div
         v-if="progress"
@@ -21,6 +27,20 @@
       :key="recording.id"
       :recording="recording"
     />
+    <div v-if="recordings?.recordings?.length === 0" class="div-loading-panel">
+      <div class="italic">No recordings uploaded yet</div>
+      <div
+        v-if="canEdit && !openUpload"
+        class="text-base mt-4"
+        @click="openUpload = true"
+      >
+        <button class="btn-gray">Upload a Recording</button>
+      </div>
+    </div>
+    <div v-else-if="recordings?.recordings === undefined" class="div-loading-panel">
+      Loading recordings
+      <Icon name="svg-spinners:3-dots-fade" />
+    </div>
   </div>
 </template>
 
@@ -34,10 +54,9 @@ import type { Conversion } from "mediabunny"
 
 const props = defineProps<{
   setlistId: string
-  openUpload: boolean
 }>()
 
-const emit = defineEmits<{ closeUpload: [] }>()
+const openUpload = defineModel<boolean>({ default: false })
 
 const { canEdit } = useRole()
 
@@ -78,7 +97,7 @@ async function selectFile(event: any) {
       await api.setlists.newSetlistRecording(props.setlistId, newRecording)
       await refreshStore.refresh({ setlistId: props.setlistId })
       phase.value = null
-      emit("closeUpload")
+      openUpload.value = false
     })
   }
 }
@@ -89,7 +108,7 @@ async function cancel() {
   }
   phase.value = null
   progress.value = 0
-  emit("closeUpload")
+  openUpload.value = false
 }
 </script>
 

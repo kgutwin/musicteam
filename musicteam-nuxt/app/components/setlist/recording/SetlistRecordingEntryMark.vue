@@ -5,10 +5,10 @@
       {{ timeString(mark.offset_sec) }}
     </button>
     <div v-if="canEdit" class="recording-mark-nudge-buttons group-hover:visible">
-      <button @click="nudge('up')">
+      <button @click="nudge('up')" data-cy="nudge-up">
         <Icon name="solar:square-alt-arrow-up-outline" />
       </button>
-      <button @click="nudge('down')">
+      <button @click="nudge('down')" data-cy="nudge-down">
         <Icon name="solar:square-alt-arrow-down-outline" />
       </button>
     </div>

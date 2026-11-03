@@ -15,7 +15,11 @@
           }
         "
       />
-      <CommentsButton v-model="showComments" :resource-id="recording.id" />
+      <CommentsButton
+        v-model="showComments"
+        :resource-id="recording.id"
+        data-cy="comments"
+      />
       <button @click="download" title="Download">
         <Icon name="solar:download-minimalistic-bold" />
       </button>
@@ -24,19 +28,20 @@
         class="hover:text-red-500"
         title="Delete Recording"
         @click="deleteEntry"
+        data-cy="delete-recording"
       >
         <Icon name="solar:trash-bin-minimalistic-outline" />
       </button>
     </div>
     <div class="flex flex-row gap-2">
       <div v-if="canEdit" class="flex flex-col text-xl mr-1 pt-1">
-        <button @click="zoom('in')" title="Zoom In">
+        <button @click="zoom('in')" title="Zoom In" data-cy="zoom-in">
           <Icon name="solar:magnifier-zoom-in-linear" />
         </button>
-        <button @click="zoom('out')" title="Zoom Out">
+        <button @click="zoom('out')" title="Zoom Out" data-cy="zoom-out">
           <Icon name="solar:magnifier-zoom-out-linear" />
         </button>
-        <MtDropdown class="self-end" title="Add Mark at Cursor">
+        <MtDropdown class="self-end" title="Add Mark at Cursor" data-cy="add-mark">
           <template #dropdown-button>
             <Icon name="solar:home-add-bold" class="text-slate-500 rotate-90" />
           </template>
@@ -235,7 +240,10 @@ function zoom(direction: "in" | "out") {
 }
 
 async function newMark(position?: AnnotatedPosition) {
-  if (waveform.cursor < 0) return
+  if (waveform.cursor < 0) {
+    alert("Click on the waveform first to set the cursor.")
+    return
+  }
 
   await useToaster(async () => {
     await api.setlists.newSetlistRecordingMark(
@@ -308,7 +316,7 @@ const showComments = ref(false)
   @apply flex flex-row gap-2 items-center;
 
   & button {
-    @apply self-end;
+    @apply leading-[0.5];
   }
   & button .iconify {
     @apply text-xl;

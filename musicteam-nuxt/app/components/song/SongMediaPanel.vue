@@ -107,6 +107,7 @@
           v-if="recording.setlist_id"
           class="grow hover:underline"
           :to="`/setlists/${recording.setlist_id}?recording=t`"
+          data-cy="recording-setlist"
         >
           {{
             localdate(
@@ -119,6 +120,7 @@
           class="leading-[0.5] btn-gray !px-2"
           @click="reseek(recording)"
           title="Rewind to start of song"
+          data-cy="rewind"
         >
           <Icon name="ri:rewind-start-fill" size="18" />
         </button>

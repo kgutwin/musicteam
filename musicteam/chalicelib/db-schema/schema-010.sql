@@ -22,7 +22,7 @@ CREATE TABLE setlist_recording_marks (
   cue_title TEXT,
   PRIMARY KEY (id),
   FOREIGN KEY (recording_id) REFERENCES setlist_recordings (id) ON DELETE CASCADE,
-  FOREIGN KEY (setlist_position_id) REFERENCES setlist_positions (id),
+  FOREIGN KEY (setlist_position_id) REFERENCES setlist_positions (id) ON DELETE CASCADE,
   FOREIGN KEY (song_version_id) REFERENCES song_versions (id) ON DELETE SET NULL
 );
 

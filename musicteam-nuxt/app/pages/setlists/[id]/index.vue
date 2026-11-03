@@ -125,6 +125,7 @@
           class="self-end"
           title="Upload Recording"
           @click="uploadRecording = !uploadRecording"
+          data-cy="open-upload"
         >
           <Icon
             :name="
@@ -173,9 +174,8 @@
     </SongTextPanel>
     <SetlistRecordingPanel
       v-else-if="selectedTab === 'recording'"
+      v-model="uploadRecording"
       :setlist-id="id as string"
-      :open-upload="uploadRecording"
-      @close-upload="uploadRecording = false"
     />
   </div>
 </template>

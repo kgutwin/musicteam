@@ -850,8 +850,10 @@ def new_setlist_recording_mark(
             "    :cue_title"
             ") "
             "RETURNING id, recording_id, offset_sec, setlist_position_id,"
-            "    song_version_id, NULL AS song_id, cue_title",
-            request_body.model_dump() | {"recording_id": recording_id},
+            "    song_version_id, NULL AS song_id, cue_title,"
+            "    :setlist_id AS setlist_id",
+            request_body.model_dump()
+            | {"recording_id": recording_id, "setlist_id": setlist_id},
             output=SetlistRecordingMark,
         )
         setlist_recording_mark = curs.fetchone()
