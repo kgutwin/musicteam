@@ -68,7 +68,10 @@
 
     <MtTabPanel v-model="selectedTab" :options="tabs">
       <template v-if="selectedTab === 'order'">
-        <MtCopyToClipboard class="btn-icon" :content="copySetlistToClipboard" />
+        <MtCopyToClipboard
+          class="btn-icon self-end"
+          :content="copySetlistToClipboard"
+        />
         <button
           v-if="canLead"
           class="btn-gray"
@@ -79,7 +82,7 @@
         </button>
         <button v-if="canLead" class="btn-gray" @click="makeActive">Make Active</button>
       </template>
-      <template v-else>
+      <template v-else-if="selectedTab !== 'recording'">
         <MtDropdown
           v-if="packetWarnings.length > 0"
           class="self-center"
@@ -114,6 +117,24 @@
           "
         >
           <Icon name="solar:notebook-minimalistic-outline" size="28" />
+        </button>
+      </template>
+      <template v-else>
+        <button
+          v-if="canEdit"
+          class="self-end"
+          title="Upload Recording"
+          @click="uploadRecording = !uploadRecording"
+          data-cy="open-upload"
+        >
+          <Icon
+            :name="
+              uploadRecording
+                ? 'solar:upload-track-2-bold'
+                : 'solar:upload-track-2-outline'
+            "
+            size="28"
+          />
         </button>
       </template>
     </MtTabPanel>
@@ -151,6 +172,11 @@
 
       <object :data="`/api/setlists/${id}/packet/lyrics`" class="w-full h-screen" />
     </SongTextPanel>
+    <SetlistRecordingPanel
+      v-else-if="selectedTab === 'recording'"
+      v-model="uploadRecording"
+      :setlist-id="id as string"
+    />
   </div>
 </template>
 
@@ -176,9 +202,12 @@ const sheetlistStore = useSetlistSheetlistStore()
 const refreshStore = useSetlistRefreshStore()
 const songStore = useSongStore()
 const songSheetStore = useSongSheetStore()
-const { canLead } = useRole()
+const { canLead, canEdit } = useRole()
 
-const { id } = useRoute().params
+const {
+  query,
+  params: { id },
+} = useRoute()
 
 const setlist = setlistStore.get({ setlistId: id as string }).data
 const positions = setlistPositionlistStore.get({ setlistId: id as string }).data
@@ -188,19 +217,20 @@ const tabs: Tab[] = [
   { name: "order", title: "Set List Order" },
   { name: "pdf", title: "Music Packet" },
   { name: "lyrics", title: "Lyrics Packet" },
+  { name: "recording", title: "Recording" },
 ]
-const selectedTab = ref("order")
+const selectedTab = ref(query.recording ? "recording" : "order")
 
 const editOrder = ref(false)
 
 async function deleteSetlist() {
   if (!window.confirm("Are you sure you want to delete this set list?")) return
 
-  await api.setlists.deleteSetlist(id as string)
-
-  await refreshStore.refresh()
-
-  await navigateTo({ path: "/setlists" })
+  await useToaster(async () => {
+    await api.setlists.deleteSetlist(id as string)
+    await refreshStore.refresh()
+    await navigateTo({ path: "/setlists" })
+  })
 }
 
 function makeActive() {
@@ -300,4 +330,6 @@ const pdfPacketSrc = computed(() => {
   if (twoPageAlign.value) rv += "?two_page_align=true"
   return rv
 })
+
+const uploadRecording = ref(false)
 </script>

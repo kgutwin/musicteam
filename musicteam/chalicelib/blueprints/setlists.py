@@ -7,6 +7,7 @@ from chalicelib import pdf
 from chalicelib import storage
 from chalicelib.middleware import session_role
 from chalicelib.middleware import session_user
+from chalicelib.types import _Object
 from chalicelib.types import _PositionSheetDetails
 from chalicelib.types import Conflict
 from chalicelib.types import Download
@@ -15,6 +16,8 @@ from chalicelib.types import Found
 from chalicelib.types import GetPacketPdfParams
 from chalicelib.types import NewSetlist
 from chalicelib.types import NewSetlistPosition
+from chalicelib.types import NewSetlistRecording
+from chalicelib.types import NewSetlistRecordingMark
 from chalicelib.types import NewSetlistSheet
 from chalicelib.types import NewSetlistTemplate
 from chalicelib.types import NewSetlistTemplatePosition
@@ -27,6 +30,10 @@ from chalicelib.types import SetlistInfo
 from chalicelib.types import SetlistList
 from chalicelib.types import SetlistPosition
 from chalicelib.types import SetlistPositionList
+from chalicelib.types import SetlistRecording
+from chalicelib.types import SetlistRecordingList
+from chalicelib.types import SetlistRecordingMark
+from chalicelib.types import SetlistRecordingMarkList
 from chalicelib.types import SetlistSheet
 from chalicelib.types import SetlistSheetList
 from chalicelib.types import SetlistTemplate
@@ -36,6 +43,8 @@ from chalicelib.types import SetlistTemplatePositionList
 from chalicelib.types import UpdateSetlist
 from chalicelib.types import UpdateSetlistPosition
 from chalicelib.types import UpdateSetlistPositions
+from chalicelib.types import UpdateSetlistRecording
+from chalicelib.types import UpdateSetlistRecordingMark
 from chalicelib.types import UpdateSetlistSheet
 from chalicelib.types import UpdateSetlistTemplate
 from chalicelib.types import UpdateSetlistTemplatePosition
@@ -653,6 +662,279 @@ def delete_setlist_sheet(
             "DELETE FROM setlist_sheets "
             "WHERE id = :sheet_id AND setlist_id = :setlist_id",
             {"sheet_id": sheet_id, "setlist_id": setlist_id},
+        )
+        return NoContent() if result else NotFound()
+
+
+@bp.route("/setlists/{setlist_id}/recordings", methods=["GET"])
+def list_setlist_recordings(setlist_id: str) -> Forbidden | SetlistRecordingList:
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "    id, setlist_id, tags, object_id, object_type, duration, waveform,"
+            "    created_on, creator_id "
+            "FROM setlist_recordings "
+            "WHERE setlist_id = :setlist_id "
+            "ORDER BY created_on ASC",
+            {"setlist_id": setlist_id},
+            output=SetlistRecording,
+        )
+        return SetlistRecordingList(recordings=curs.fetchall())
+
+
+@bp.route("/setlists/{setlist_id}/recordings", methods=["POST"])
+def new_setlist_recording(
+    setlist_id: str, request_body: NewSetlistRecording
+) -> Forbidden | SetlistRecording:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "INSERT INTO setlist_recordings ("
+            "  setlist_id, tags, object_id, object_type, duration, waveform,"
+            "  creator_id"
+            ") VALUES ("
+            "  :setlist_id, :tags, :object_id, :object_type, :duration, :waveform,"
+            "  :creator_id"
+            ") "
+            "RETURNING id, setlist_id, tags, object_id, object_type, duration,"
+            "  waveform, created_on, creator_id",
+            request_body.model_dump()
+            | {
+                "setlist_id": setlist_id,
+                "creator_id": session_user(bp.current_request).id,
+            },
+            output=SetlistRecording,
+        )
+        setlist_recording = curs.fetchone()
+        assert setlist_recording is not None
+
+    return setlist_recording
+
+
+@bp.route("/setlists/{setlist_id}/recordings/{recording_id}", methods=["GET"])
+def get_setlist_recording(
+    setlist_id: str, recording_id: str
+) -> Forbidden | NotFound | SetlistRecording:
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  id, setlist_id, tags, object_id, object_type, duration, waveform,"
+            "  created_on, creator_id "
+            "FROM setlist_recordings "
+            "WHERE id = :recording_id AND setlist_id = :setlist_id",
+            {"recording_id": recording_id, "setlist_id": setlist_id},
+            output=SetlistRecording,
+        )
+        setlist_recording = curs.fetchone()
+        return setlist_recording if setlist_recording is not None else NotFound()
+
+
+@bp.route(
+    "/setlists/{setlist_id}/recordings/{recording_id}/audio", methods=["HEAD", "GET"]
+)
+def get_setlist_recording_audio(
+    setlist_id: str, recording_id: str
+) -> Forbidden | NotFound | Download | PartialDownload | Found:
+    """Retrieve the audio attached to the setlist recording
+
+    This method supports range requests.
+
+    For large responses, this method returns a 302 Found temporary redirect.
+    """
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT object_type, object_id "
+            "FROM setlist_recordings "
+            "WHERE id = :recording_id AND setlist_id = :setlist_id",
+            {"recording_id": recording_id, "setlist_id": setlist_id},
+            output=_Object,
+        )
+        media_obj = curs.fetchone()
+        if media_obj is None:
+            return NotFound()
+
+    return storage.get_download(
+        media_obj.object_id,
+        media_obj.object_type,
+        bp.current_request.method == "HEAD",
+        bp.current_request.headers.get("Range"),
+    )
+
+
+@bp.route("/setlists/{setlist_id}/recordings/{recording_id}", methods=["PUT"])
+def update_setlist_recording(
+    setlist_id: str, recording_id: str, request_body: UpdateSetlistRecording
+) -> Forbidden | NotFound | NoContent:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    if not request_body.any_replacements:
+        return NoContent()
+
+    with db.connect() as conn:
+        result = conn.execute(
+            f"UPDATE setlist_recordings SET {request_body.replacement_sql} "
+            f"WHERE id = :recording_id AND setlist_id = :setlist_id",
+            {"recording_id": recording_id, "setlist_id": setlist_id}
+            | request_body.replacement_params,
+        )
+        return NoContent() if result else NotFound()
+
+
+@bp.route("/setlists/{setlist_id}/recordings/{recording_id}", methods=["DELETE"])
+def delete_setlist_recording(
+    setlist_id: str, recording_id: str
+) -> Forbidden | NotFound | NoContent:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        result = conn.execute(
+            "DELETE FROM setlist_recordings "
+            "WHERE id = :recording_id AND setlist_id = :setlist_id",
+            {"recording_id": recording_id, "setlist_id": setlist_id},
+        )
+        return NoContent() if result else NotFound()
+
+
+@bp.route("/setlists/{setlist_id}/recordings/{recording_id}/marks", methods=["GET"])
+def list_setlist_recording_marks(
+    setlist_id: str, recording_id: str
+) -> Forbidden | SetlistRecordingMarkList:
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  setlist_recording_marks.id, recording_id, offset_sec,"
+            "  setlist_position_id, song_version_id, cue_title, songs.id AS song_id,"
+            "  :setlist_id AS setlist_id "
+            "FROM setlist_recording_marks "
+            "LEFT JOIN song_versions"
+            "  ON setlist_recording_marks.song_version_id = song_versions.id "
+            "LEFT JOIN songs ON song_versions.song_id = songs.id "
+            "WHERE recording_id = :recording_id "
+            "ORDER BY offset_sec",
+            {"setlist_id": setlist_id, "recording_id": recording_id},
+            output=SetlistRecordingMark,
+        )
+        return SetlistRecordingMarkList(marks=curs.fetchall())
+
+
+@bp.route("/setlists/{setlist_id}/recordings/{recording_id}/marks", methods=["POST"])
+def new_setlist_recording_mark(
+    setlist_id: str, recording_id: str, request_body: NewSetlistRecordingMark
+) -> Forbidden | SetlistRecordingMark:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "INSERT INTO setlist_recording_marks ("
+            "    recording_id, offset_sec, setlist_position_id, song_version_id,"
+            "    cue_title"
+            ") VALUES ("
+            "    :recording_id, :offset_sec, :setlist_position_id, :song_version_id,"
+            "    :cue_title"
+            ") "
+            "RETURNING id, recording_id, offset_sec, setlist_position_id,"
+            "    song_version_id, NULL AS song_id, cue_title,"
+            "    :setlist_id AS setlist_id",
+            request_body.model_dump()
+            | {"recording_id": recording_id, "setlist_id": setlist_id},
+            output=SetlistRecordingMark,
+        )
+        setlist_recording_mark = curs.fetchone()
+        assert setlist_recording_mark is not None
+
+    return setlist_recording_mark
+
+
+@bp.route(
+    "/setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}", methods=["GET"]
+)
+def get_setlist_recording_mark(
+    setlist_id: str, recording_id: str, mark_id: str
+) -> Forbidden | NotFound | SetlistRecordingMark:
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  setlist_recording_marks.id, recording_id, offset_sec,"
+            "  setlist_position_id, song_version_id, cue_title, songs.id AS song_id,"
+            "  :setlist_id AS setlist_id "
+            "FROM setlist_recording_marks "
+            "LEFT JOIN song_versions"
+            "  ON setlist_recording_marks.song_version_id = song_versions.id "
+            "LEFT JOIN songs ON song_versions.song_id = songs.id "
+            "WHERE id = :mark_id AND recording_id = :recording_id",
+            {
+                "mark_id": mark_id,
+                "recording_id": recording_id,
+                "setlist_id": setlist_id,
+            },
+            output=SetlistRecordingMark,
+        )
+        setlist_recording_mark = curs.fetchone()
+        return (
+            setlist_recording_mark if setlist_recording_mark is not None else NotFound()
+        )
+
+
+@bp.route(
+    "/setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}", methods=["PUT"]
+)
+def update_setlist_recording_mark(
+    setlist_id: str,
+    recording_id: str,
+    mark_id: str,
+    request_body: UpdateSetlistRecordingMark,
+) -> Forbidden | NotFound | NoContent:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    if not request_body.any_replacements:
+        return NoContent()
+
+    with db.connect() as conn:
+        result = conn.execute(
+            f"UPDATE setlist_recording_marks SET {request_body.replacement_sql} "
+            f"WHERE id = :mark_id AND recording_id = :recording_id",
+            {"mark_id": mark_id, "recording_id": recording_id}
+            | request_body.replacement_params,
+        )
+        return NoContent() if result else NotFound()
+
+
+@bp.route(
+    "/setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}",
+    methods=["DELETE"],
+)
+def delete_setlist_recording_mark(
+    setlist_id: str, recording_id: str, mark_id: str
+) -> Forbidden | NotFound | NoContent:
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        result = conn.execute(
+            "DELETE FROM setlist_recording_marks "
+            "WHERE id = :mark_id AND recording_id = :recording_id",
+            {"mark_id": mark_id, "recording_id": recording_id},
         )
         return NoContent() if result else NotFound()
 

@@ -411,6 +411,55 @@ class SetlistInfo(BaseModel):
     lyrics: list[PositionLyricDetails]
 
 
+class NewSetlistRecording(BaseModel):
+    tags: list[str] = []
+    object_id: str
+    object_type: str
+    duration: float
+    waveform: str | None = None
+
+
+class UpdateSetlistRecording(_ReplacementModel):
+    tags: list[str] | None = None
+    object_id: str | None = None
+    object_type: str | None = None
+    duration: float | None = None
+    waveform: str | None = None
+
+
+class SetlistRecording(_CoreModel, NewSetlistRecording):
+    setlist_id: str
+
+
+class SetlistRecordingList(BaseModel):
+    recordings: list[SetlistRecording]
+
+
+class NewSetlistRecordingMark(BaseModel):
+    offset_sec: float
+    setlist_position_id: str | None
+    song_version_id: str | None
+    cue_title: str | None
+
+
+class UpdateSetlistRecordingMark(_ReplacementModel):
+    offset_sec: float | None = None
+    setlist_position_id: str | None = None
+    song_version_id: str | None = None
+    cue_title: str | None = None
+
+
+class SetlistRecordingMark(NewSetlistRecordingMark):
+    id: str
+    recording_id: str
+    song_id: str | None
+    setlist_id: str | None
+
+
+class SetlistRecordingMarkList(BaseModel):
+    marks: list[SetlistRecordingMark]
+
+
 class NewSetlistTemplate(BaseModel):
     title: str
     tags: list[str] = []

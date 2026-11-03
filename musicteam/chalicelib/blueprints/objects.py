@@ -54,3 +54,26 @@ def upload_file_direct(request_body: UploadDirectFields) -> Forbidden | UploadDi
     )
 
     return UploadDirect(url=response["url"], fields=response["fields"])
+
+
+@bp.route("/objects/direct", methods=["PUT"])
+def upload_file_direct_put(
+    request_body: UploadDirectFields,
+) -> Forbidden | UploadDirect:
+    """Upload a file (object) directly to the site's storage via a PUT request"""
+    if not session_role(bp.current_request, "leader"):
+        return Forbidden()
+
+    object_id = str(uuid.uuid4())
+
+    url = storage.s3.generate_presigned_url(
+        ClientMethod="put_object",
+        Params={
+            "Bucket": OBJECT_BUCKET_NAME,
+            "Key": object_id,
+            "ContentType": request_body.content_type,
+        },
+        ExpiresIn=3600,
+    )
+
+    return UploadDirect(url=url, fields={"key": object_id})

@@ -85,6 +85,53 @@
         <button type="button" class="btn-gray-sm" @click="cancelMedia">Cancel</button>
       </div>
     </form>
+
+    <template v-if="recordings.length > 0">
+      <hr class="m-2" />
+      <div class="flex flex-row mb-1">
+        <h2 class="text-sm grow">Recordings</h2>
+        <button
+          v-if="!showAllRecordings && recordings.length > 1"
+          class="italic"
+          @click="showAllRecordings = true"
+        >
+          Show {{ recordings.length - 1 }} more...
+        </button>
+      </div>
+      <div
+        v-for="recording in showAllRecordings ? recordings : [recordings[0]!]"
+        :key="recording.id"
+        class="flex flex-row items-center gap-2 mb-1"
+      >
+        <NuxtLink
+          v-if="recording.setlist_id"
+          class="grow hover:underline"
+          :to="`/setlists/${recording.setlist_id}?recording=t`"
+          data-cy="recording-setlist"
+        >
+          {{
+            localdate(
+              setlists.get({ setlistId: recording.setlist_id }).data.value
+                ?.service_date,
+            )
+          }}
+        </NuxtLink>
+        <button
+          class="leading-[0.5] btn-gray !px-2"
+          @click="reseek(recording)"
+          title="Rewind to start of song"
+          data-cy="rewind"
+        >
+          <Icon name="ri:rewind-start-fill" size="18" />
+        </button>
+        <audio
+          :src="recordingUrl(recording)"
+          controls
+          class="w-full"
+          :id="recording.id"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -94,10 +141,12 @@ import {
   useSongStore,
   useSongMedialistStore,
   useSongMediaRefreshStore,
+  useSongRecordinglistStore,
 } from "@/stores/songs"
-import { fileToBase64String } from "@/utils"
+import { useSetlistStore } from "@/stores/setlists"
+import { fileToBase64String, localdate } from "@/utils"
 
-import type { SongMedia } from "@/services/api"
+import type { SongMedia, SetlistRecordingMark } from "@/services/api"
 import type { ToasterStatus } from "@/types/toast"
 
 const props = defineProps<{ songId: string; versionId: string }>()
@@ -107,12 +156,31 @@ const { canEdit } = useRole()
 
 const mediaStore = useSongMedialistStore()
 const refreshStore = useSongMediaRefreshStore()
+const recordingStore = useSongRecordinglistStore()
+const setlists = useSetlistStore()
 
 const media = computed(
   () =>
     mediaStore.get({ songId: props.songId, versionId: props.versionId }).data?.value
       ?.song_media ?? [],
 )
+const recordings = computed<SetlistRecordingMark[]>(
+  () =>
+    recordingStore.get({ songId: props.songId, versionId: props.versionId }).data.value
+      ?.marks ?? [],
+)
+const showAllRecordings = ref(false)
+
+function recordingUrl(recording: SetlistRecordingMark) {
+  return `/api/setlists/${recording.setlist_id}/recordings/${recording.recording_id}/audio#t=${recording.offset_sec}`
+}
+
+function reseek(recording: SetlistRecordingMark) {
+  const el = document.getElementById(recording.id)
+  if (el) {
+    ;(el as HTMLAudioElement).currentTime = recording.offset_sec
+  }
+}
 
 const adding = ref(false)
 

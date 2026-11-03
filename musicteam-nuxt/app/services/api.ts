@@ -138,6 +138,38 @@ export interface NewSetlistPosition {
   status?: "open" | "in-progress" | "final" | null;
 }
 
+/** NewSetlistRecording */
+export interface NewSetlistRecording {
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Object Id */
+  object_id: string;
+  /** Object Type */
+  object_type: string;
+  /** Duration */
+  duration: number;
+  /**
+   * Waveform
+   * @default null
+   */
+  waveform?: string | null;
+}
+
+/** NewSetlistRecordingMark */
+export interface NewSetlistRecordingMark {
+  /** Offset Sec */
+  offset_sec: number;
+  /** Setlist Position Id */
+  setlist_position_id: string | null;
+  /** Song Version Id */
+  song_version_id: string | null;
+  /** Cue Title */
+  cue_title: string | null;
+}
+
 /** NewSetlistSheet */
 export interface NewSetlistSheet {
   /** Type */
@@ -430,6 +462,69 @@ export interface SetlistPosition {
 export interface SetlistPositionList {
   /** Positions */
   positions: SetlistPosition[];
+}
+
+/** SetlistRecording */
+export interface SetlistRecording {
+  /**
+   * Tags
+   * @default []
+   */
+  tags?: string[];
+  /** Object Id */
+  object_id: string;
+  /** Object Type */
+  object_type: string;
+  /** Duration */
+  duration: number;
+  /**
+   * Waveform
+   * @default null
+   */
+  waveform?: string | null;
+  /** Id */
+  id: string;
+  /**
+   * Created On
+   * @format date-time
+   */
+  created_on: string;
+  /** Creator Id */
+  creator_id: string;
+  /** Setlist Id */
+  setlist_id: string;
+}
+
+/** SetlistRecordingList */
+export interface SetlistRecordingList {
+  /** Recordings */
+  recordings: SetlistRecording[];
+}
+
+/** SetlistRecordingMark */
+export interface SetlistRecordingMark {
+  /** Offset Sec */
+  offset_sec: number;
+  /** Setlist Position Id */
+  setlist_position_id: string | null;
+  /** Song Version Id */
+  song_version_id: string | null;
+  /** Cue Title */
+  cue_title: string | null;
+  /** Id */
+  id: string;
+  /** Recording Id */
+  recording_id: string;
+  /** Song Id */
+  song_id: string | null;
+  /** Setlist Id */
+  setlist_id: string | null;
+}
+
+/** SetlistRecordingMarkList */
+export interface SetlistRecordingMarkList {
+  /** Marks */
+  marks: SetlistRecordingMark[];
 }
 
 /** SetlistSheet */
@@ -937,6 +1032,59 @@ export interface UpdateSetlistPositions {
    * @default null
    */
   new_indexes?: Record<string, number> | null;
+}
+
+/** UpdateSetlistRecording */
+export interface UpdateSetlistRecording {
+  /**
+   * Tags
+   * @default null
+   */
+  tags?: string[] | null;
+  /**
+   * Object Id
+   * @default null
+   */
+  object_id?: string | null;
+  /**
+   * Object Type
+   * @default null
+   */
+  object_type?: string | null;
+  /**
+   * Duration
+   * @default null
+   */
+  duration?: number | null;
+  /**
+   * Waveform
+   * @default null
+   */
+  waveform?: string | null;
+}
+
+/** UpdateSetlistRecordingMark */
+export interface UpdateSetlistRecordingMark {
+  /**
+   * Offset Sec
+   * @default null
+   */
+  offset_sec?: number | null;
+  /**
+   * Setlist Position Id
+   * @default null
+   */
+  setlist_position_id?: string | null;
+  /**
+   * Song Version Id
+   * @default null
+   */
+  song_version_id?: string | null;
+  /**
+   * Cue Title
+   * @default null
+   */
+  cue_title?: string | null;
 }
 
 /** UpdateSetlistSheet */
@@ -1866,6 +2014,29 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Objects
+     * @name UploadFileDirectPut
+     * @summary Upload a file (object) directly to the site's storage via a PUT request
+     * @request PUT:/objects/direct
+     * @secure
+     */
+    uploadFileDirectPut: (
+      data: UploadDirectFields,
+      params: RequestParams = {},
+    ) =>
+      this.request<UploadDirect, ServerError>({
+        path: `/objects/direct`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
   };
   ping = {
     /**
@@ -2363,6 +2534,243 @@ export class Api<
     ) =>
       this.request<any, ServerError>({
         path: `/setlists/${setlistId}/pos/${positionId}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name ListSetlistRecordings
+     * @request GET:/setlists/{setlist_id}/recordings
+     * @secure
+     */
+    listSetlistRecordings: (setlistId: string, params: RequestParams = {}) =>
+      this.request<SetlistRecordingList, ServerError>({
+        path: `/setlists/${setlistId}/recordings`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name NewSetlistRecording
+     * @request POST:/setlists/{setlist_id}/recordings
+     * @secure
+     */
+    newSetlistRecording: (
+      setlistId: string,
+      data: NewSetlistRecording,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecording, ServerError>({
+        path: `/setlists/${setlistId}/recordings`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name GetSetlistRecording
+     * @request GET:/setlists/{setlist_id}/recordings/{recording_id}
+     * @secure
+     */
+    getSetlistRecording: (
+      setlistId: string,
+      recordingId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecording, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name UpdateSetlistRecording
+     * @request PUT:/setlists/{setlist_id}/recordings/{recording_id}
+     * @secure
+     */
+    updateSetlistRecording: (
+      setlistId: string,
+      recordingId: string,
+      data: UpdateSetlistRecording,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name DeleteSetlistRecording
+     * @request DELETE:/setlists/{setlist_id}/recordings/{recording_id}
+     * @secure
+     */
+    deleteSetlistRecording: (
+      setlistId: string,
+      recordingId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description This method supports range requests. For large responses, this method returns a 302 Found temporary redirect.
+     *
+     * @tags Setlists
+     * @name GetSetlistRecordingAudio
+     * @summary Retrieve the audio attached to the setlist recording
+     * @request GET:/setlists/{setlist_id}/recordings/{recording_id}/audio
+     * @secure
+     */
+    getSetlistRecordingAudio: (
+      setlistId: string,
+      recordingId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<File, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/audio`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name ListSetlistRecordingMarks
+     * @request GET:/setlists/{setlist_id}/recordings/{recording_id}/marks
+     * @secure
+     */
+    listSetlistRecordingMarks: (
+      setlistId: string,
+      recordingId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecordingMarkList, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/marks`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name NewSetlistRecordingMark
+     * @request POST:/setlists/{setlist_id}/recordings/{recording_id}/marks
+     * @secure
+     */
+    newSetlistRecordingMark: (
+      setlistId: string,
+      recordingId: string,
+      data: NewSetlistRecordingMark,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecordingMark, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/marks`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name GetSetlistRecordingMark
+     * @request GET:/setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}
+     * @secure
+     */
+    getSetlistRecordingMark: (
+      setlistId: string,
+      recordingId: string,
+      markId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecordingMark, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/marks/${markId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name UpdateSetlistRecordingMark
+     * @request PUT:/setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}
+     * @secure
+     */
+    updateSetlistRecordingMark: (
+      setlistId: string,
+      recordingId: string,
+      markId: string,
+      data: UpdateSetlistRecordingMark,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/marks/${markId}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Setlists
+     * @name DeleteSetlistRecordingMark
+     * @request DELETE:/setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}
+     * @secure
+     */
+    deleteSetlistRecordingMark: (
+      setlistId: string,
+      recordingId: string,
+      markId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<any, ServerError>({
+        path: `/setlists/${setlistId}/recordings/${recordingId}/marks/${markId}`,
         method: "DELETE",
         secure: true,
         ...params,
@@ -2872,6 +3280,28 @@ export class Api<
         path: `/songs/${songId}/versions/${versionId}/media/${mediaId}/obj`,
         method: "GET",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Songs
+     * @name ListSongRecordings
+     * @summary List recordings of this song
+     * @request GET:/songs/{song_id}/versions/{version_id}/recordings
+     * @secure
+     */
+    listSongRecordings: (
+      songId: string,
+      versionId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<SetlistRecordingMarkList, ServerError>({
+        path: `/songs/${songId}/versions/${versionId}/recordings`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 

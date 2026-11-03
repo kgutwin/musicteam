@@ -1,13 +1,15 @@
 <template>
   <div class="inline-block group/edit" :data-cy="`editable-${prop.toString()}`">
-    <div class="flex flex-row items-baseline">
+    <div class="editable-flex" @click.self="(ev: Event) => emit('click', ev)">
       <template v-if="!editing">
         <slot>
           <MtText
             is="span"
+            class="editable-text"
             :text="getText()"
             :loading="wide ? 'w-48 sm:w-72' : 'w-24 sm:w-48'"
             :placeholder="placeholder"
+            @click="(ev: Event) => emit('click', ev)"
           />
         </slot>
         <button
@@ -55,7 +57,7 @@ const props = defineProps<{
   editNeeds?: "viewer" | "leader" | "manager" | "admin"
 }>()
 
-const emit = defineEmits<{ save: [newV: T[K]] }>()
+const emit = defineEmits<{ save: [newV: T[K]]; click: [ev: Event] }>()
 
 const { hasRole } = useRole()
 const canEdit = hasRole(props.editNeeds ?? "leader")
@@ -82,7 +84,7 @@ function getText(): string | null | undefined {
 
 async function save() {
   if (!props.model) return
-  if (!editableValue.value) return
+  if (editableValue.value === undefined) return
 
   // patch model first
   props.model[props.prop] = editableValue.value as any
@@ -92,3 +94,9 @@ async function save() {
   editing.value = false
 }
 </script>
+
+<style>
+.editable-flex {
+  @apply flex flex-row items-baseline;
+}
+</style>

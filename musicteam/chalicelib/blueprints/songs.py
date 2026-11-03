@@ -20,6 +20,8 @@ from chalicelib.types import NotFound
 from chalicelib.types import PartialDownload
 from chalicelib.types import SearchSongList
 from chalicelib.types import SearchSongParams
+from chalicelib.types import SetlistRecordingMark
+from chalicelib.types import SetlistRecordingMarkList
 from chalicelib.types import Song
 from chalicelib.types import SongList
 from chalicelib.types import SongMedia
@@ -642,6 +644,31 @@ def get_song_media_attachment(
         bp.current_request.method == "HEAD",
         bp.current_request.headers.get("Range"),
     )
+
+
+@bp.route("/songs/{song_id}/versions/{version_id}/recordings", methods=["GET"])
+def list_song_recordings(
+    song_id: str, version_id: str
+) -> Forbidden | SetlistRecordingMarkList:
+    """List recordings of this song"""
+    if not session_role(bp.current_request, "viewer"):
+        return Forbidden()
+
+    with db.connect() as conn:
+        curs = conn.execute(
+            "SELECT"
+            "  setlist_recording_marks.id, recording_id, offset_sec,"
+            "  setlist_position_id, song_version_id, cue_title, :song_id AS song_id,"
+            "  setlist_recordings.setlist_id "
+            "FROM setlist_recording_marks "
+            "INNER JOIN setlist_recordings"
+            "   ON setlist_recording_marks.recording_id = setlist_recordings.id "
+            "WHERE song_version_id = :version_id "
+            "ORDER BY setlist_recordings.created_on DESC",
+            {"song_id": song_id, "version_id": version_id},
+            output=SetlistRecordingMark,
+        )
+        return SetlistRecordingMarkList(marks=curs.fetchall())
 
 
 @bp.route("/songs/search", methods=["GET"])

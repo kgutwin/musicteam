@@ -89,7 +89,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id013
+              schema: &id018
                 $ref: '#/components/schemas/User'
         '204':
           $ref: '#/components/responses/NoContent'
@@ -420,7 +420,7 @@ paths:
         '200':
           content:
             application/json:
-              schema:
+              schema: &id003
                 $ref: '#/components/schemas/UploadDirect'
       tags:
       - Objects
@@ -428,8 +428,28 @@ paths:
       requestBody:
         content:
           application/json:
-            schema:
+            schema: &id004
               $ref: '#/components/schemas/UploadDirectFields'
+    put:
+      operationId: objects.upload_file_direct_put
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: *id003
+      tags:
+      - Objects
+      summary: Upload a file (object) directly to the site's storage via a PUT request
+      requestBody:
+        content:
+          application/json:
+            schema: *id004
   /ping:
     get:
       operationId: ping
@@ -472,7 +492,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id003
+              schema: &id005
                 $ref: '#/components/schemas/SetlistTemplate'
       tags:
       - Setlists
@@ -496,7 +516,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id003
+              schema: *id005
       tags:
       - Setlists
     put:
@@ -569,7 +589,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id004
+              schema: &id006
                 $ref: '#/components/schemas/SetlistTemplatePosition'
       tags:
       - Setlists
@@ -599,7 +619,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id004
+              schema: *id006
       tags:
       - Setlists
     put:
@@ -677,7 +697,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id005
+              schema: &id007
                 $ref: '#/components/schemas/Setlist'
       tags:
       - Setlists
@@ -701,7 +721,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id005
+              schema: *id007
       tags:
       - Setlists
     put:
@@ -862,7 +882,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id006
+              schema: &id008
                 $ref: '#/components/schemas/SetlistPosition'
       tags:
       - Setlists
@@ -910,7 +930,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id006
+              schema: *id008
       tags:
       - Setlists
     put:
@@ -959,6 +979,268 @@ paths:
       required: true
       schema:
         type: string
+  /setlists/{setlist_id}/recordings:
+    get:
+      operationId: setlists.list_setlist_recordings
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetlistRecordingList'
+      tags:
+      - Setlists
+    post:
+      operationId: setlists.new_setlist_recording
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id009
+                $ref: '#/components/schemas/SetlistRecording'
+      tags:
+      - Setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlistRecording'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/recordings/{recording_id}:
+    get:
+      operationId: setlists.get_setlist_recording
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id009
+      tags:
+      - Setlists
+    put:
+      operationId: setlists.update_setlist_recording
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistRecording'
+    delete:
+      operationId: setlists.delete_setlist_recording
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: recording_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/recordings/{recording_id}/audio:
+    get:
+      operationId: setlists.get_setlist_recording_audio
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          $ref: '#/components/responses/Download'
+        '206':
+          $ref: '#/components/responses/PartialDownload'
+        '302':
+          $ref: '#/components/responses/Found'
+      tags:
+      - Setlists
+      summary: Retrieve the audio attached to the setlist recording
+      description: 'This method supports range requests.
+
+
+        For large responses, this method returns a 302 Found temporary redirect.'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: recording_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/recordings/{recording_id}/marks:
+    get:
+      operationId: setlists.list_setlist_recording_marks
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id015
+                $ref: '#/components/schemas/SetlistRecordingMarkList'
+      tags:
+      - Setlists
+    post:
+      operationId: setlists.new_setlist_recording_mark
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: &id010
+                $ref: '#/components/schemas/SetlistRecordingMark'
+      tags:
+      - Setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSetlistRecordingMark'
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: recording_id
+      in: path
+      required: true
+      schema:
+        type: string
+  /setlists/{setlist_id}/recordings/{recording_id}/marks/{mark_id}:
+    get:
+      operationId: setlists.get_setlist_recording_mark
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema: *id010
+      tags:
+      - Setlists
+    put:
+      operationId: setlists.update_setlist_recording_mark
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSetlistRecordingMark'
+    delete:
+      operationId: setlists.delete_setlist_recording_mark
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '204':
+          $ref: '#/components/responses/NoContent'
+      tags:
+      - Setlists
+    parameters:
+    - name: setlist_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: recording_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: mark_id
+      in: path
+      required: true
+      schema:
+        type: string
   /setlists/{setlist_id}/sheets:
     get:
       operationId: setlists.list_setlist_sheets
@@ -990,7 +1272,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id007
+              schema: &id011
                 $ref: '#/components/schemas/SetlistSheet'
       tags:
       - Setlists
@@ -1020,7 +1302,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id007
+              schema: *id011
       tags:
       - Setlists
     put:
@@ -1123,7 +1405,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id008
+              schema: &id012
                 $ref: '#/components/schemas/Song'
       tags:
       - Songs
@@ -1176,7 +1458,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id008
+              schema: *id012
       tags:
       - Songs
       summary: Retrieve a single song by ID
@@ -1263,7 +1545,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id012
+              schema: &id017
                 $ref: '#/components/schemas/SongVersionList'
       tags:
       - Songs
@@ -1280,7 +1562,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id009
+              schema: &id013
                 $ref: '#/components/schemas/SongVersion'
       tags:
       - Songs
@@ -1311,7 +1593,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id009
+              schema: *id013
       tags:
       - Songs
       summary: Retrieve a single song version by ID
@@ -1397,7 +1679,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id010
+              schema: &id014
                 $ref: '#/components/schemas/SongMedia'
       tags:
       - Songs
@@ -1438,7 +1720,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id010
+              schema: *id014
       tags:
       - Songs
       summary: Retrieve a single song media by ID
@@ -1536,6 +1818,34 @@ paths:
       required: true
       schema:
         type: string
+  /songs/{song_id}/versions/{version_id}/recordings:
+    get:
+      operationId: songs.list_song_recordings
+      responses:
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '200':
+          content:
+            application/json:
+              schema: *id015
+      tags:
+      - Songs
+      summary: List recordings of this song
+    parameters:
+    - name: song_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: version_id
+      in: path
+      required: true
+      schema:
+        type: string
   /songs/{song_id}/versions/{version_id}/sheets:
     get:
       operationId: songs.list_song_sheets
@@ -1566,7 +1876,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: &id011
+              schema: &id016
                 $ref: '#/components/schemas/SongSheet'
       tags:
       - Songs
@@ -1607,7 +1917,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id011
+              schema: *id016
       tags:
       - Songs
       summary: Retrieve a single song sheet by ID
@@ -1721,7 +2031,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id012
+              schema: *id017
       tags:
       - Songs
       summary: List song versions similar to the given version
@@ -1768,7 +2078,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: *id013
+              schema: *id018
       tags:
       - Users
     put:
@@ -2016,6 +2326,62 @@ components:
       - label
       - is_music
       title: NewSetlistPosition
+      type: object
+    NewSetlistRecording:
+      properties:
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        object_id:
+          title: Object Id
+          type: string
+        object_type:
+          title: Object Type
+          type: string
+        duration:
+          title: Duration
+          type: number
+        waveform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Waveform
+      required:
+      - object_id
+      - object_type
+      - duration
+      title: NewSetlistRecording
+      type: object
+    NewSetlistRecordingMark:
+      properties:
+        offset_sec:
+          title: Offset Sec
+          type: number
+        setlist_position_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Setlist Position Id
+        song_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Song Version Id
+        cue_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cue Title
+      required:
+      - offset_sec
+      - setlist_position_id
+      - song_version_id
+      - cue_title
+      title: NewSetlistRecordingMark
       type: object
     NewSetlistSheet:
       properties:
@@ -2466,6 +2832,121 @@ components:
       required:
       - positions
       title: SetlistPositionList
+      type: object
+    SetlistRecording:
+      properties:
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        object_id:
+          title: Object Id
+          type: string
+        object_type:
+          title: Object Type
+          type: string
+        duration:
+          title: Duration
+          type: number
+        waveform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Waveform
+        id:
+          title: Id
+          type: string
+        created_on:
+          format: date-time
+          title: Created On
+          type: string
+        creator_id:
+          title: Creator Id
+          type: string
+        setlist_id:
+          title: Setlist Id
+          type: string
+      required:
+      - object_id
+      - object_type
+      - duration
+      - id
+      - created_on
+      - creator_id
+      - setlist_id
+      title: SetlistRecording
+      type: object
+    SetlistRecordingList:
+      properties:
+        recordings:
+          items:
+            $ref: '#/components/schemas/SetlistRecording'
+          title: Recordings
+          type: array
+      required:
+      - recordings
+      title: SetlistRecordingList
+      type: object
+    SetlistRecordingMark:
+      properties:
+        offset_sec:
+          title: Offset Sec
+          type: number
+        setlist_position_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Setlist Position Id
+        song_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Song Version Id
+        cue_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cue Title
+        id:
+          title: Id
+          type: string
+        recording_id:
+          title: Recording Id
+          type: string
+        song_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Song Id
+        setlist_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Setlist Id
+      required:
+      - offset_sec
+      - setlist_position_id
+      - song_version_id
+      - cue_title
+      - id
+      - recording_id
+      - song_id
+      - setlist_id
+      title: SetlistRecordingMark
+      type: object
+    SetlistRecordingMarkList:
+      properties:
+        marks:
+          items:
+            $ref: '#/components/schemas/SetlistRecordingMark'
+          title: Marks
+          type: array
+      required:
+      - marks
+      title: SetlistRecordingMarkList
       type: object
     SetlistSheet:
       properties:
@@ -3255,6 +3736,70 @@ components:
           default: null
           title: New Indexes
       title: UpdateSetlistPositions
+      type: object
+    UpdateSetlistRecording:
+      properties:
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Tags
+        object_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Id
+        object_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Object Type
+        duration:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: null
+          title: Duration
+        waveform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Waveform
+      title: UpdateSetlistRecording
+      type: object
+    UpdateSetlistRecordingMark:
+      properties:
+        offset_sec:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: null
+          title: Offset Sec
+        setlist_position_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Setlist Position Id
+        song_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Song Version Id
+        cue_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Cue Title
+      title: UpdateSetlistRecordingMark
       type: object
     UpdateSetlistSheet:
       properties:
