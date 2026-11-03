@@ -19,18 +19,18 @@ repos:
         exclude: "musicteam/tests/"
         additional_dependencies:
           - "aurora-data-api==0.5.0"
-          - "pydantic==2.13.5"
+          - "pydantic==2.14.1"
           - "requests-oauthlib==2.0.0"
           - "google-auth==2.62.0"
           - "PyJWT==2.15.1"
-          - "chalice==1.33.0"
+          - "chalice==1.34.0"
           - "psycopg==3.3.6"
           - "types-psutil==7.2.2.20260906"
           - "types-requests-oauthlib==2.0.0.20261006"
           - "types-PyYAML==6.0.12.20260906"
           - "apispec==6.10.0"
           - "apispec-pydantic-plugin==0.8.2"
-          - "boto3-stubs==1.43.114"
+          - "boto3-stubs==1.43.121"
           - "pymupdf-stubs==1.28.2"
 
   - repo: https://github.com/wimglenn/reorder-python-imports-black

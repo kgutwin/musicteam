@@ -17,11 +17,20 @@ def concatenate(
     documents: list[pymupdf.Document], two_page_align: bool = False
 ) -> pymupdf.Document:
     rv = pymupdf.open()
+    pages = 0
     for doc in documents:
-        rv.insert_pdf(doc)
-        if two_page_align and doc is not documents[-1] and doc.page_count % 2 == 1:
-            # add a blank page to align to a two-page screen
+        # when requested, insert a blank page to align to a two-page screen
+        if (
+            two_page_align
+            and doc is not documents[0]
+            and doc.page_count > 1
+            and pages % 2 == 1
+        ):
             rv.new_page(width=612, height=792)  # 8.5 x 11
+            pages += 1
+
+        rv.insert_pdf(doc)
+        pages += doc.page_count
 
     return rv
 
