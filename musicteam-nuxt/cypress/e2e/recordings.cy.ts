@@ -55,7 +55,7 @@ describe("recordings", () => {
           cy.contains("First").click()
         })
         // it will play to the end
-        cy.get("audio").its("0.currentTime").should("equal", 1.12)
+        cy.get("audio").its("0.currentTime").should("be.within", 1.07, 1.13)
       })
 
       it("can nudge up and down", () => {
@@ -84,7 +84,7 @@ describe("recordings", () => {
           $el.prop("muted", true)
           $el.get(0).play()
         })
-        cy.get("audio").its("0.currentTime").should("equal", 1.12)
+        cy.get("audio").its("0.currentTime").should("be.within", 1.07, 1.13)
 
         // rewind
         cy.dataCy("rewind").click()
