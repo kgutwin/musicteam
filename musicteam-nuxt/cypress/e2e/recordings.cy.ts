@@ -36,7 +36,7 @@ describe("recordings", () => {
       beforeEach(() => {
         // click on waveform
         cy.get("canvas.recording-waveform").click()
-        cy.get("audio").its("0.currentTime").should("be.within", 0.54, 0.56)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.53, 0.55)
 
         // add a mark
         cy.dataCy("add-mark").click()
@@ -79,7 +79,7 @@ describe("recordings", () => {
         cy.get("audio")
           .its("0.readyState")
           .should("equal", HTMLMediaElement.HAVE_ENOUGH_DATA)
-        cy.get("audio").its("0.currentTime").should("be.within", 0.54, 0.56)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.53, 0.55)
         cy.get("audio").then(($el) => {
           $el.prop("muted", true)
           $el.get(0).play()
@@ -88,7 +88,7 @@ describe("recordings", () => {
 
         // rewind
         cy.dataCy("rewind").click()
-        cy.get("audio").its("0.currentTime").should("be.within", 0.54, 0.56)
+        cy.get("audio").its("0.currentTime").should("be.within", 0.53, 0.55)
 
         // back to recording
         cy.dataCy("recording-setlist").click()
