@@ -31,7 +31,7 @@
       class="recording-mark-sidebar-song"
     />
     <div v-else-if="mark.song_id" class="recording-mark-song">
-      <NuxtLink :to="`/songs/${mark.song_id}`" class="hover:underline">
+      <NuxtLink :to="`/songs/${mark.song_id}`">
         <Icon name="solar:music-note-4-outline" />
         {{ songs.get({ songId: mark.song_id }).data.value?.title }}
       </NuxtLink>
@@ -105,11 +105,15 @@ const setlistSheet = computed(() => {
 })
 
 async function nudge(direction: "up" | "down") {
+  props.mark.offset_sec = Math.max(
+    0,
+    props.mark.offset_sec + (direction === "up" ? 1 : -1),
+  )
   await api.setlists.updateSetlistRecordingMark(
     props.setlistId,
     props.mark.recording_id,
     props.mark.id,
-    { offset_sec: Math.max(0, props.mark.offset_sec + (direction === "up" ? 1 : -1)) },
+    { offset_sec: props.mark.offset_sec },
   )
   await refreshStore.refresh({
     setlistId: props.setlistId,
@@ -138,7 +142,6 @@ async function deleteMark() {
 .recording-mark {
   @apply border shadow rounded bg-blue-100 px-2 py-1 my-2;
   @apply flex flex-row gap-x-0.5 sm:gap-x-2 items-baseline;
-  @apply hover:bg-white;
   @apply flex-wrap md:flex-nowrap;
 
   & .mt-text-placeholder {
@@ -149,7 +152,7 @@ async function deleteMark() {
   }
 }
 .recording-mark.music {
-  @apply border-2 border-green-600 bg-green-100 hover:bg-white;
+  @apply border-2 border-green-600 bg-green-100;
 }
 .recording-mark-timestamp {
   @apply order-1 leading-[0.5] font-mono py-2;
@@ -179,6 +182,21 @@ async function deleteMark() {
   @apply order-8 sm:order-7 grow rounded-lg bg-white p-2;
 }
 .recording-mark-delete {
-  @apply order-5 sm:order-8 hover:text-red-500;
+  @apply order-5 sm:order-8;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .recording-mark {
+    @apply hover:bg-white;
+  }
+  .recording-mark.music {
+    @apply hover:bg-white;
+  }
+  .recording-mark-song {
+    @apply hover:underline;
+  }
+  .recording-mark-delete {
+    @apply hover:text-red-500;
+  }
 }
 </style>

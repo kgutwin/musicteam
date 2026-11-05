@@ -1,7 +1,7 @@
 <template>
   <div class="recording-entry-panel">
     <div class="recording-player-row">
-      <UserIcon :user-id="recording.creator_id" class="w-6" />
+      <UserIcon :user-id="recording.creator_id" class="block w-6" />
       <div class="text-sm">{{ localdate(recording.created_on) }}</div>
       <audio
         ref="player"
@@ -157,7 +157,7 @@ const url = computed(
 
 const canvas = useTemplateRef("canvas")
 const player = useTemplateRef("player")
-const waveformWidth = ref(1470)
+const waveformWidth = ref(1370)
 const waveform = new WaveformViewer(
   props.recording.duration,
   JSON.parse(props.recording.waveform ?? "[]"),
@@ -236,7 +236,25 @@ function zoom(direction: "in" | "out") {
   } else {
     waveformWidth.value = Math.trunc(waveformWidth.value * 0.8)
   }
-  nextTick(() => waveform.draw())
+  nextTick(() => {
+    waveform.draw()
+
+    if (canvas.value?.parentElement && player.value) {
+      const left =
+        Math.round(
+          (waveformWidth.value / props.recording.duration) * player.value.currentTime,
+        ) - 16
+
+      const scroller = document.createElement("div")
+      scroller.style.setProperty("position", "absolute")
+      scroller.style.setProperty("width", "32px")
+      scroller.style.setProperty("top", "22px")
+      scroller.style.setProperty("left", `${left}px`)
+      canvas.value.parentElement.appendChild(scroller)
+      scroller.scrollIntoView()
+      canvas.value.parentElement.removeChild(scroller)
+    }
+  })
 }
 
 async function newMark(position?: AnnotatedPosition) {

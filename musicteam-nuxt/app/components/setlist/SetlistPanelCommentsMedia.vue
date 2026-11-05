@@ -10,9 +10,7 @@
 
     <template #media-head>
       <label>Media</label>
-      <div v-if="numMedia" class="bg-sky-600 text-white rounded-lg px-2">
-        {{ numMedia }}
-      </div>
+      <MediaCount v-if="numMedia" type="media" :num="numMedia" />
     </template>
     <template #media>
       <SetlistMediaPanel :setlist-id="setlistId" />

@@ -36,8 +36,7 @@ export async function audioEncode(
     format: outputFormat,
     target: new BufferTarget({
       onFinalize: async (buffer) => {
-        // progress(0.25, -1)  // how to signal upload progress - negative second arg
-
+        progress(0.99, -1) // how to signal upload progress - negative second arg
         await fetch(direct.data.url, {
           method: "PUT",
           headers: { "Content-Type": outputMimeType },
@@ -98,6 +97,8 @@ export async function audioEncode(
     },
   })
   conversion.onProgress = progress
+
+  // fixme: "Error: Cannot execute this conversion because its output configuration is invalid. Make sure to always check the isValid field before executing a conversion. Due to discarded tracks, this conversion could not be executed. Tracks were discarded because your environment is not able to encode 'opus' with the provided parameters."
 
   return {
     conversion,
