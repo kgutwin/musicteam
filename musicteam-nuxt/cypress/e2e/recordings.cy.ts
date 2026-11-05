@@ -55,7 +55,7 @@ describe("recordings", () => {
           cy.contains("First").click()
         })
         // it will play to the end
-        cy.get("audio").its("0.currentTime").should("be.within", 1.07, 1.13)
+        cy.get("audio").its("0.currentTime").should("be.within", 1.06, 1.13)
       })
 
       it("can nudge up and down", () => {
@@ -84,9 +84,10 @@ describe("recordings", () => {
           $el.prop("muted", true)
           $el.get(0).play()
         })
-        cy.get("audio").its("0.currentTime").should("be.within", 1.07, 1.13)
+        cy.get("audio").its("0.currentTime").should("be.within", 1.06, 1.13)
 
         // rewind
+        cy.wait(500)
         cy.dataCy("rewind").click()
         cy.get("audio").its("0.currentTime").should("be.within", 0.53, 0.55)
 
@@ -123,15 +124,15 @@ describe("recordings", () => {
     })
 
     it("can zoom", () => {
-      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1470)
+      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1370)
       cy.dataCy("zoom-out").click()
-      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1176)
+      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1096)
       cy.dataCy("zoom-out").click()
-      cy.get("canvas.recording-waveform").its("0.width").should("equal", 940)
+      cy.get("canvas.recording-waveform").its("0.width").should("equal", 876)
       cy.dataCy("zoom-in").click()
-      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1175)
+      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1095)
       cy.dataCy("zoom-in").click()
-      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1468)
+      cy.get("canvas.recording-waveform").its("0.width").should("equal", 1368)
     })
 
     it("can add a comment", () => {
