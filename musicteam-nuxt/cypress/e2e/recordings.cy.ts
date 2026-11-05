@@ -74,6 +74,7 @@ describe("recordings", () => {
           cy.contains("Song One").click()
         })
 
+        cy.exists(["CCLI Number", "Versions", "From Cypress"])
         cy.contains("Media").click()
         cy.exists(["Recordings", "1/4/2026"])
         cy.get("audio")
@@ -104,6 +105,7 @@ describe("recordings", () => {
 
     it("can add a non-song mark", () => {
       cy.get("canvas.recording-waveform").click(25, 120)
+      cy.get("audio").its("0.currentTime").should("be.within", 0.001, 0.02)
       cy.dataCy("add-mark").click()
       cy.contains("Next").click()
       cy.get(".recording-mark").within(() => {
@@ -112,7 +114,8 @@ describe("recordings", () => {
     })
 
     it("can add an other mark", () => {
-      cy.get("canvas.recording-waveform").click(1400, 90, { force: true })
+      cy.get("canvas.recording-waveform").click(1300, 90, { force: true })
+      cy.get("audio").its("0.currentTime").should("be.within", 1.0, 1.13)
       cy.dataCy("add-mark").click()
       cy.contains("Other").click()
       cy.get(".recording-mark").within(() => {
