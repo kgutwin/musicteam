@@ -1,5 +1,6 @@
 import type { HttpResponse, UserList, ServerError } from "@/services/api"
 import { useToaster } from "@/composables/toast"
+import { sleep } from "@/utils"
 import { usePingStore } from "./ping"
 
 /**
@@ -161,12 +162,33 @@ type RefreshableStoreDef = () => {
 
 export function createRefreshStoreState(stores: RefreshableStoreDef[]) {
   return () => {
+    const rt = shallowRef<Record<string, number>>({})
+
     async function refresh(params?: Record<string, any>) {
       for (const storeDef of stores) {
         const store = storeDef()
         store.refresh(params)
       }
     }
-    return { refresh }
+
+    async function refreshEventually(params?: Record<string, any>) {
+      const encoded = JSON.stringify(params)
+      const refreshAt = Date.now() + 5000
+
+      if (rt.value[encoded]) {
+        rt.value[encoded] = Math.max(rt.value[encoded], refreshAt)
+        return
+      } else {
+        rt.value[encoded] = refreshAt
+      }
+
+      while (rt.value[encoded] < Date.now()) {
+        await sleep(1000)
+      }
+      await refresh(params)
+      delete rt.value[encoded]
+    }
+
+    return { rt, refresh, refreshEventually }
   }
 }

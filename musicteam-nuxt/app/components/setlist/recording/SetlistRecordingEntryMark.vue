@@ -36,11 +36,7 @@
         {{ songs.get({ songId: mark.song_id }).data.value?.title }}
       </NuxtLink>
     </div>
-    <button
-      v-if="canEdit"
-      class="recording-mark-delete invisible group-hover:visible"
-      @click="deleteMark"
-    >
+    <button v-if="canEdit" class="recording-mark-delete" @click="deleteMark">
       <Icon name="solar:trash-bin-minimalistic-outline" />
     </button>
   </div>
@@ -115,7 +111,8 @@ async function nudge(direction: "up" | "down") {
     props.mark.id,
     { offset_sec: props.mark.offset_sec },
   )
-  await refreshStore.refresh({
+
+  await refreshStore.refreshEventually({
     setlistId: props.setlistId,
     recordingId: props.mark.recording_id,
   })

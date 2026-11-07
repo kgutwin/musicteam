@@ -1,7 +1,7 @@
 <template>
   <div class="recording-entry-panel">
     <div class="recording-player-row">
-      <UserIcon :user-id="recording.creator_id" class="block w-6" />
+      <UserIcon :user-id="recording.creator_id" class="block w-6 shrink-0" />
       <div class="text-sm">{{ localdate(recording.created_on) }}</div>
       <audio
         ref="player"
@@ -251,7 +251,7 @@ function zoom(direction: "in" | "out") {
       scroller.style.setProperty("top", "22px")
       scroller.style.setProperty("left", `${left}px`)
       canvas.value.parentElement.appendChild(scroller)
-      scroller.scrollIntoView()
+      scroller.scrollIntoView({ inline: "center" })
       canvas.value.parentElement.removeChild(scroller)
     }
   })
@@ -292,7 +292,7 @@ function playPauseFrom(offset: number) {
       lastPlayedFrom.value = offset
       player.value.play()
     }
-    document.getElementById(`mark-${offset}`)?.scrollIntoView()
+    document.getElementById(`mark-${offset}`)?.scrollIntoView({ inline: "center" })
   }
 }
 
