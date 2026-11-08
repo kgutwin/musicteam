@@ -14,6 +14,7 @@ from chalicelib.config import SITE_SECRET
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
+from pydantic import model_validator
 
 
 class _ReplacementModel(BaseModel):
@@ -274,6 +275,18 @@ class NewSongMedia(BaseModel):
     object_id: str | None = None
     media_type: str | None = None
     tags: list[str] = []
+
+    @model_validator(mode="after")
+    def must_set_either_object_or_url(self) -> Self:
+        if not self.url and not self.object_id:
+            raise ValueError("Must provide either URL or uploaded object ID")
+        if self.url and self.object_id:
+            raise ValueError("Cannot provide both URL and uploaded object ID")
+        if self.object_id and not self.media_type:
+            raise ValueError("Must provide media type when using object ID")
+        if self.url and self.media_type:
+            raise ValueError("Cannot provide media type when using URL")
+        return self
 
 
 class UpdateSongMedia(_ReplacementModel):
