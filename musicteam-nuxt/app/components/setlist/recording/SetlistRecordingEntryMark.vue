@@ -152,7 +152,7 @@ async function deleteMark() {
   @apply border-2 border-green-600 bg-green-100;
 }
 .recording-mark-timestamp {
-  @apply order-1 leading-[0.5] font-mono py-2;
+  @apply order-1 leading-[0.5] font-mono py-2 whitespace-nowrap;
   @apply text-xs sm:text-sm md:text-base;
 }
 .recording-mark-nudge-buttons {
@@ -173,13 +173,13 @@ async function deleteMark() {
   @apply order-6 basis-full sm:basis-auto;
 }
 .recording-mark-sidebar-song {
-  @apply order-7 sm:order-6 grow;
+  @apply order-7 md:order-6 grow;
 }
 .recording-mark-song {
-  @apply order-8 sm:order-7 grow rounded-lg bg-white p-2;
+  @apply order-8 md:order-7 grow rounded-lg bg-white p-2;
 }
 .recording-mark-delete {
-  @apply order-5 sm:order-8;
+  @apply order-5 md:order-8;
 }
 
 @media (hover: hover) and (pointer: fine) {

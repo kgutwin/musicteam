@@ -38,6 +38,9 @@
         <button @click="zoom('in')" title="Zoom In" data-cy="zoom-in">
           <Icon name="solar:magnifier-zoom-in-linear" />
         </button>
+        <button @click="zoom('fit')" title="Zoom to Fit" data-cy="zoom-fit">
+          <Icon name="solar:full-screen-circle-outline" />
+        </button>
         <button @click="zoom('out')" title="Zoom Out" data-cy="zoom-out">
           <Icon name="solar:magnifier-zoom-out-linear" />
         </button>
@@ -70,12 +73,6 @@
         >
           Recording waveform
         </canvas>
-        <div
-          v-for="mark in waveformMarks"
-          class="absolute w-24 h-4 pointer-events-none"
-          :style="`top: 22px; left: ${Math.max(0, mark.offset - 8)}px`"
-          :id="`mark-${mark.time}`"
-        />
       </div>
     </div>
     <div v-if="showComments" class="mt-2">
@@ -230,30 +227,36 @@ function canvasKeyEvent(ev: KeyboardEvent) {
   }
 }
 
-function zoom(direction: "in" | "out") {
+function scrollWaveform(toTime?: number) {
+  if (toTime === undefined) {
+    toTime = player.value?.currentTime ?? 0
+  }
+
+  const container = canvas.value?.parentElement
+  if (container) {
+    const cursor = Math.round((waveformWidth.value / props.recording.duration) * toTime)
+
+    if (
+      cursor < container.scrollLeft ||
+      cursor > container.scrollLeft + container.clientWidth
+    ) {
+      container.scroll(cursor - 16, 22)
+    }
+  }
+}
+
+function zoom(direction: "in" | "out" | "fit") {
   if (direction === "in") {
     waveformWidth.value = Math.trunc(waveformWidth.value * 1.25)
+  } else if (direction === "fit" && canvas.value?.parentElement) {
+    waveformWidth.value = canvas.value.parentElement.offsetWidth - 2
   } else {
     waveformWidth.value = Math.trunc(waveformWidth.value * 0.8)
   }
   nextTick(() => {
     waveform.draw()
 
-    if (canvas.value?.parentElement && player.value) {
-      const left =
-        Math.round(
-          (waveformWidth.value / props.recording.duration) * player.value.currentTime,
-        ) - 16
-
-      const scroller = document.createElement("div")
-      scroller.style.setProperty("position", "absolute")
-      scroller.style.setProperty("width", "32px")
-      scroller.style.setProperty("top", "22px")
-      scroller.style.setProperty("left", `${left}px`)
-      canvas.value.parentElement.appendChild(scroller)
-      scroller.scrollIntoView({ inline: "center" })
-      canvas.value.parentElement.removeChild(scroller)
-    }
+    scrollWaveform()
   })
 }
 
@@ -291,8 +294,8 @@ function playPauseFrom(offset: number) {
     } else {
       lastPlayedFrom.value = offset
       player.value.play()
+      scrollWaveform()
     }
-    document.getElementById(`mark-${offset}`)?.scrollIntoView({ inline: "center" })
   }
 }
 
@@ -341,7 +344,7 @@ const showComments = ref(false)
   }
 }
 .recording-scroller {
-  @apply relative overflow-auto;
+  @apply grow relative overflow-auto;
 }
 .recording-waveform {
   @apply mt-1 block border rounded;
