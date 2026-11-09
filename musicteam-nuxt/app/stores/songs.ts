@@ -83,5 +83,5 @@ export const useSongRefreshStore = defineStore(
 
 export const useSongMediaRefreshStore = defineStore(
   "songmediaRefresh",
-  createRefreshStoreState([useSongMedialistStore]),
+  createRefreshStoreState([useSongMedialistStore, useSongRecordinglistStore]),
 )

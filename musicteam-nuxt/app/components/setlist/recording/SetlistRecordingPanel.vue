@@ -95,6 +95,7 @@ async function selectFile(event: any) {
         waveform: JSON.stringify(control.peaks),
       }
       await api.setlists.newSetlistRecording(props.setlistId, newRecording)
+      progress.value = 0
       await refreshStore.refresh({ setlistId: props.setlistId })
       phase.value = null
       openUpload.value = false

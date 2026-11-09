@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { api } from "@/services"
-import { useSongStore } from "@/stores/songs"
+import { useSongStore, useSongMediaRefreshStore } from "@/stores/songs"
 import { useSetlistPositionStore, useSetlistRefreshStore } from "@/stores/setlists"
 import { timeString } from "@/utils"
 
@@ -62,6 +62,7 @@ const { canEdit } = useRole()
 const songs = useSongStore()
 const slist = useSetlistSheetlistStore().get({ setlistId: props.setlistId }).data
 const refreshStore = useSetlistRefreshStore()
+const songRefreshStore = useSongMediaRefreshStore()
 
 async function saveMark(field: keyof SetlistRecordingMark) {
   await api.setlists.updateSetlistRecordingMark(
@@ -131,6 +132,12 @@ async function deleteMark() {
       setlistId: props.setlistId,
       recordingId: props.mark.recording_id,
     })
+    if (props.mark.song_id && props.mark.song_version_id) {
+      await songRefreshStore.refresh({
+        songId: props.mark.song_id,
+        versionId: props.mark.song_version_id,
+      })
+    }
   })
 }
 </script>

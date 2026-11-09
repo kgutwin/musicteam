@@ -93,6 +93,7 @@
     </div>
     <SetlistRecordingEntryMark
       v-for="mark in marks?.marks ?? []"
+      :key="mark.id"
       :setlist-id="recording.setlist_id"
       :mark="mark"
       @play="playPauseFrom(mark.offset_sec)"
@@ -102,7 +103,7 @@
 
 <script setup lang="ts">
 import { api } from "@/services"
-import { useSongStore } from "@/stores/songs"
+import { useSongStore, useSongMediaRefreshStore } from "@/stores/songs"
 import {
   useSetlistPositionlistStore,
   useSetlistSheetlistStore,
@@ -131,6 +132,7 @@ const marks = useSetlistRecordingMarklistStore().get({
   recordingId: props.recording.id,
 }).data
 const refreshStore = useSetlistRefreshStore()
+const songRefreshStore = useSongMediaRefreshStore()
 
 interface AnnotatedPosition extends SetlistPosition {
   songVersionId?: string
@@ -321,6 +323,12 @@ async function newMark(position?: AnnotatedPosition) {
       setlistId: props.recording.setlist_id,
       recordingId: props.recording.id,
     })
+    if (position?.songId && position?.songVersionId) {
+      await songRefreshStore.refresh({
+        songId: position.songId,
+        versionId: position.songVersionId,
+      })
+    }
   })
 }
 
