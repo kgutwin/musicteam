@@ -12,6 +12,7 @@
           (ev) => {
             waveform.cursor = (ev.target as HTMLMediaElement).currentTime
             waveform.draw()
+            scrollAtEdge()
           }
         "
       />
@@ -227,25 +228,46 @@ function canvasKeyEvent(ev: KeyboardEvent) {
   }
 }
 
-function scrollWaveform(toTime?: number) {
-  if (toTime === undefined) {
-    toTime = player.value?.currentTime ?? 0
+function cursorPercent() {
+  const container = canvas.value?.parentElement
+
+  if (player.value && container) {
+    const cursor = Math.round(
+      (waveformWidth.value / props.recording.duration) * player.value.currentTime,
+    )
+    return (cursor - container.scrollLeft) / container.clientWidth
+  }
+  return undefined
+}
+
+function scrollWaveform(toPercent?: number) {
+  const toTime = player.value?.currentTime ?? 0
+  if (toPercent === undefined || toPercent < 0.02) {
+    toPercent = 0.02
+  } else if (toPercent > 1) {
+    toPercent = 0.98
   }
 
   const container = canvas.value?.parentElement
   if (container) {
     const cursor = Math.round((waveformWidth.value / props.recording.duration) * toTime)
+    const offset = toPercent * container.clientWidth
 
-    if (
-      cursor < container.scrollLeft ||
-      cursor > container.scrollLeft + container.clientWidth
-    ) {
-      container.scroll(cursor - 16, 22)
-    }
+    container.scroll(cursor - offset, 22)
   }
 }
 
+function scrollAtEdge() {
+  const cursorPct = cursorPercent()
+  if (cursorPct === undefined) return
+  if (cursorPct < 0.02) return scrollWaveform()
+  if (cursorPct > 0.99) return scrollWaveform(0.7)
+}
+
 function zoom(direction: "in" | "out" | "fit") {
+  // hold onto the current cursor percentage
+  const cursorPct = cursorPercent()
+
   if (direction === "in") {
     waveformWidth.value = Math.trunc(waveformWidth.value * 1.25)
   } else if (direction === "fit" && canvas.value?.parentElement) {
@@ -256,7 +278,7 @@ function zoom(direction: "in" | "out" | "fit") {
   nextTick(() => {
     waveform.draw()
 
-    scrollWaveform()
+    scrollWaveform(cursorPct)
   })
 }
 
