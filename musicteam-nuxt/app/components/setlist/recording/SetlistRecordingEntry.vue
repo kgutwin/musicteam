@@ -60,6 +60,18 @@
           <hr />
           <button @click="newMark()">Other</button>
         </MtDropdown>
+        <div class="flex flex-col leading-[0.5]">
+          <button @click="nudge('left')" title="Nudge Cursor Left" data-cy="nudge-left">
+            <Icon name="solar:square-alt-arrow-left-line-duotone" />
+          </button>
+          <button
+            @click="nudge('right')"
+            title="Nudge Cursor Right"
+            data-cy="nudge-right"
+          >
+            <Icon name="solar:square-alt-arrow-right-line-duotone" />
+          </button>
+        </div>
       </div>
       <div class="recording-scroller">
         <canvas
@@ -208,6 +220,12 @@ function canvasMouseEvent(ev: MouseEvent) {
     const pos =
       (ev.offsetX / (ev.target as HTMLCanvasElement).clientWidth) * waveform.duration
     player.value.currentTime = pos
+  }
+}
+
+function nudge(direction: "left" | "right", delta: number = 1) {
+  if (player.value) {
+    player.value.currentTime += direction === "right" ? delta : -delta
   }
 }
 
