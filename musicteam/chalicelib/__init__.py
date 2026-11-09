@@ -1,8 +1,7 @@
 import functools
 import os
 import subprocess
-from datetime import datetime
-from datetime import timezone
+from datetime import UTC, datetime, timezone
 
 
 @functools.cache
@@ -22,4 +21,4 @@ def _deployed_at() -> str:
     if "DEPLOYED_AT" in os.environ:
         return os.environ["DEPLOYED_AT"]
 
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
