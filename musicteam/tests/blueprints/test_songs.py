@@ -135,3 +135,19 @@ def test_song_version_sheet_update_delete(client, db):
 
     assert revs[-1]["rev_type"] == "song"
     assert revs[-1]["id"] == song_id
+
+
+def test_song_media_validation(client):
+    response = client.http.post(
+        "/songs/a/versions/b/media",
+        json={
+            "title": "test",
+            "url": "http://test",
+            "object_id": "123456",
+        },
+    )
+    assert response.status_code == 400
+    assert response.json_body["Message"].startswith(
+        "1 validation error for NewSongMedia\n"
+        "  Value error, Cannot provide both URL and uploaded object ID"
+    )
