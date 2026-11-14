@@ -98,7 +98,26 @@ export async function audioEncode(
   })
   conversion.onProgress = progress
 
-  // fixme: "Error: Cannot execute this conversion because its output configuration is invalid. Make sure to always check the isValid field before executing a conversion. Due to discarded tracks, this conversion could not be executed. Tracks were discarded because your environment is not able to encode 'opus' with the provided parameters."
+  if (!conversion.isValid) {
+    for (const track of conversion.discardedTracks) {
+      if (track.reason === "no_encodable_target_codec") {
+        throw new Error(
+          `This web browser doesn't support encoding the target codec ` +
+            `'${track.trackOptions.codec}'.`,
+        )
+      } else if (track.reason === "unknown_source_codec") {
+        throw new Error(`The selected file has an unsupported codec.`)
+      } else if (track.reason === "undecodable_source_codec") {
+        throw new Error(
+          `The selected file's codec cannot be converted to the target format.`,
+        )
+      }
+    }
+    console.error(conversion.discardedTracks)
+    throw new Error(
+      "Sorry, there was an error setting up the recording to be converted.",
+    )
+  }
 
   return {
     conversion,

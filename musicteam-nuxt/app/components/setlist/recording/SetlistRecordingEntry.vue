@@ -386,7 +386,7 @@ const showComments = ref(false)
 
 <style>
 .recording-entry-panel {
-  @apply p-2 md:p-8 rounded-lg border shadow-lg bg-slate-100;
+  @apply p-2 mb-2 md:p-8 rounded-lg border shadow-lg bg-slate-100;
 }
 .recording-player-row {
   @apply flex flex-row gap-2 items-center;
