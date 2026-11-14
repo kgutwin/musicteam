@@ -92,10 +92,11 @@
       <CommentsPanel :resource-id="recording.id" />
     </div>
     <SetlistRecordingEntryMark
-      v-for="mark in marks?.marks ?? []"
+      v-for="(mark, index) in marks?.marks ?? []"
       :key="mark.id"
       :setlist-id="recording.setlist_id"
       :mark="mark"
+      :mark-end="marks?.marks?.[index + 1]?.offset_sec"
       @play="playPauseFrom(mark.offset_sec)"
     />
   </div>

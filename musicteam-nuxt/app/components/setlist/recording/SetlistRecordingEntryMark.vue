@@ -36,6 +36,9 @@
         {{ songs.get({ songId: mark.song_id }).data.value?.title }}
       </NuxtLink>
     </div>
+    <button class="recording-mark-download" @click="downloadRegion">
+      <Icon name="solar:download-minimalistic-bold" />
+    </button>
     <button v-if="canEdit" class="recording-mark-delete" @click="deleteMark">
       <Icon name="solar:trash-bin-minimalistic-outline" />
     </button>
@@ -45,14 +48,20 @@
 <script setup lang="ts">
 import { api } from "@/services"
 import { useSongStore, useSongMediaRefreshStore } from "@/stores/songs"
-import { useSetlistPositionStore, useSetlistRefreshStore } from "@/stores/setlists"
+import {
+  useSetlistStore,
+  useSetlistPositionStore,
+  useSetlistRefreshStore,
+} from "@/stores/setlists"
 import { timeString } from "@/utils"
+import { trimRecording } from "./export"
 
 import type { SetlistRecordingMark } from "@/services/api"
 
 const props = defineProps<{
   setlistId: string
   mark: SetlistRecordingMark
+  markEnd?: number
 }>()
 
 const emit = defineEmits<{ play: [] }>()
@@ -119,6 +128,47 @@ async function nudge(direction: "up" | "down") {
   })
 }
 
+async function downloadRegion() {
+  let title = ""
+
+  const setlist = useSetlistStore().get({ setlistId: props.setlistId }).data.value
+  if (setlist?.service_date) {
+    title += `${setlist.service_date} `
+  }
+  if (props.mark.song_id) {
+    const songTitle = songs.get({ songId: props.mark.song_id }).data.value?.title
+    if (songTitle) {
+      title += `${songTitle} `
+      if (position.value) {
+        title += `(${position.value.label}) `
+      }
+    }
+  } else if (position.value) {
+    title += `${position.value.label} `
+  }
+  title = title.trim()
+
+  await useToaster(async () => {
+    const url = `/api/setlists/${props.setlistId}/recordings/${props.mark.recording_id}/audio`
+    const buffer = await trimRecording(url, props.mark.offset_sec, props.markEnd)
+
+    if (buffer === null) {
+      throw new Error("Unable to get output buffer from recording trim")
+    }
+
+    const blob = new Blob([buffer], { type: "application/octet-stream" })
+
+    const link = document.createElement("a")
+
+    link.href = URL.createObjectURL(blob)
+    link.download = `${title}.m4a`
+
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  })
+}
+
 async function deleteMark() {
   if (!window.confirm("Are you sure you want to delete this mark?")) return
 
@@ -158,6 +208,30 @@ async function deleteMark() {
 .recording-mark.music {
   @apply border-2 border-green-600 bg-green-100;
 }
+
+/*
+   order - mobile:
+   1. timestamp
+   2. nudge-buttons
+   3. position-label
+   4. cue-title
+   5. download
+   6. delete
+   7. cue-title (not when only title)
+   8. sidebar-song
+   9. song
+
+   order - desktop:
+   1. timestamp
+   2. nudge-buttons
+   3. position-label
+   4. cue-title
+   5. NA
+   6. sidebar-song
+   7. song
+   8. download
+   9. delete
+ */
 .recording-mark-timestamp {
   @apply order-1 leading-[0.5] font-mono py-2 whitespace-nowrap;
   @apply text-xs sm:text-sm md:text-base;
@@ -177,16 +251,19 @@ async function deleteMark() {
 .recording-mark-cue-title:not(.only-title):has(
     .editable-text:not(.mt-text-placeholder)
   ) {
-  @apply order-6 basis-full sm:basis-auto;
+  @apply max-md:order-7 basis-full pl-5 md:basis-auto md:pl-0;
 }
 .recording-mark-sidebar-song {
-  @apply order-7 md:order-6 grow;
+  @apply order-8 md:order-6 grow max-md:basis-full;
 }
 .recording-mark-song {
-  @apply order-8 md:order-7 grow rounded-lg bg-white p-2;
+  @apply order-9 md:order-7 grow rounded-lg bg-white p-2;
+}
+.recording-mark-download {
+  @apply order-5 md:order-8;
 }
 .recording-mark-delete {
-  @apply order-5 md:order-8;
+  @apply order-6 md:order-9;
 }
 
 @media (hover: hover) and (pointer: fine) {
