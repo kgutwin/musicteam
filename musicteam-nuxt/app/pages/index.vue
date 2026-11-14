@@ -10,7 +10,7 @@
           <h2>Songs</h2>
           <p>
             Store, share, search, and edit songs. Supports multiple versions and sheets
-            per song.
+            per song. Attach media and find similar songs based on lyrics or history.
           </p>
         </div>
       </NuxtLink>
@@ -20,9 +20,9 @@
           <Icon name="solar:music-library-line-duotone" size="64" />
           <h2>Set Lists</h2>
           <p>
-            Build set lists from templates, and assign songs to slots using a friendly
-            candidate-based approach. Download auto-assembled PDF & text packets to
-            distribute to the team.
+            Build set lists and assign songs to slots using a friendly candidate-based
+            approach. Download auto-assembled PDF & text packets, and upload performance
+            recordings.
           </p>
         </div>
       </NuxtLink>
@@ -31,7 +31,10 @@
         <div>
           <Icon name="solar:graph-new-line-duotone" size="64" />
           <h2>History</h2>
-          <p>Track usage of songs over time.</p>
+          <p>
+            Look at songs rank over time across several metrics. See precise trends in
+            song use over multiple years.
+          </p>
         </div>
       </NuxtLink>
     </div>
