@@ -69,7 +69,11 @@
             class="ml-2"
           />
         </button>
-        <MtDropdown v-else button-class="btn-gray">
+        <MtDropdown
+          v-else
+          button-class="btn-gray"
+          :disabled="selectedSheet === '!lyrics'"
+        >
           <template #dropdown-button>
             <Icon name="ri:play-list-add-line" class="show-lg" />
             <span class="hide-lg">Add to Set List</span>
