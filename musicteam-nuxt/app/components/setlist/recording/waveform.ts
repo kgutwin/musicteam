@@ -17,7 +17,6 @@ export interface WaveformMark {
 export class WaveformViewer {
   duration: number
   peaks: AudioPeak[]
-  cursor: number
   marks: WaveformMark[]
 
   canvas: HTMLCanvasElement | null
@@ -26,7 +25,6 @@ export class WaveformViewer {
   constructor(duration: number, peaks: AudioPeak[]) {
     this.duration = duration
     this.peaks = peaks
-    this.cursor = -1
     this.marks = []
     this.canvas = null
     this.ctx = null
@@ -142,21 +140,6 @@ export class WaveformViewer {
 
       lastLabelEnd = labelEnd
       lastLabelRow = labelRow
-    }
-
-    // draw cursor
-    if (this.cursor >= 0 && this.cursor <= this.duration) {
-      ctx.fillStyle = "red"
-      const offset = Math.round(this.cursor * hscale)
-      ctx.beginPath()
-      ctx.moveTo(offset - 3, ruler)
-      ctx.lineTo(offset + 3, ruler)
-      ctx.lineTo(offset + 0.5, ruler + 3)
-      ctx.lineTo(offset + 0.5, height)
-      ctx.lineTo(offset - 0.5, height)
-      ctx.lineTo(offset - 0.5, ruler + 3)
-      ctx.lineTo(offset - 3, ruler)
-      ctx.fill()
     }
   }
 }

@@ -10,8 +10,7 @@
         class="w-full"
         @timeupdate="
           (ev) => {
-            waveform.cursor = (ev.target as HTMLMediaElement).currentTime
-            waveform.draw()
+            syncCursor()
             scrollAtEdge()
           }
         "
@@ -86,6 +85,7 @@
         >
           Recording waveform
         </canvas>
+        <div class="recording-cursor" :style="`left: ${cursorPx - 1}px`" />
       </div>
     </div>
     <div v-if="showComments" class="mt-2">
@@ -248,6 +248,16 @@ function canvasKeyEvent(ev: KeyboardEvent) {
   }
 }
 
+const cursorPx = ref(-1)
+function syncCursor() {
+  if (player.value) {
+    cursorPx.value = Math.round(
+      (waveformWidth.value / props.recording.duration) * player.value.currentTime,
+    )
+  }
+}
+watch(waveformWidth, syncCursor)
+
 function cursorPercent() {
   const container = canvas.value?.parentElement
 
@@ -303,17 +313,14 @@ function zoom(direction: "in" | "out" | "fit") {
 }
 
 async function newMark(position?: AnnotatedPosition) {
-  if (waveform.cursor < 0) {
-    alert("Click on the waveform first to set the cursor.")
-    return
-  }
-
   await useToaster(async () => {
+    if (!player.value) return
+
     await api.setlists.newSetlistRecordingMark(
       props.recording.setlist_id,
       props.recording.id,
       {
-        offset_sec: waveform.cursor,
+        offset_sec: player.value.currentTime,
         setlist_position_id: position?.id ?? null,
         song_version_id: position?.songVersionId ?? null,
         cue_title: null,
@@ -398,5 +405,11 @@ const showComments = ref(false)
   @apply mt-1 block border rounded;
   image-rendering: pixelated;
   outline: none;
+}
+.recording-cursor {
+  @apply absolute bg-red-500 pointer-events-none;
+  top: 22px;
+  width: 1.5px;
+  height: 132px;
 }
 </style>
