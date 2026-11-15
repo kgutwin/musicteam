@@ -58,7 +58,7 @@
     "swagger-typescript-api": "^13.13.0",
     "typescript": "^5.9.3",
     "vite-plugin-version-mark": "^0.2.2",
-    "vue-tsc": "^3.3.13"
+    "vue-tsc": "^3.3.14"
   },
   "engines": {
     "node": ">=22.0",
