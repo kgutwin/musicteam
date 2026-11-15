@@ -1,6 +1,7 @@
 import { api } from "@/services"
 import type { Setlist } from "@/services/api"
 import { createStoreState, createParamStoreState } from "."
+import { asDate } from "@/utils"
 
 export const useActiveSetlistStore = defineStore("activeSetlist", {
   state: () => {
@@ -8,6 +9,35 @@ export const useActiveSetlistStore = defineStore("activeSetlist", {
       setlist: null as Setlist | null,
       open: true,
     }
+  },
+  persist: {
+    storage: sessionStorage,
+    pick: ["setlist"],
+    afterHydrate: async (ctx) => {
+      if (ctx.store.setlist) {
+        try {
+          const freshSetlist = await useSetlistStore()
+            .get({ setlistId: ctx.store.setlist.id })
+            .get()
+
+          // setlists in the past won't stay active on persistence
+          // reload. This helps to clean things up if a user had left a
+          // setlist active past its service date.
+          if (freshSetlist.service_date) {
+            const serviceDate = asDate(freshSetlist.service_date)
+            if (serviceDate < new Date()) {
+              ctx.store.setlist = null
+              return
+            }
+          }
+
+          ctx.store.setlist = freshSetlist
+        } catch {
+          ctx.store.setlist = null
+          return
+        }
+      }
+    },
   },
 })
 
