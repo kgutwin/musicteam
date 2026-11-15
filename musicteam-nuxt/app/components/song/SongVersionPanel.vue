@@ -49,9 +49,9 @@
         <Icon name="ri:add-large-line" class="show-lg" />
         <span class="hide-lg">Add Sheet...</span>
       </button>
-      <template v-if="canLead && activeSetlistStore.setlist">
+      <template v-if="canLead">
         <button
-          v-if="existingSongSetlistSheet === undefined"
+          v-if="existingSongSetlistSheet === undefined && activeSetlistStore.setlist"
           :disabled="selectedSheet === '!lyrics'"
           :title="
             selectedSheet === '!lyrics'
@@ -70,7 +70,7 @@
           />
         </button>
         <MtDropdown
-          v-else
+          v-else-if="activeSetlistStore.setlist"
           button-class="btn-gray"
           :disabled="selectedSheet === '!lyrics'"
         >
@@ -87,6 +87,15 @@
           <button @click="() => addToPosition('secondary')">Add as Secondary</button>
           <button @click="() => addToPosition('candidate')">Add as Candidate</button>
         </MtDropdown>
+        <button
+          v-else
+          class="btn-gray max-sm:h-8"
+          :disabled="selectedSheet === '!lyrics'"
+          @click="activateAndAdd"
+        >
+          <Icon name="ri:play-list-add-line" class="show-lg" />
+          <span class="hide-lg">Add to Set List</span>
+        </button>
       </template>
     </MtTabPanel>
 
@@ -132,8 +141,13 @@ import { useModal } from "tailvue"
 import type { SongVersion, SongSheet, NewSetlistSheet } from "@/services/api"
 import { api } from "@/services"
 import { useSongSheetlistStore } from "@/stores/songs"
-import { useActiveSetlistStore, useSetlistSheetlistStore } from "@/stores/setlists"
-import { isMobileSafari } from "@/utils"
+import {
+  useActiveSetlistStore,
+  useSetlistSheetlistStore,
+  useSetlistlistStore,
+} from "@/stores/setlists"
+import { useModalStore } from "@/stores/toasts"
+import { isMobileSafari, asDate } from "@/utils"
 
 import type { ToasterStatus } from "@/types/toast"
 
@@ -148,6 +162,7 @@ const { query } = useRoute()
 
 const sheetsStore = useSongSheetlistStore()
 const activeSetlistStore = useActiveSetlistStore()
+const setlistlistStore = useSetlistlistStore()
 const setlistSheetlistStore = useSetlistSheetlistStore()
 
 const { canEdit, canLead } = useRole()
@@ -261,6 +276,57 @@ async function addToPosition(mode: "replace" | "secondary" | "candidate") {
   )
 }
 
+async function activateAndAdd() {
+  // find the best candidate set list to activate
+  const now = new Date()
+  const setlists = (await setlistlistStore.get()).setlists
+    .filter((s) => s.service_date && asDate(s.service_date) > now)
+    .toSorted((a, b) => {
+      if (!a.service_date || !b.service_date) return 0
+      return asDate(a.service_date).getTime() - asDate(b.service_date).getTime()
+    })
+
+  const modal = useModalStore().modal
+
+  if (setlists.length === 0) {
+    modal.show({
+      title: "Create a new Set List?",
+      body:
+        "Adding a sheet to a set list requires having an active set list. " +
+        "However, it appears there isn't currently an upcoming set list to activate. " +
+        "Would you like to create a new set list now?",
+      primary: {
+        label: "Yes",
+        theme: "blue",
+        action: async () =>
+          await navigateTo({
+            path: "/setlists/new",
+          }),
+      },
+      secondary: { label: "Cancel", theme: "white", action: () => {} },
+    })
+    return
+  }
+
+  const setlist = setlists[0]!
+
+  modal.show({
+    title: "Activate Set List?",
+    body:
+      "Adding a sheet to a set list requires having an active set list. " +
+      `Would you like to activate the set list for ${setlist.service_date} ?`,
+    primary: {
+      label: "Yes, activate and add to set list",
+      theme: "blue",
+      action: async () => {
+        activeSetlistStore.setlist = setlist
+        await addToPosition("candidate")
+      },
+    },
+    secondary: { label: "Cancel", theme: "white", action: () => {} },
+  })
+}
+
 function lyricsToClipboard() {
   if (props.version.lyrics) return props.version.lyrics
 }
@@ -278,36 +344,6 @@ async function edit(mode: "edit" | "copyVersion" | "copySheet") {
     query,
   })
 }
-
-// function edit() {
-//   const modal = useModal()
-//
-//   modal.show({
-//     title: "What would you like to do?",
-//     body:
-//       "If you have a new set of lyrics, a new verse order, or a new song sheet, " +
-//       "it's probably best to click Copy to a New Version. If you are correcting a " +
-//       "mistake, click Edit Current Version.",
-//     primary: {
-//       label: "Copy to a New Version",
-//       theme: "blue",
-//       action: async () =>
-//         await navigateTo({
-//           path: "/songs/new",
-//           query: {
-//             song: props.version.song_id,
-//             version: props.version.id,
-//             copy: "true",
-//           },
-//         }),
-//     },
-//     secondary: {
-//       label: "Edit Current Version",
-//       theme: "white",
-//       action: editCurrentVersion,
-//     },
-//   })
-// }
 
 function download(sheet: "!lyrics" | SongSheet) {
   const link = document.createElement("a")

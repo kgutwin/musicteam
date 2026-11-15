@@ -194,3 +194,8 @@ hr {
 #toasts .bg-gray-200 {
   @apply !bg-gray-200;
 }
+
+/* Fix z-level for tailvue modals */
+#modals #ModalBase {
+  @apply z-30;
+}
