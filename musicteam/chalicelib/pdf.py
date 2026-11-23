@@ -1,11 +1,10 @@
 import os.path
 
 import pymupdf
+
 from chalicelib.config import OBJECT_BUCKET_NAME
 from chalicelib.storage import s3
-from chalicelib.types import _PositionSheetDetails
-from chalicelib.types import Setlist
-from chalicelib.types import SetlistPosition
+from chalicelib.types import Setlist, SetlistPosition, _PositionSheetDetails
 
 
 def read(object_id: str) -> pymupdf.Document:
