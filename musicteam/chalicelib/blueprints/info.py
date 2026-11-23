@@ -1,9 +1,7 @@
 from chalice.app import Blueprint
 from chalicelib import db
 from chalicelib.middleware import session_role
-from chalicelib.types import Entry
-from chalicelib.types import EntryList
-from chalicelib.types import Forbidden
+from chalicelib.types import Entry, EntryList, Forbidden
 
 bp = Blueprint(__name__)
 
